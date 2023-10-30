@@ -1,0 +1,30 @@
+version: '3'
+services:
+    api:
+        build: ./api
+        image: api/app
+        volumes:
+            - type: bind
+              source: ./api
+              target: /code
+        command: sh -c "cargo watch -x run"
+        ports:
+            - 8000:8000
+        networks:
+            - cb
+    website:
+        build: ./website
+        image: website/app
+        volumes:
+            - type: bind
+              source: ./website
+              target: /code
+        command: sh -c "npm install && npm run dev"
+        # command: sh -c "npm install && npm run dev -- --host"
+        ports:
+            - 3000:3000
+        networks:
+            - cb
+networks:
+    cb:
+        driver: bridge
