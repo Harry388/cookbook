@@ -2,19 +2,22 @@ version: '3'
 services:
     api:
         build: ./api
-        image: api/app
+        image: api/cookbook
         volumes:
             - type: bind
               source: ./api
               target: /code
         command: sh -c "cargo watch -x run"
+        environment:
+            DATABASE_URL: '${DB_URL}'
         ports:
             - 8000:8000
         networks:
             - cb
+        user: '${UID}:${GID}'
     website:
         build: ./website
-        image: website/app
+        image: website/cookbook
         volumes:
             - type: bind
               source: ./website
@@ -24,6 +27,7 @@ services:
             - 3000:3000
         networks:
             - cb
+        user: '${UID}:${GID}'
     database:
         image: 'mysql/mysql-server:8.0'
         ports:
