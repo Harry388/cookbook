@@ -1,11 +1,11 @@
-FROM rust:alpine3.18
+FROM rust:1.73-bookworm
 
 EXPOSE 8000
 
 WORKDIR /code
 
-RUN apk add --no-cache musl-dev
-
 RUN cargo install cargo-watch
+
+RUN cargo install diesel_cli --no-default-features --features mysql
 
 COPY ./ ./
