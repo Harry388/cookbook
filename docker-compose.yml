@@ -4,9 +4,7 @@ services:
         build: ./api
         image: api/cookbook
         volumes:
-            - type: bind
-              source: ./api
-              target: /code
+            - './api:/code'
         command: sh -c "cargo watch -x run"
         environment:
             DATABASE_URL: '${DB_URL}'
@@ -19,9 +17,7 @@ services:
         build: ./website
         image: website/cookbook
         volumes:
-            - type: bind
-              source: ./website
-              target: /code
+            - './website:/code'
         command: sh -c "npm install && npm run dev"
         ports:
             - 3000:3000
@@ -51,9 +47,18 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    files:
+        image: 'sigoden/dufs'
+        ports:
+            - 5000:5000
+        volumes:
+            - 'files:/data'
+        command: '/data -A -a ${DUFS_ADMIN_AUTH} -a ${DUFS_PUBLIC_AUTH}'
 networks:
     cb:
         driver: bridge
 volumes:
     database:
+        driver: local
+    files:
         driver: local
