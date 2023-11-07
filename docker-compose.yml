@@ -54,6 +54,8 @@ services:
         volumes:
             - 'files:/data'
         command: '/data -A -a ${DUFS_ADMIN_AUTH} -a ${DUFS_PUBLIC_AUTH}'
+        networks:
+            - cb
 networks:
     cb:
         driver: bridge
