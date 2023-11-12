@@ -6,6 +6,6 @@ WORKDIR /code
 
 RUN cargo install cargo-watch
 
-RUN cargo install diesel_cli --no-default-features --features mysql
+RUN cargo install sqlx-cli --no-default-features --features native-tls,mysql
 
 COPY ./ ./
