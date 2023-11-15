@@ -12,7 +12,6 @@ services:
             - 8000:8000
         networks:
             - cb
-        user: '${UID}:${GID}'
     website:
         build: ./website
         image: website/cookbook
@@ -23,7 +22,6 @@ services:
             - 3000:3000
         networks:
             - cb
-        user: '${UID}:${GID}'
     database:
         image: 'mysql/mysql-server:8.0'
         ports:
