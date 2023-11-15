@@ -17,7 +17,7 @@ services:
         image: website/cookbook
         volumes:
             - './website:/code'
-        command: sh -c "npm install && npm run dev"
+        command: sh -c "rm -rf /tmp/nitro/worker-* && npm install && npm run dev"
         ports:
             - 3000:3000
         networks:
