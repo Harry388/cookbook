@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = MySqlPool::connect(&db_url).await?;
 
     let api_service = 
-        OpenApiService::new(api::Api, "CookBook API", "1.0").server("http://localhost:8000/api");
+        OpenApiService::new(api::user::UserApi, "CookBook API", "1.0").server("http://localhost:8000/api");
     let ui = api_service.swagger_ui();
     let app = Route::new()
         .nest("/api", api_service)
