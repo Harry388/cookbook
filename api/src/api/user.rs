@@ -21,7 +21,7 @@ enum CreateUserResponse {
 }
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
-struct FindUser {
+struct FindUserResult {
     id: i64,
     username: String,
     display_name: String,
@@ -33,7 +33,7 @@ struct FindUser {
 #[derive(ApiResponse)]
 enum FindUserResponse {
     #[oai(status = 200)]
-    Ok(Json<FindUser>),
+    Ok(Json<FindUserResult>),
     #[oai(status = 404)]
     NotFound(PlainText<String>)
 }
@@ -59,7 +59,7 @@ impl UserApi {
 
     #[oai(path = "/:id", method = "get")]
     async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> FindUserResponse {
-        let user = sqlx::query_as!(FindUser,
+        let user = sqlx::query_as!(FindUserResult,
             "select id, username, display_name, email, bio, pfp from user where id = ?", id.0
             )
             .fetch_optional(pool.0)
