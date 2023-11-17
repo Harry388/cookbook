@@ -1,6 +1,11 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path};
+use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags};
 use poem::web::Data;
 use sqlx::MySqlPool;
+
+#[derive(Tags)]
+enum ApiTags {
+    User,
+}
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
 struct User {
@@ -42,7 +47,7 @@ pub struct UserApi;
 
 #[OpenApi(prefix_path = "/user")]
 impl UserApi {
-    #[oai(path = "/", method = "post")]
+    #[oai(path = "/", method = "post", tag = "ApiTags::User")]
     async fn create_user(&self, pool: Data<&MySqlPool>, user: Json<User>) -> CreateUserResponse {
         let user_data = user.0;
         let id = sqlx::query_as!(u64, 
@@ -57,7 +62,7 @@ impl UserApi {
         CreateUserResponse::Ok(Json(id))
     }
 
-    #[oai(path = "/:id", method = "get")]
+    #[oai(path = "/:id", method = "get", tag = "ApiTags::User")]
     async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> FindUserResponse {
         let user = sqlx::query_as!(FindUserResult,
             "select id, username, display_name, email, bio, pfp from user where id = ?", id.0
