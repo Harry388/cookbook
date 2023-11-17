@@ -45,9 +45,9 @@ enum FindUserResponse {
 
 pub struct UserApi;
 
-#[OpenApi(prefix_path = "/user")]
+#[OpenApi(prefix_path = "/user", tag = "ApiTags::User")]
 impl UserApi {
-    #[oai(path = "/", method = "post", tag = "ApiTags::User")]
+    #[oai(path = "/", method = "post")]
     async fn create_user(&self, pool: Data<&MySqlPool>, user: Json<User>) -> CreateUserResponse {
         let user_data = user.0;
         let id = sqlx::query_as!(u64, 
@@ -62,7 +62,7 @@ impl UserApi {
         CreateUserResponse::Ok(Json(id))
     }
 
-    #[oai(path = "/:id", method = "get", tag = "ApiTags::User")]
+    #[oai(path = "/:id", method = "get")]
     async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> FindUserResponse {
         let user = sqlx::query_as!(FindUserResult,
             "select id, username, display_name, email, bio, pfp from user where id = ?", id.0
