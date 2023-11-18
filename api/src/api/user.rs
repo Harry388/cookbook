@@ -76,14 +76,16 @@ impl UserApi {
             .fetch_optional(pool.0)
             .await
             .map_err(InternalServerError)?;
-        match user {
-            Some(user_data) => Ok(FindUserResponse::Ok(Json(user_data))),
-            None => Ok(FindUserResponse::NotFound(PlainText("User not found".to_string())))
-        }
+        Ok(
+            match user {
+                Some(user_data) => FindUserResponse::Ok(Json(user_data)),
+                None => FindUserResponse::NotFound(PlainText("User not found".to_string()))
+            }
+        )
     }
 
     #[oai(path = "/:id", method = "put")]
-    async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>) -> Result<FindUserResponse> {
+    async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>) -> Result<()> {
         sqlx::query!(
             "update user set display_name = coalesce(?, display_name), bio = coalesce(?, bio), pfp = coalesce(?, pfp) where id = ?",
             user.display_name, user.bio, user.pfp, id.0
@@ -91,6 +93,18 @@ impl UserApi {
             .execute(pool.0)
             .await
             .map_err(InternalServerError)?;
-        Ok(self.find_user(pool, id).await?)
+        Ok(())
+    }
+
+    #[oai(path = "/:id", method = "delete")]
+    async fn delete_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<()> {
+        sqlx::query!(
+            "delete from user where id = ?",
+            id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
     }
 }
