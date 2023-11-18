@@ -1,4 +1,4 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags};
+use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags, types::Email};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
 
@@ -15,7 +15,7 @@ struct User {
     id: i64,
     username: String,
     display_name: String,
-    email: String,
+    email: Email,
     password: String,
     bio: Option<String>,
     pfp: Option<String>
@@ -40,6 +40,14 @@ struct FindUserResult {
     pfp: Option<String>
 }
 
+#[derive(Debug, Object, Clone, Eq, PartialEq)]
+struct FollowResult {
+    id: i64,
+    username: String,
+    display_name: String,
+    pfp: Option<String>
+}
+
 // Responses
 
 #[derive(ApiResponse)]
@@ -48,6 +56,12 @@ enum FindUserResponse {
     Ok(Json<FindUserResult>),
     #[oai(status = 404)]
     NotFound(PlainText<String>)
+}
+
+#[derive(ApiResponse)]
+enum FollowResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<FollowResult>>)
 }
 
 pub struct UserApi;
@@ -59,7 +73,7 @@ impl UserApi {
         let id = sqlx::query_as!(u64, 
             "insert into user (username, display_name, email, password, bio, pfp)
             values (?,?,?,?,?,?)",
-            user.username, user.display_name, user.email, user.password, user.bio, user.pfp
+            user.username, user.display_name, user.email.as_str(), user.password, user.bio, user.pfp
             )
             .execute(pool.0)
             .await
@@ -106,5 +120,57 @@ impl UserApi {
             .await
             .map_err(InternalServerError)?;
         Ok(())
+    }
+
+    #[oai(path = "/:id/follow/:follow_id", method = "post")]
+    async fn follow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>) -> Result<()> {
+        sqlx::query!(
+            "insert into following (user_id, following_id) values (?, ?)",
+            id.0, follow_id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/unfollow/:follow_id", method = "delete")]
+    async fn unfollow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>) -> Result<()> {
+        sqlx::query!(
+            "delete from following where user_id = ? and following_id = ?",
+            id.0, follow_id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/followers", method = "get")]
+    async fn get_followers(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FollowResponse> {
+        let followers = sqlx::query_as!(FollowResult,
+            "select id, username, display_name, pfp from user where id in (
+                select user_id from following where following_id = ?
+            )",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(FollowResponse::Ok(Json(followers)))
+    }
+
+    #[oai(path = "/:id/following", method = "get")]
+    async fn get_following(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FollowResponse> {
+        let followers = sqlx::query_as!(FollowResult,
+            "select id, username, display_name, pfp from user where id in (
+                select following_id from following where user_id = ?
+            )",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(FollowResponse::Ok(Json(followers)))
     }
 }

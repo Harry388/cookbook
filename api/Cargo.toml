@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 poem = "1.3.58"
-poem-openapi = { version = "3.0.5", features = ["swagger-ui"] }
+poem-openapi = { version = "3.0.5", features = ["swagger-ui", "email"] }
 tokio = { version = "1.34.0", features = ["full"] }
 sqlx = { version = "0.7", features = [ "runtime-tokio", "mysql" ] }
