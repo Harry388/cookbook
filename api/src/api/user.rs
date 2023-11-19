@@ -1,10 +1,11 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags, types::Email};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
+use serde::{Deserialize, Serialize};
 
 #[derive(Tags)]
 enum ApiTags {
-    User,
+    User
 }
 
 // Inputs
@@ -30,14 +31,14 @@ struct UpdateUser {
 
 // Results
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
-struct FindUserResult {
-    id: i64,
-    username: String,
-    display_name: String,
-    email: String,
-    bio: Option<String>,
-    pfp: Option<String>
+#[derive(Debug, Object, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FindUserResult {
+    pub id: i64,
+    pub username: String,
+    pub display_name: String,
+    pub  email: String,
+    pub bio: Option<String>,
+    pub pfp: Option<String>
 }
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
@@ -73,7 +74,7 @@ impl UserApi {
         let id = sqlx::query_as!(u64, 
             "insert into user (username, display_name, email, password, bio, pfp)
             values (?,?,?,?,?,?)",
-            user.username, user.display_name, user.email.as_str(), user.password, user.bio, user.pfp
+            user.username, user.display_name, user.email.0, user.password, user.bio, user.pfp
             )
             .execute(pool.0)
             .await
