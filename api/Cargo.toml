@@ -13,3 +13,4 @@ sqlx = { version = "0.7", features = [ "runtime-tokio", "mysql" ] }
 serde = "1.0.192"
 serde_json = "1.0"
 jsonwebtoken = "9.1.0"
+argon2 = "0.5.2"

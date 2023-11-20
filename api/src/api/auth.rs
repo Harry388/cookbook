@@ -1,11 +1,16 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, Tags, types::Email, SecurityScheme, auth::Bearer};
-use poem::{web::Data, error::InternalServerError, Result, Request};
+use poem::{web::Data, error::InternalServerError, Result, Request, http::StatusCode};
 use sqlx::MySqlPool;
 
 use serde::{Serialize, Deserialize};
 use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey};
-
-use crate::api::user::FindUserResult;
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+    },
+    Argon2
+};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -50,6 +55,14 @@ struct LogIn {
     password: String
 }
 
+// Results
+
+#[derive(Debug, Object, Clone, Eq, PartialEq)]
+struct LogInResult {
+    id: i64,
+    password: String
+}
+
 // Responses
 
 #[derive(ApiResponse)]
@@ -66,9 +79,9 @@ pub struct AuthApi;
 impl AuthApi {
     #[oai(path = "/login", method = "post")]
     async fn login(&self, pool: Data<&MySqlPool>, login: Json<LogIn>) -> Result<LogInResponse> {
-        let user: Option<FindUserResult> = sqlx::query_as!(FindUserResult,
-            "select id, username, display_name, email, bio, pfp from user where email = ? and password = ?",
-            login.email.as_str(), login.password
+        let user: Option<LogInResult> = sqlx::query_as!(LogInResult,
+            "select id, password from user where email = ?",
+            login.email.as_str()
             )
             .fetch_optional(pool.0)
             .await
@@ -76,13 +89,12 @@ impl AuthApi {
         Ok(
             match user {
                 Some(user_data) => {
-                    let user_string = serde_json::to_string(&user_data.id).unwrap();
-                    let claims = Claims {
-                        exp: 1700507077,
-                        sub: user_string
-                    };
-                    let token = encode(&Header::default(), &claims, &EncodingKey::from_secret("secret".as_ref()))
-                        .map_err(InternalServerError)?;
+                    let verified = verify_password(&login.password, &user_data.password)?;
+                    if !verified {
+                        return Ok(LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string())))
+                    }
+
+                    let token = generate_token(user_data)?;
                     LogInResponse::Ok(PlainText(token))
                 },
                 None => LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string()))
@@ -94,4 +106,39 @@ impl AuthApi {
     async fn hello(&self, auth: JWTAuthorization) -> Json<i64> {
         Json(auth.0)
     }
+}
+
+fn create_server_error() -> poem::error::Error {
+    poem::error::Error::from_string("Internal Server Error", StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+pub fn generate_password_hash(password: &String) -> Result<String> {
+    let password = password.as_bytes();
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_wrapped = argon2.hash_password(password, &salt);
+    match password_wrapped {
+        Ok(password_hash) => Ok(password_hash.to_string()),
+        Err(_) => Err(create_server_error())
+    }
+}
+
+fn verify_password(password: &String, hash: &String) -> Result<bool> {
+    let parsed_hash = PasswordHash::new(hash);
+    if let Err(_) = parsed_hash {
+        return Err(create_server_error());
+    }
+    let parsed_hash = parsed_hash.unwrap();
+    Ok(Argon2::default().verify_password(password.as_bytes(), &parsed_hash).is_ok())
+}
+
+fn generate_token(user: LogInResult) -> Result<String> {
+    let user_string = serde_json::to_string(&user.id).unwrap();
+    let claims = Claims {
+        exp: 1700507077,
+        sub: user_string
+    };
+    let token = encode(&Header::default(), &claims, &EncodingKey::from_secret("secret".as_ref()))
+        .map_err(InternalServerError)?;
+    Ok(token)
 }

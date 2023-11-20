@@ -2,6 +2,7 @@ use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, par
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
 use serde::{Deserialize, Serialize};
+use crate::api::auth::generate_password_hash;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -71,10 +72,11 @@ pub struct UserApi;
 impl UserApi {
     #[oai(path = "/", method = "post")]
     async fn create_user(&self, pool: Data<&MySqlPool>, user: Json<User>) -> Result<Json<u64>> {
+        let password = generate_password_hash(&user.password)?;
         let id = sqlx::query_as!(u64, 
             "insert into user (username, display_name, email, password, bio, pfp)
             values (?,?,?,?,?,?)",
-            user.username, user.display_name, user.email.0, user.password, user.bio, user.pfp
+            user.username, user.display_name, user.email.0, password, user.bio, user.pfp
             )
             .execute(pool.0)
             .await
