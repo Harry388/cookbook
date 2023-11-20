@@ -25,9 +25,9 @@ struct Claims {
     ty = "bearer",
     checker = "token_checker"
 )]
-struct JWTAuthorization(FindUserResult);
+struct JWTAuthorization(i64);
 
-async fn token_checker(_req: &Request, bearer: Bearer) -> Option<FindUserResult> {
+async fn token_checker(_req: &Request, bearer: Bearer) -> Option<i64> {
     let token_wrapped = decode::<Claims>(&bearer.token, &DecodingKey::from_secret("secret".as_ref()), 
     &Validation::default());
     match token_wrapped {
@@ -76,7 +76,7 @@ impl AuthApi {
         Ok(
             match user {
                 Some(user_data) => {
-                    let user_string = serde_json::to_string(&user_data).unwrap();
+                    let user_string = serde_json::to_string(&user_data.id).unwrap();
                     let claims = Claims {
                         exp: 1700507077,
                         sub: user_string
@@ -91,7 +91,7 @@ impl AuthApi {
     }
 
     #[oai(path = "/test", method = "get")]
-    async fn hello(&self, auth: JWTAuthorization) -> Json<FindUserResult> {
+    async fn hello(&self, auth: JWTAuthorization) -> Json<i64> {
         Json(auth.0)
     }
 }
