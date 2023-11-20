@@ -33,13 +33,13 @@ struct UpdateUser {
 // Results
 
 #[derive(Debug, Object, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct FindUserResult {
-    pub id: i64,
-    pub username: String,
-    pub display_name: String,
-    pub  email: String,
-    pub bio: Option<String>,
-    pub pfp: Option<String>
+struct FindUserResult {
+    id: i64,
+    username: String,
+    display_name: String,
+    email: String,
+    bio: Option<String>,
+    pfp: Option<String>
 }
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
