@@ -1,7 +1,7 @@
 use std::env;
 use poem::{listener::TcpListener, Route, EndpointExt};
 use poem_openapi::OpenApiService;
-use api::api;
+use cookbook::api;
 use sqlx::MySqlPool;
 
 #[tokio::main]
