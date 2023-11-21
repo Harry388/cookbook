@@ -135,7 +135,7 @@ fn verify_password(password: &String, hash: &String) -> Result<bool> {
 fn generate_token(user: LogInResult) -> Result<String> {
     let user_string = serde_json::to_string(&user.id).unwrap();
     let claims = Claims {
-        exp: 1700507077,
+        exp: 1732212702,
         sub: user_string
     };
     let token = encode(&Header::default(), &claims, &EncodingKey::from_secret("secret".as_ref()))
