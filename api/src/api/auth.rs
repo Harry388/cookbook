@@ -1,4 +1,4 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, Tags, types::Email, SecurityScheme, auth::Bearer};
+use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, Tags, types::Email, SecurityScheme, auth::ApiKey};
 use poem::{web::Data, error::InternalServerError, Result, Request, http::StatusCode};
 use sqlx::MySqlPool;
 
@@ -27,14 +27,15 @@ struct Claims {
 
 #[derive(SecurityScheme)]
 #[oai(
-    ty = "bearer",
+    ty = "api_key",
+    key_in = "cookie",
+    key_name = "token",
     checker = "token_checker"
 )]
 struct JWTAuthorization(i64);
 
-async fn token_checker(_req: &Request, bearer: Bearer) -> Option<i64> {
-    let token_wrapped = decode::<Claims>(&bearer.token, &DecodingKey::from_secret("secret".as_ref()), 
-    &Validation::default());
+async fn token_checker(_req: &Request, req_key: ApiKey) -> Option<i64> {
+    let token_wrapped = decode::<Claims>(&req_key.key, &DecodingKey::from_secret("secret".as_ref()), &Validation::default());
     match token_wrapped {
         Ok(token) => {
             let user_wrapped = serde_json::from_str(&token.claims.sub);
@@ -68,7 +69,7 @@ struct LogInResult {
 #[derive(ApiResponse)]
 enum LogInResponse {
     #[oai(status = 200)]
-    Ok(PlainText<String>),
+    Ok(#[oai(header = "set-cookie")] String),
     #[oai(status = 401)]
     InvalidLogIn(PlainText<String>)
 }
@@ -95,7 +96,7 @@ impl AuthApi {
                     }
 
                     let token = generate_token(user_data)?;
-                    LogInResponse::Ok(PlainText(token))
+                    LogInResponse::Ok(format!("token={}", token))
                 },
                 None => LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string()))
             }
