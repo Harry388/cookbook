@@ -1,5 +1,5 @@
 use std::env;
-use poem::{listener::TcpListener, Route, EndpointExt};
+use poem::{listener::TcpListener, Route, EndpointExt, middleware::Cors};
 use poem_openapi::OpenApiService;
 use cookbook::api;
 use sqlx::MySqlPool;
@@ -15,6 +15,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Route::new()
         .nest("/api", api_service)
         .nest("/", ui)
+        .with(Cors::new())
         .data(pool);
 
     Ok(poem::Server::new(TcpListener::bind("0.0.0.0:8000"))
