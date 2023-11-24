@@ -15,7 +15,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Route::new()
         .nest("/api", api_service)
         .nest("/", ui)
-        .with(Cors::new())
+        .with(Cors::new().allow_credentials(true))
         .data(pool);
 
     Ok(poem::Server::new(TcpListener::bind("0.0.0.0:8000"))
