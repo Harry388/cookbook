@@ -74,6 +74,12 @@ enum LogInResponse {
     InvalidLogIn(PlainText<String>)
 }
 
+#[derive(ApiResponse)]
+enum LogOutResponse {
+    #[oai(status = 200)]
+    Ok(#[oai(header = "set-cookie")] String)
+}
+
 pub struct AuthApi;
 
 #[OpenApi(prefix_path = "/auth", tag = "ApiTags::Auth")]
@@ -96,11 +102,16 @@ impl AuthApi {
                     }
 
                     let token = generate_token(user_data)?;
-                    LogInResponse::Ok(format!("token={}", token))
+                    LogInResponse::Ok(format!("token={}; HttpOnly; SameSite=strict", token))
                 },
                 None => LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string()))
             }
         )
+    }
+
+    #[oai(path = "/logout", method = "post")]
+    async fn logout(&self, _auth: JWTAuthorization) -> LogOutResponse {
+        LogOutResponse::Ok("token=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT".to_string())
     }
 
     #[oai(path = "/test", method = "get")]
