@@ -1,7 +1,5 @@
-import type { PageLoad } from './$types';
-
-export const load: PageLoad = ({ url }) => {
+export const load = ({ url }) => {
     return {
-        redirect: url.searchParams.redirect
+        redirect: url.searchParams.get('redirect')
     }
 }

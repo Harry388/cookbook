@@ -1,10 +1,9 @@
-<script lang="ts">
+<script>
 
     import { goto } from '$app/navigation';
     import { login } from '$lib/auth/auth';
-    import type { PageData } from './$types';
 
-    export let data: PageData;
+    export let data;
 
     let email = '';
     let password = '';
