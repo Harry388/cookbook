@@ -1,24 +1,23 @@
 <script>
 
-    import { login, logout, test } from '$lib/auth/auth';
+    import { logout } from '$lib/auth/auth';
+    import { goto } from '$app/navigation';
 
-    let email = '';
-    let password = '';
-
-    let id = '';
-
-    async function setId() {
-        const response = await test();
-        const resId = await response.json();
-        id = resId;
+    async function onLogOut() {
+        const response = await logout();
+        if (response.ok) {
+            goto('/login');
+        }
     }
 
 </script>
 
-<input type="text" bind:value={email}>
-<input type="text" bind:value={password}>
-<button on:click={() => login(email, password)}>Log In</button>
-<button on:click={logout}>Log Out</button>
-<button on:click={setId}>Test</button>
-{ id }
-<button on:click={() => id = ''}>Clear</button>
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <div class="text-center lg:text-left">
+            <h1 class="text-5xl font-bold">Welcome to CookBook!</h1>
+            <p class="py-6">Chomp chomp</p>
+            <button class="btn btn-primary" on:click={onLogOut}>Log Out</button>
+        </div>
+    </div>
+</div>
