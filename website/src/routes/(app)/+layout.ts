@@ -6,6 +6,10 @@ export const load = async ({ url }) => {
     if (!response.ok) {
         throw redirect(301, `/login?redirect=${url.pathname}`);
     }
+    const id: number = await response.json();
+    return {
+        id
+    }
 }
 
 export const ssr = false;

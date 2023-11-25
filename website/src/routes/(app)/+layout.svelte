@@ -3,6 +3,8 @@
     import { logout } from '$lib/auth/auth';
     import { goto } from '$app/navigation';
 
+    export let data;
+
     async function onLogOut() {
         const response = await logout();
         if (response.ok) {
@@ -34,7 +36,7 @@
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
             <!-- Sidebar content here -->
             <li><a href="/">Home</a></li>
-            <li><a href="/user">Profile</a></li>
+            <li><a href="/user/{data.id}">Profile</a></li>
             <div class="flex-grow"></div>
             <li class="place-self-start"><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
         </ul>
