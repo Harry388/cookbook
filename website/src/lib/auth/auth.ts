@@ -5,7 +5,11 @@ export function login(email: string, password: string) {
 }
 
 export function logout() {
-    return post('auth/logout')
+    return post('auth/logout');
+}
+
+export function create(username: string, displayName: string, email: string, password: string) {
+    return post('user', { username, display_name: displayName, email, password });
 }
 
 export function test() {
