@@ -6,7 +6,7 @@
     export let data;
 
     async function onLogOut() {
-        const response = await logout();
+        const response = await logout().run();
         if (response.ok) {
             goto('/login');
         }

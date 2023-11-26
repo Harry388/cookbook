@@ -14,9 +14,9 @@
     let toLogIn = data.redirect ? `/login?redirect=${data.redirect}` : '/login';
 
     async function onCreate() {
-        const createResponse = await create(username, displayName, email, password);
+        const createResponse = await create(username, displayName, email, password).run();
         if (createResponse.ok) {
-            const loginResponse = await login(email, password);
+            const loginResponse = await login(email, password).run();
             if (loginResponse.ok) {
                 goto(data.redirect ?? '/');
             }

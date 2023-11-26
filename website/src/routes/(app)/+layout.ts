@@ -1,8 +1,8 @@
 import { test } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
 
-export const load = async ({ url }) => {
-    const response = await test();
+export const load = async ({ url, fetch }) => {
+    const response = await test().run(fetch);
     if (!response.ok) {
         throw redirect(301, `/login?redirect=${url.pathname}`);
     }
@@ -12,4 +12,4 @@ export const load = async ({ url }) => {
     }
 }
 
-export const ssr = false;
+export const ssr = false

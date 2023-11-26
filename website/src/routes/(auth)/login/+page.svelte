@@ -12,7 +12,7 @@
     let toCreateAccount = data.redirect ? `/createaccount?redirect=${data.redirect}` : '/createaccount';
 
     async function onLogIn() {
-        const response = await login(email, password);
+        const response = await login(email, password).run();
         if (response.ok) {
             goto(data.redirect ?? '/');
         }

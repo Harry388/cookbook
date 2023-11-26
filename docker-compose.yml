@@ -19,7 +19,8 @@ services:
             - './website:/code'
         command: sh -c "npm install && npm run dev -- --host"
         environment:
-            PUBLIC_API_URL: '${SVELTE_API_URL}'
+            PUBLIC_BROWSER_API_URL: '${SVELTE_BROWSER_API_URL}'
+            PUBLIC_SERVER_API_URL: '${SVELTE_SERVER_API_URL}'
         ports:
             - 5173:5173
         networks:
