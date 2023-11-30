@@ -37,7 +37,6 @@ struct FindUserResult {
     id: i64,
     username: String,
     display_name: String,
-    email: String,
     bio: Option<String>,
     pfp: Option<String>
 }
@@ -88,7 +87,7 @@ impl UserApi {
     #[oai(path = "/:id", method = "get")]
     async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FindUserResponse> {
         let user = sqlx::query_as!(FindUserResult,
-            "select id, username, display_name, email, bio, pfp from user where id = ?", id.0
+            "select id, username, display_name, bio, pfp from user where id = ?", id.0
             )
             .fetch_optional(pool.0)
             .await
