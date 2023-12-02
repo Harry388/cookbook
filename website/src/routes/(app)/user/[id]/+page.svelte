@@ -18,8 +18,8 @@
                     <h2 class="card-title">@{ data.user.username }</h2>
                 </div>
             </div>
-            <p class="flex-1 font-semibold text-xl">0 Followers</p>
-            <p class="flex-1 font-semibold text-xl">0 Following</p>
+            <p class="flex-1 font-semibold text-xl">{ data.followers.length } Followers</p>
+            <p class="flex-1 font-semibold text-xl">{ data.following.length } Following</p>
         </div>
         {#if data.user.bio }
             <p>{ data.user.bio }</p>
