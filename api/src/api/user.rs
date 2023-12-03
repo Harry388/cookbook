@@ -1,7 +1,6 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags, types::Email};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
-use serde::{Deserialize, Serialize};
 use crate::api::auth::generate_password_hash;
 
 #[derive(Tags)]
@@ -32,7 +31,7 @@ struct UpdateUser {
 
 // Results
 
-#[derive(Debug, Object, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Object, Clone, Eq, PartialEq)]
 struct FindUserResult {
     id: i64,
     username: String,

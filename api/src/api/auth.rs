@@ -58,7 +58,6 @@ struct LogIn {
 
 // Results
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
 struct LogInResult {
     id: i64,
     password: String
