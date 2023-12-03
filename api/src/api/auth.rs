@@ -1,5 +1,5 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, Tags, types::Email, SecurityScheme, auth::ApiKey};
-use poem::{web::Data, error::InternalServerError, Result, Request, http::StatusCode};
+use poem::{web::Data, error::InternalServerError, Result, Request, http::StatusCode, error::Error};
 use sqlx::MySqlPool;
 
 use serde::{Serialize, Deserialize};
@@ -32,7 +32,7 @@ struct Claims {
     key_name = "token",
     checker = "token_checker"
 )]
-struct JWTAuthorization(i64);
+pub struct JWTAuthorization(pub i64);
 
 async fn token_checker(_req: &Request, req_key: ApiKey) -> Option<i64> {
     let token_wrapped = decode::<Claims>(&req_key.key, &DecodingKey::from_secret("secret".as_ref()), &Validation::default());
@@ -120,8 +120,8 @@ impl AuthApi {
     }
 }
 
-fn create_server_error() -> poem::error::Error {
-    poem::error::Error::from_string("Internal Server Error", StatusCode::INTERNAL_SERVER_ERROR)
+fn create_server_error() -> Error {
+    Error::from_string("Internal Server Error", StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 pub fn generate_password_hash(password: &String) -> Result<String> {
