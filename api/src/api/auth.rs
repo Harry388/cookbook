@@ -25,7 +25,7 @@ struct Claims {
 
 // Auth
 
-#[derive(SecurityScheme)]
+#[derive(SecurityScheme, Clone, Copy)]
 #[oai(
     ty = "api_key",
     key_in = "cookie",
@@ -102,7 +102,7 @@ impl AuthApi {
                     }
 
                     let token = generate_token(user_data)?;
-                    LogInResponse::Ok(format!("token={}; HttpOnly; SameSite=strict", token))
+                    LogInResponse::Ok(format!("token={}; HttpOnly; SameSite=strict; Path=/api", token))
                 },
                 None => LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string()))
             }
