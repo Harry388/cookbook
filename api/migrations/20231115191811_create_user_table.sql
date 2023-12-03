@@ -6,5 +6,5 @@ create table user (
     password varchar(255) not null,
     bio varchar(255),
     pfp varchar(255),
-    public boolean
+    public boolean not null
 )

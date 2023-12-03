@@ -1,7 +1,8 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags, types::Email};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
-use crate::api::auth::generate_password_hash;
+use crate::api::auth::{generate_password_hash, JWTAuthorization};
+use crate::permission;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -37,7 +38,8 @@ struct FindUserResult {
     username: String,
     display_name: String,
     bio: Option<String>,
-    pfp: Option<String>
+    pfp: Option<String>,
+    public: i8
 }
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
@@ -84,9 +86,9 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "get")]
-    async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FindUserResponse> {
+    async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<FindUserResponse> {
         let user = sqlx::query_as!(FindUserResult,
-            "select id, username, display_name, bio, pfp from user where id = ?", id.0
+            "select id, username, display_name, bio, pfp, public from user where id = ?", id.0
             )
             .fetch_optional(pool.0)
             .await
@@ -100,7 +102,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "put")]
-    async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>) -> Result<()> {
+    async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>, auth: JWTAuthorization) -> Result<()> {
+        permission::is_user(id.0, auth)?;
         sqlx::query!(
             "update user set display_name = coalesce(?, display_name), bio = coalesce(?, bio), pfp = coalesce(?, pfp) where id = ?",
             user.display_name, user.bio, user.pfp, id.0
@@ -112,7 +115,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_user(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<()> {
+    async fn delete_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::is_user(id.0, auth)?;
         sqlx::query!(
             "delete from user where id = ?",
             id.0
@@ -124,7 +128,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id/follow/:follow_id", method = "post")]
-    async fn follow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>) -> Result<()> {
+    async fn follow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::is_user(id.0, auth)?;
         sqlx::query!(
             "insert into following (user_id, following_id) values (?, ?)",
             id.0, follow_id.0
@@ -136,7 +141,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id/unfollow/:follow_id", method = "delete")]
-    async fn unfollow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>) -> Result<()> {
+    async fn unfollow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::in_user_list(&vec![id.0, follow_id.0], auth)?;
         sqlx::query!(
             "delete from following where user_id = ? and following_id = ?",
             id.0, follow_id.0
@@ -148,7 +154,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id/followers", method = "get")]
-    async fn get_followers(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FollowResponse> {
+    async fn get_followers(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<FollowResponse> {
+        permission::is_following_or_public(pool.0, id.0, auth).await?;
         let followers = sqlx::query_as!(FollowResult,
             "select id, username, display_name, pfp from user where id in (
                 select user_id from following where following_id = ?
@@ -162,7 +169,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id/following", method = "get")]
-    async fn get_following(&self, pool: Data<&MySqlPool>, id: Path<i64>) -> Result<FollowResponse> {
+    async fn get_following(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<FollowResponse> {
+        permission::is_following_or_public(pool.0, id.0, auth).await?;
         let followers = sqlx::query_as!(FollowResult,
             "select id, username, display_name, pfp from user where id in (
                 select following_id from following where user_id = ?
