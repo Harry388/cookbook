@@ -13,8 +13,6 @@ enum ApiTags {
 
 #[derive(Debug, Object, Clone, Eq, PartialEq)]
 struct User {
-    #[oai(read_only)]
-    id: i64,
     username: String,
     display_name: String,
     email: Email,
