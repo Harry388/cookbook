@@ -1,8 +1,9 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, Object, ApiResponse, param::Path, Tags, Multipart};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, Object, ApiResponse, param::Path, Tags, Multipart, types::multipart::{Upload, JsonField}};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
+use crate::storage::{Storage, dufs::DufsStorage};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -10,13 +11,17 @@ enum ApiTags {
 }
 
 // Inputs
-
-#[derive(Debug, Multipart)]
+#[derive(Object)]
 struct Post {
     title: String,
     content: Option<String>,
-    user_id: i64,
-    media: Vec<Upload>
+    user_id: i64
+}
+
+#[derive(Multipart)]
+struct PostPayload {
+    post: JsonField<Post>,
+    media: Upload
 }
 
 
@@ -34,8 +39,10 @@ pub struct PostApi;
 impl PostApi {
     
     #[oai(path = "/", method = "post")]
-    async fn create_post(&self, pool: Data<&MySqlPool>, post: Post, auth: JWTAuthorization) -> Result<()> {
-        permission::user::is_user(post.user_id, auth)?;
+    async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
+        permission::user::is_user(post_payload.post.0.user_id, auth)?;
+        let file_data = post_payload.media.into_vec().await.map_err(InternalServerError)?;
+        storage.0.put_file("public/test.png", file_data).await?;
         Ok(())
     }
 
