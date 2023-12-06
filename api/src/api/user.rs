@@ -11,7 +11,7 @@ enum ApiTags {
 
 // Inputs
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
+#[derive(Object)]
 struct User {
     username: String,
     display_name: String,
@@ -21,7 +21,7 @@ struct User {
     pfp: Option<String>
 }
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
+#[derive(Object)]
 struct UpdateUser {
     display_name: Option<String>,
     bio: Option<String>,
@@ -30,7 +30,7 @@ struct UpdateUser {
 
 // Results
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
+#[derive(Object)]
 struct FindUserResult {
     id: i64,
     username: String,
@@ -40,7 +40,7 @@ struct FindUserResult {
     public: i8
 }
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
+#[derive(Object)]
 struct FollowResult {
     id: i64,
     username: String,

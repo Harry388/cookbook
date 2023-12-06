@@ -17,7 +17,7 @@ enum ApiTags {
     Auth
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct Claims {
     sub: String,
     exp: usize
@@ -25,7 +25,7 @@ struct Claims {
 
 // Auth
 
-#[derive(SecurityScheme, Clone, Copy)]
+#[derive(SecurityScheme, Clone)]
 #[oai(
     ty = "api_key",
     key_in = "cookie",
@@ -50,7 +50,7 @@ async fn token_checker(_req: &Request, req_key: ApiKey) -> Option<i64> {
 
 // Inputs
 
-#[derive(Debug, Object, Clone, Eq, PartialEq)]
+#[derive(Object)]
 struct LogIn {
     email: Email,
     password: String
@@ -101,7 +101,7 @@ impl AuthApi {
                     }
 
                     let token = generate_token(user_data)?;
-                    LogInResponse::Ok(format!("token={}; HttpOnly; SameSite=strict; Path=/api", token))
+                    LogInResponse::Ok(format!("token={}; HttpOnly; SameSite=strict; Path=/", token))
                 },
                 None => LogInResponse::InvalidLogIn(PlainText("Invalid log in".to_string()))
             }
@@ -110,7 +110,7 @@ impl AuthApi {
 
     #[oai(path = "/logout", method = "post")]
     async fn logout(&self, _auth: JWTAuthorization) -> LogOutResponse {
-        LogOutResponse::Ok("token=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT".to_string())
+        LogOutResponse::Ok("token=deleted; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT".to_string())
     }
 
     #[oai(path = "/test", method = "get")]
