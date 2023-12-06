@@ -86,7 +86,7 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "get")]
-    async fn find_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<FindUserResponse> {
+    async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<FindUserResponse> {
         let user = sqlx::query_as!(FindUserResult,
             "select id, username, display_name, bio, pfp, public from user where id = ?", id.0
             )
