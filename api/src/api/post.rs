@@ -1,6 +1,7 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment, AttachmentType}, Object, ApiResponse, param::Path, Tags, Multipart, types::multipart::{Upload, JsonField}};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
+use std::time::{SystemTime, UNIX_EPOCH};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::{Storage, dufs::DufsStorage};
@@ -84,7 +85,8 @@ impl PostApi {
             .map_err(InternalServerError)?
             .last_insert_id();
         if let Some(media) = post_payload.media {
-            let path = format!("user/{}/post", post.user_id);
+            let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
+            let path = format!("user/{}/{}", post.user_id, time);
             let media_path = storage.0.put_file(&path, media).await?;
             sqlx::query!( 
                 "insert into post_media (uri, post_id)
