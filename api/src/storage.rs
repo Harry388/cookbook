@@ -1,10 +1,29 @@
 pub mod dufs;
 
-use poem::Result;
+use poem::{Result, error::InternalServerError};
 use poem_openapi::types::multipart::Upload;
 use async_trait::async_trait;
 
+pub struct FileData {
+    bytes: Vec<u8>,
+    ext: String
+}
+
 #[async_trait]
 pub trait Storage {
-    async fn put_file(&self, path: &str, file_data: Upload) -> Result<()>;
+
+    async fn put_file(&self, path: &str, file: Upload) -> Result<String>;
+
+    async fn format_upload(file: Upload) -> Result<FileData> {
+        let ext = match file.file_name() {
+            Some(name) => name.split(".").last(),
+            None => None
+        };
+        let ext = match ext {
+            Some(e) => e.to_string(),
+            None => "".to_string()
+        };
+        let bytes = file.into_vec().await.map_err(InternalServerError)?;
+        Ok(FileData { bytes, ext })
+    }
 }

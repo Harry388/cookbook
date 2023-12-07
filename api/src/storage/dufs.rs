@@ -25,16 +25,18 @@ impl DufsStorage {
 #[async_trait]
 impl Storage for DufsStorage {
 
-    async fn put_file(&self, path: &str, file: Upload) -> Result<()> {
-        let file_data = file.into_vec().await.map_err(InternalServerError)?;
+    async fn put_file(&self, path: &str, file: Upload) -> Result<String> {
+        let file_data = Self::format_upload(file).await?;
+        let path = format!("{}.{}", path, file_data.ext);
+        let full_path = self.url(&path);
         let client = Client::new();
         client
-            .put(self.url(path))
-            .body(file_data)
+            .put(full_path)
+            .body(file_data.bytes)
             .send()
             .await
             .map_err(InternalServerError)?;
-        Ok(())
+        Ok(path)
     }
 
 }
