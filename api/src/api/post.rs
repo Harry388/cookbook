@@ -40,8 +40,26 @@ impl PostApi {
     
     #[oai(path = "/", method = "post")]
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
-        permission::user::is_user(post_payload.post.0.user_id, auth)?;
-        storage.0.put_file("public/ferris", post_payload.media).await?;
+        let post = post_payload.post.0;
+        permission::user::is_user(post.user_id, auth)?;
+        let path = format!("user/{}/post", post.user_id);
+        let media_path = storage.0.put_file(&path, post_payload.media).await?;
+        sqlx::query!( 
+            "insert into post (title, content, user_id)
+            values (?,?,?)",
+            post.title, post.content, post.user_id
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        sqlx::query!( 
+            "insert into post_media (uri, post_id)
+            values (?,?)",
+            media_path, post.user_id
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
         Ok(())
     }
 
