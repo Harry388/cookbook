@@ -31,7 +31,7 @@ struct UpdateUser {
 // Results
 
 #[derive(Object)]
-struct FindUserResult {
+struct GetUserResult {
     id: i64,
     username: String,
     display_name: String,
@@ -51,9 +51,9 @@ struct FollowResult {
 // Responses
 
 #[derive(ApiResponse)]
-enum FindUserResponse {
+enum GetUserResponse {
     #[oai(status = 200)]
-    Ok(Json<FindUserResult>),
+    Ok(Json<GetUserResult>),
     #[oai(status = 404)]
     NotFound(PlainText<String>)
 }
@@ -84,8 +84,8 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "get")]
-    async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<FindUserResponse> {
-        let user = sqlx::query_as!(FindUserResult,
+    async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetUserResponse> {
+        let user = sqlx::query_as!(GetUserResult,
             "select id, username, display_name, bio, pfp, public from user where id = ?", id.0
             )
             .fetch_optional(pool.0)
@@ -93,8 +93,8 @@ impl UserApi {
             .map_err(InternalServerError)?;
         Ok(
             match user {
-                Some(user_data) => FindUserResponse::Ok(Json(user_data)),
-                None => FindUserResponse::NotFound(PlainText("User not found".to_string()))
+                Some(user_data) => GetUserResponse::Ok(Json(user_data)),
+                None => GetUserResponse::NotFound(PlainText("User not found".to_string()))
             }
         )
     }
