@@ -1,5 +1,6 @@
 use reqwest::Client;
 use poem::{Result, error::InternalServerError};
+use poem_openapi::types::multipart::Upload;
 use async_trait::async_trait;
 
 use crate::storage::Storage;
@@ -24,7 +25,8 @@ impl DufsStorage {
 #[async_trait]
 impl Storage for DufsStorage {
 
-    async fn put_file(&self, path: &str, file_data: Vec<u8>) -> Result<()> {
+    async fn put_file(&self, path: &str, file: Upload) -> Result<()> {
+        let file_data = file.into_vec().await.map_err(InternalServerError)?;
         let client = Client::new();
         client
             .put(self.url(path))

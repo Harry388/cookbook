@@ -41,8 +41,7 @@ impl PostApi {
     #[oai(path = "/", method = "post")]
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(post_payload.post.0.user_id, auth)?;
-        let file_data = post_payload.media.into_vec().await.map_err(InternalServerError)?;
-        storage.0.put_file("public/test.png", file_data).await?;
+        storage.0.put_file("public/test.png", post_payload.media).await?;
         Ok(())
     }
 
