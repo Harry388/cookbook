@@ -39,5 +39,16 @@ impl Storage for DufsStorage {
         Ok(path)
     }
 
+    async fn get_file(&self, path: &str) -> Result<Vec<u8>> {
+        let full_path = self.url(&path);
+        let client = Client::new();
+        let response = client
+            .get(full_path)
+            .send()
+            .await
+            .map_err(InternalServerError)?;
+        response.bytes().await.map_err(InternalServerError)?.try_into().map_err(InternalServerError)
+    }
+
 }
 

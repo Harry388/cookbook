@@ -71,7 +71,7 @@ impl UserApi {
     #[oai(path = "/", method = "post")]
     async fn create_user(&self, pool: Data<&MySqlPool>, user: Json<User>) -> Result<Json<u64>> {
         let password = generate_password_hash(&user.password)?;
-        let id = sqlx::query_as!(u64, 
+        let id = sqlx::query!( 
             "insert into user (username, display_name, email, password, bio, pfp, public)
             values (?,?,?,?,?,?,?)",
             user.username, user.display_name, user.email.0, password, user.bio, user.pfp, true

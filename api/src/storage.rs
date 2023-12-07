@@ -14,6 +14,8 @@ pub trait Storage {
 
     async fn put_file(&self, path: &str, file: Upload) -> Result<String>;
 
+    async fn get_file(&self, path: &str) -> Result<Vec<u8>>;
+
     async fn format_upload(file: Upload) -> Result<FileData> {
         let ext = match file.file_name() {
             Some(name) => name.split(".").last(),
