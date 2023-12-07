@@ -22,7 +22,7 @@ struct Post {
 #[derive(Multipart)]
 struct PostPayload {
     post: JsonField<Post>,
-    media: Upload
+    media: Option<Upload>
 }
 
 
@@ -59,6 +59,12 @@ enum GetPostMediaResponse {
     NotFound(PlainText<String>)
 }
 
+#[derive(ApiResponse)]
+enum GetUserPostsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<PostResult>>)
+}
+
 pub struct PostApi;
 
 #[OpenApi(prefix_path = "/post", tag = "ApiTags::Post")]
@@ -68,8 +74,6 @@ impl PostApi {
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
         let post = post_payload.post.0;
         permission::user::is_user(post.user_id, auth)?;
-        let path = format!("user/{}/post", post.user_id);
-        let media_path = storage.0.put_file(&path, post_payload.media).await?;
         let post_id = sqlx::query!( 
             "insert into post (title, content, user_id)
             values (?,?,?)",
@@ -79,21 +83,25 @@ impl PostApi {
             .await
             .map_err(InternalServerError)?
             .last_insert_id();
-        sqlx::query!( 
-            "insert into post_media (uri, post_id)
-            values (?,?)",
-            media_path, post_id
-            )
-            .execute(pool.0)
-            .await
-            .map_err(InternalServerError)?;
+        if let Some(media) = post_payload.media {
+            let path = format!("user/{}/post", post.user_id);
+            let media_path = storage.0.put_file(&path, media).await?;
+            sqlx::query!( 
+                "insert into post_media (uri, post_id)
+                values (?,?)",
+                media_path, post_id
+                )
+                .execute(pool.0)
+                .await
+                .map_err(InternalServerError)?;
+        }
         Ok(())
     }
 
     #[oai(path = "/:id", method = "get")]
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
         let post = sqlx::query_as!(PostResult,
-            "select id, title, content, user_id from post where id = ?",
+            "select * from post where id = ?",
             id.0
             )
             .fetch_optional(pool.0)
@@ -130,17 +138,25 @@ impl PostApi {
     }
 
     #[oai(path = "/user/:user_id", method = "get")]
-    async fn get_user_posts(&self) {
-
+    async fn get_user_posts(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserPostsResponse> {
+        permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
+        let posts = sqlx::query_as!(PostResult,
+            "select * from post where user_id = ?",
+            user_id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(GetUserPostsResponse::Ok(Json(posts)))
     }
 
     #[oai(path = "/:id", method = "put")]
-    async fn update_user(&self) {
+    async fn update_post(&self) {
 
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_user(&self) {
+    async fn delete_post(&self) {
 
     }
 
