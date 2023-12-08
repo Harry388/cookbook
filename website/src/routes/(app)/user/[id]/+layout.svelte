@@ -2,6 +2,8 @@
 
     export let data;
 
+    const routes = ['posts'];
+
 </script>
 
 <div class="card w-full bg-base-100 shadow-xl">
@@ -27,4 +29,12 @@
     </div>
 </div>
 
-<slot />
+<div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
+    {#each routes as route}
+        <a href={`/user/${data.id}/${route}`} role="tab" class={`tab ${(data.path == route) && 'tab-active'}`}>
+            { route.charAt(0).toUpperCase() + route.substring(1) }
+        </a>
+    {/each}
+</div>
+
+<slot/>

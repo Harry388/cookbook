@@ -14,6 +14,7 @@ export const load = async ({ params, fetch, route }) => {
 
     return {
         user,
-        title: user.display_name
+        title: user.display_name,
+        path: route.id.split('/').slice(-1)[0]
     }
 }
