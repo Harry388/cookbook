@@ -1,6 +1,5 @@
 <script lang="ts">
 
-    import { get } from '$lib/apiFetch';
     import Post from '$lib/components/post.svelte';
 
     export let data;
