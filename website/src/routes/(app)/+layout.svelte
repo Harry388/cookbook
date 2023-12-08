@@ -15,10 +15,6 @@
 
 </script>
 
-<svelte:head>
-    <title>{ $page.data.title ? `${$page.data.title} -` : '' } CookBook</title>
-</svelte:head>
-
 <div class="drawer lg:drawer-open">
     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content flex flex-col items-center">
