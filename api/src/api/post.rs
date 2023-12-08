@@ -23,18 +23,18 @@ struct Post {
 #[derive(Multipart)]
 struct PostPayload {
     post: JsonField<Post>,
-    media: Option<Upload>
+    media: Vec<Upload>
 }
 
 
 // Results
 
-#[derive(Object)]
 struct PostResult {
     id: i64,
     title: String,
     content: Option<String>,
-    user_id: i64
+    user_id: i64,
+    media: Option<String>
 }
 
 struct PostMediaResult {
@@ -44,10 +44,19 @@ struct PostMediaResult {
 
 // Responses
 
+#[derive(Object)]
+struct PostResponse {
+    id: i64,
+    title: String,
+    content: Option<String>,
+    user_id: i64,
+    media: Vec<i64>
+}
+
 #[derive(ApiResponse)]
 enum GetPostResponse {
     #[oai(status = 200)]
-    Ok(Json<PostResult>),
+    Ok(Json<PostResponse>),
     #[oai(status = 404)]
     NotFound(PlainText<String>)
 }
@@ -63,7 +72,7 @@ enum GetPostMediaResponse {
 #[derive(ApiResponse)]
 enum GetUserPostsResponse {
     #[oai(status = 200)]
-    Ok(Json<Vec<PostResult>>)
+    Ok(Json<Vec<PostResponse>>)
 }
 
 pub struct PostApi;
@@ -84,7 +93,7 @@ impl PostApi {
             .await
             .map_err(InternalServerError)?
             .last_insert_id();
-        if let Some(media) = post_payload.media {
+        for media in post_payload.media {
             let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
             let path = format!("user/{}/{}", post.user_id, time);
             let media_path = storage.0.put_file(&path, media).await?;
@@ -103,7 +112,10 @@ impl PostApi {
     #[oai(path = "/:id", method = "get")]
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
         let post = sqlx::query_as!(PostResult,
-            "select * from post where id = ?",
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
+            from post inner join post_media on post.id = post_media.post_id
+            where post.id = ?
+            group by post.id",
             id.0
             )
             .fetch_optional(pool.0)
@@ -114,14 +126,19 @@ impl PostApi {
         }
         let post: PostResult = post.unwrap();
         permission::user::is_following_or_public(pool.0, post.user_id, auth).await?;
+        let media = match post.media {
+            Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
+            None => vec![]
+        };
+        let post = PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media };
         Ok(GetPostResponse::Ok(Json(post)))
     }
 
-    #[oai(path = "/:id/media", method = "get")]
-    async fn get_post_media(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostMediaResponse> {
+    #[oai(path = "/media/:media_id", method = "get")]
+    async fn get_post_media(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, media_id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostMediaResponse> {
         let post_media = sqlx::query_as!(PostMediaResult,
-            "select user_id, uri from post_media inner join post on post.id = post_media.post_id where post.id = ?",
-            id.0
+            "select user_id, uri from post_media inner join post on post.id = post_media.post_id where post_media.id = ?",
+            media_id.0
             )
             .fetch_optional(pool.0)
             .await
@@ -142,14 +159,25 @@ impl PostApi {
     #[oai(path = "/user/:user_id", method = "get")]
     async fn get_user_posts(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserPostsResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
-        let posts = sqlx::query_as!(PostResult,
-            "select * from post where user_id = ?",
+        let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
+            from post inner join post_media on post.id = post_media.post_id
+            where post.user_id = ?
+            group by post.id",
             user_id.0
             )
             .fetch_all(pool.0)
             .await
             .map_err(InternalServerError)?;
-        Ok(GetUserPostsResponse::Ok(Json(posts)))
+        let mut full_posts = vec![];
+        for post in posts {
+            let media = match post.media {
+                Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
+                None => vec![]
+            };
+            full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media })
+        }
+        Ok(GetUserPostsResponse::Ok(Json(full_posts)))
     }
 
     #[oai(path = "/:id", method = "put")]
