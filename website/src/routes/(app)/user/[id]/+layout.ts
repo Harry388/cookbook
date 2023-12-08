@@ -8,22 +8,12 @@ export const load = async ({ params, fetch, route }) => {
         throw redirect(301, `/user/${params.id}/posts`);
     }
     
-    const [userResponse, followersResponse, followingResponse] = await Promise.all([
-        get(`user/${params.id}`).run(fetch),
-        get(`user/${params.id}/followers`).run(fetch),
-        get(`user/${params.id}/following`).run(fetch)
-    ]);
+    const userResponse = await get(`user/${params.id}`).run(fetch);
 
-    const [user, followers, following]: [User, User[], User[]] = await Promise.all([
-        userResponse.json(),
-        followersResponse.json(),
-        followingResponse.json()
-    ])
+    const user: User = await userResponse.json();
 
     return {
         user,
-        followers,
-        following,
         title: user.display_name
     }
 }

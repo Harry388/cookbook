@@ -37,7 +37,10 @@ struct GetUserResult {
     display_name: String,
     bio: Option<String>,
     pfp: Option<String>,
-    public: i8
+    public: i8,
+    following: i64,
+    followers: i64,
+    is_following: Option<f32>
 }
 
 #[derive(Object)]
@@ -84,9 +87,17 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "get")]
-    async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetUserResponse> {
+    async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserResponse> {
         let user = sqlx::query_as!(GetUserResult,
-            "select id, username, display_name, bio, pfp, public from user where id = ?", id.0
+            "select id, username, display_name, bio, pfp, public, 
+            count(following.user_id) as following, count(followers.following_id) as followers,
+            cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
+            from user 
+            left join following as following on user.id = following.user_id 
+            left join following as followers on user.id = followers.following_id
+            where id = ?
+            group by id",
+            auth.0, id.0
             )
             .fetch_optional(pool.0)
             .await
