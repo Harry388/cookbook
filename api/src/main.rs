@@ -13,6 +13,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let storage_url = env::var("STORAGE_URL")?;
     let storage = DufsStorage::new(&storage_url);
 
+    let jwt_secret = env::var("SECRET")?;
+
     let apis = (
         api::user::UserApi, api::auth::AuthApi, api::post::PostApi
     );
@@ -25,7 +27,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/", ui)
         .with(Cors::new().allow_credentials(true))
         .data(pool)
-        .data(storage);
+        .data(storage)
+        .data(jwt_secret);
 
     Ok(poem::Server::new(TcpListener::bind("0.0.0.0:8000"))
         .run(app)

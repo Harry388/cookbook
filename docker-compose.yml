@@ -9,6 +9,7 @@ services:
         environment:
             DATABASE_URL: '${DB_URL}'
             STORAGE_URL: '${API_STORAGE_URL}'
+            SECRET: '${API_SECRET}'
         ports:
             - 8000:8000
         networks:
