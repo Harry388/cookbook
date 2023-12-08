@@ -24,13 +24,23 @@
 
 </script>
 
-{ post.title }
-
-{#if post.media.length}
-    {#each urls as url}
-        <img width="200px" src={url} alt="Post Image">
-    {/each}
-    {#if urls.length != post.media.length}
-        <span class="loading loading-ring loading-md"></span>
+<div class="card w-96 bg-base-100 shadow-xl">
+    {#if post.media.length}
+        {#each post.media as _, i}
+            <figure class="h-30">
+                {#if urls[i]}
+                    <img src={urls[i]} alt="Post Image">
+                {:else}
+                    <span class="loading loading-ring loading-md"></span>
+                {/if}
+            </figure>
+        {/each}
+        {#if urls.length != post.media.length}
+            
+        {/if}
     {/if}
-{/if}
+    <div class="card-body">
+        <h2 class="card-title">{ post.title }</h2>
+        <p>{ post.content }</p>
+    </div>
+</div>

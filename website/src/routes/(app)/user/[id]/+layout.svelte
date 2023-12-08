@@ -2,7 +2,7 @@
 
     export let data;
 
-    const routes = ['posts'];
+    const routes = ['posts', 'other'];
 
 </script>
 
