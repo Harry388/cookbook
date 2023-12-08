@@ -35,9 +35,6 @@
                 {/if}
             </figure>
         {/each}
-        {#if urls.length != post.media.length}
-            
-        {/if}
     {/if}
     <div class="card-body">
         <h2 class="card-title">{ post.title }</h2>
