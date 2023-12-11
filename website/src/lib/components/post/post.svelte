@@ -38,6 +38,6 @@
     {/if}
     <div class="card-body">
         <h2 class="card-title">{ post.title }</h2>
-        <p>{ post.content }</p>
+        <p>{ post.content || '' }</p>
     </div>
 </div>

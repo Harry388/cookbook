@@ -17,14 +17,22 @@ function createFetchObj(input: string, body?: any, init?: RequestInit): FetchObj
                 fetchFn = fetch;
             }
             const url = browser ? PUBLIC_BROWSER_API_URL : PUBLIC_SERVER_API_URL;
+            //@ts-ignore
+            const stringifyBody = (!this.init?.headers) || (!this.init?.headers['Content-Type']);
+            const body = this.body ? (stringifyBody ? JSON.stringify(this.body) : this.body) : null;
+            const headers = {
+                'Accept': '*',
+                'Content-Type': 'application/json',
+                ...this.init?.headers,
+            };
+            if (headers['Content-Type'] == 'remove') {
+                //@ts-ignore
+                delete headers['Content-Type'];
+            }
             const requestInit: RequestInit = {
                 ...init,
-                body: this.body ? JSON.stringify(this.body) : null,
-                headers: {
-                    ...this.init?.headers,
-                    'Accept': '*',
-                    'Content-Type': 'application/json',
-                },
+                body,
+                headers,
                 credentials: 'include'
             }
             return fetchFn(`${url}/${this.input}`, requestInit)
