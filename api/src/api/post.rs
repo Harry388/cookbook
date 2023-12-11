@@ -159,7 +159,7 @@ impl PostApi {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
         let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
             "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
-            from post inner join post_media on post.id = post_media.post_id
+            from post left join post_media on post.id = post_media.post_id
             where post.user_id = ?
             group by post.id",
             user_id.0
