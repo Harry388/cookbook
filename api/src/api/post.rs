@@ -16,8 +16,7 @@ enum ApiTags {
 #[derive(Object)]
 struct Post {
     title: String,
-    content: Option<String>,
-    user_id: i64
+    content: Option<String>
 }
 
 #[derive(Multipart)]
@@ -83,11 +82,10 @@ impl PostApi {
     #[oai(path = "/", method = "post")]
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
         let post = post_payload.post.0;
-        permission::user::is_user(post.user_id, auth)?;
         let post_id = sqlx::query!( 
             "insert into post (title, content, user_id)
             values (?,?,?)",
-            post.title, post.content, post.user_id
+            post.title, post.content, auth.0
             )
             .execute(pool.0)
             .await
@@ -95,7 +93,7 @@ impl PostApi {
             .last_insert_id();
         for media in post_payload.media {
             let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
-            let path = format!("user/{}/{}", post.user_id, time);
+            let path = format!("user/{}/{}", auth.0, time);
             let media_path = storage.0.put_file(&path, media).await?;
             sqlx::query!( 
                 "insert into post_media (uri, post_id)
