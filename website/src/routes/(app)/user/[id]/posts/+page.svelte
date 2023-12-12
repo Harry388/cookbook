@@ -1,12 +1,11 @@
 <script>
 
     import Posts from '$lib/components/post/posts.svelte';
-    import CreatePost from '$lib/components/post/createPost.svelte';
 
     export let data;
 
 </script>
 
-<CreatePost />
+<a href="/createpost" class="btn btn-outline">Create Post</a>
 
 <Posts posts={data.posts} />
