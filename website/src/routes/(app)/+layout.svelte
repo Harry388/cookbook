@@ -30,7 +30,7 @@
 
             </div>
         </div>
-        <div class="bg-base-200 h-screen w-full p-5">
+        <div class="bg-base-200 h-full w-full p-5">
             <slot />
         </div>
     </div> 
