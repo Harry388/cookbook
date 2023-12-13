@@ -1,8 +1,9 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText}, Object, ApiResponse, param::Path, Tags, types::Email};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment, AttachmentType}, Object, ApiResponse, param::Path, Tags, types::{Email, multipart::Upload}, Multipart};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::MySqlPool;
 use crate::api::auth::{generate_password_hash, JWTAuthorization};
 use crate::permission;
+use crate::storage::{Storage, dufs::DufsStorage};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -25,6 +26,11 @@ struct User {
 struct UpdateUser {
     display_name: Option<String>,
     bio: Option<String>
+}
+
+#[derive(Multipart)]
+struct SetProfilePic {
+    pic: Upload
 }
 
 // Results
@@ -50,6 +56,10 @@ struct FollowResult {
     pfp: Option<String>
 }
 
+struct ProfilePicResult {
+    pfp: Option<String>
+}
+
 // Responses
 
 #[derive(ApiResponse)]
@@ -64,6 +74,14 @@ enum GetUserResponse {
 enum FollowResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<FollowResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetProfilePicResponse {
+    #[oai(status = 200)]
+    Ok(Attachment<Vec<u8>>),
+    #[oai(status = 404)]
+    NotFound(PlainText<String>)
 }
 
 pub struct UserApi;
@@ -120,6 +138,45 @@ impl UserApi {
             .await
             .map_err(InternalServerError)?;
         Ok(())
+    }
+
+    #[oai(path = "/:id/pfp", method = "put")]
+    async fn set_profile_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, pfp: SetProfilePic, auth: JWTAuthorization) -> Result<()> {
+        permission::user::is_user(id.0, auth)?;
+        let path = format!("user/{}/pfp", id.0);
+        let pfp_path = storage.0.put_file(&path, pfp.pic).await?;
+        sqlx::query!(
+            "update user set pfp = ? where id = ?",
+            pfp_path, id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/pfp", method = "get")]
+    async fn get_profile_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetProfilePicResponse> {
+        let pfp: Option<ProfilePicResult> = sqlx::query_as!(ProfilePicResult,
+            "select pfp from user where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = pfp {
+            return Ok(GetProfilePicResponse::NotFound(PlainText("User not found".to_string())));
+        }
+        if let None = pfp.as_ref().unwrap().pfp {
+            return Ok(GetProfilePicResponse::NotFound(PlainText("Profile pic not found".to_string())));
+        }
+        let pfp_path = pfp.unwrap().pfp.unwrap();
+        let pic = storage.0.get_file(&pfp_path).await?;
+        let attachment = 
+            Attachment::new(pic)
+            .attachment_type(AttachmentType::Inline)
+            .filename(pfp_path);
+        Ok(GetProfilePicResponse::Ok(attachment))
     }
 
     #[oai(path = "/:id", method = "delete")]
