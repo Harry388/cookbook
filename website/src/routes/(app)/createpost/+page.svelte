@@ -1,12 +1,15 @@
 <script lang="ts">
 
     import { post } from '$lib/apiFetch';
+    import { goto } from '$app/navigation';
+
+    export let data;
 
     let title = '';
     let content = '';
     let files: FileList;
 
-    function createPost() {
+    async function createPost() {
         const formData = new FormData();
         const postStr = JSON.stringify({ title, content });
         formData.append('post', postStr);
@@ -16,14 +19,17 @@
             }
         }
         console.log(formData);
-        post('post', formData, {
+        await post('post', formData, {
             headers: {
                 'Content-Type':  'remove'
             }
         }).run();
+        goto('/user');
     }
 
 </script>
+
+<a class="btn btn-outline" href={`/user/${data.id}`}>Back</a>
 
 <h3 class="font-bold text-lg">Create a Post</h3>
 <div class="py-5">
