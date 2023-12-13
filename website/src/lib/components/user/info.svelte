@@ -1,7 +1,7 @@
 <script lang="ts">
 
     import Image from '$lib/components/util/image.svelte';
-    import { post, remove } from '$lib/apiFetch';
+    import { post, remove, get } from '$lib/apiFetch';
     import { getContext } from 'svelte';
     import type { User } from '$lib/app/user';
     import type { Writable } from 'svelte/store';
@@ -18,6 +18,8 @@
         else {
             await post(`user/${$id}/follow/${$user.id}`).run();
         }
+        const userResponse = await get(`user/${$user.id}`).run(fetch);
+        $user = await userResponse.json();
     }
 
 </script>
