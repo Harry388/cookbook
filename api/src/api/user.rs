@@ -24,8 +24,7 @@ struct User {
 #[derive(Object)]
 struct UpdateUser {
     display_name: Option<String>,
-    bio: Option<String>,
-    pfp: Option<String>
+    bio: Option<String>
 }
 
 // Results
@@ -114,8 +113,8 @@ impl UserApi {
     async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(id.0, auth)?;
         sqlx::query!(
-            "update user set display_name = coalesce(?, display_name), bio = coalesce(?, bio), pfp = coalesce(?, pfp) where id = ?",
-            user.display_name, user.bio, user.pfp, id.0
+            "update user set display_name = coalesce(?, display_name), bio = coalesce(?, bio) where id = ?",
+            user.display_name, user.bio, id.0
             )
             .execute(pool.0)
             .await
