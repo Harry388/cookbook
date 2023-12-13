@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import Image from '$lib/components/util/image.svelte';
+    import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { post, remove, get } from '$lib/apiFetch';
     import { getContext } from 'svelte';
     import type { User } from '$lib/app/user';
@@ -28,20 +28,14 @@
     <div class="card-body">
         <div class="flex flex-col lg:flex-row gap-y-2">
             <div class="flex flex-1 gap-x-5 mb-1">
-                <div class="avatar placeholder">
-                    <div class="bg-neutral text-neutral-content rounded-full w-24">
-                        <Image src={`user/${$user.id}/pfp`} alt={`${$user.display_name}'s profile picture`}>
-                            <span class="text-3xl">{ $user.display_name[0] }</span>
-                        </Image>
-                    </div>
-                </div> 
+                <ProfilePic user={$user}/>
                 <div class="flex flex-col gap-y-1">
                     <h2 class="card-title text-3xl">{ $user.display_name }</h2>
                     <h2 class="card-title">@{ $user.username }</h2>
                 </div>
             </div>
-            <p class="flex-1 font-semibold text-xl">{ $user.following } Following</p>
-            <p class="flex-1 font-semibold text-xl">{ $user.followers } Followers</p>
+            <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.following } Following</a>
+            <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.followers } Followers</a>
             {#if self}
                 <a class="btn btn-outline" href="/editprofile">Edit Profile</a>
             {:else}
