@@ -1,5 +1,6 @@
 <script lang="ts">
 
+    import Image from '$lib/components/util/image.svelte';
     import type { User } from '$lib/app/user';
 
     export let user: User;
@@ -13,7 +14,9 @@
             <div class="flex flex-1 gap-x-5 mb-1">
                 <div class="avatar placeholder">
                     <div class="bg-neutral text-neutral-content rounded-full w-24">
-                        <span class="text-3xl">{ user.display_name[0] }</span>
+                        <Image src={`user/${user.id}/pfp`} alt={`${user.display_name}'s profile picture`}>
+                            <span class="text-3xl">{ user.display_name[0] }</span>
+                        </Image>
                     </div>
                 </div> 
                 <div class="flex flex-col gap-y-1">

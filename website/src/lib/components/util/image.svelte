@@ -3,7 +3,7 @@
     import { get } from '$lib/apiFetch';
     import { onMount } from 'svelte';
 
-    export let height: string;
+    export let height: string = '';
     export let src: string;
     export let alt: string = '';
 
@@ -11,11 +11,18 @@
 
     async function getImage() {
         const response = await get(src).run();
-        const image = await response.blob();
-        url = URL.createObjectURL(image);
+        if (response.ok) {
+            const image = await response.blob();
+            url = URL.createObjectURL(image);
+        }
     }
 
     onMount(getImage);
+
+    $: {
+        src;
+        getImage();
+    }
 
 </script>
 
@@ -23,6 +30,8 @@
     {#if url}
         <img src={url} {alt} {height}>
     {:else}
-        <span class="loading loading-spinner loading-lg"></span>
+        <slot>
+            <span class="loading loading-spinner loading-lg"></span>
+        </slot>
     {/if}
 </div>
