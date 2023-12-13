@@ -3,6 +3,7 @@
     import type { User } from '$lib/app/user';
 
     export let user: User;
+    export let self: boolean;
 
 </script>
 
@@ -22,6 +23,9 @@
             </div>
             <p class="flex-1 font-semibold text-xl">{ user.followers } Followers</p>
             <p class="flex-1 font-semibold text-xl">{ user.following } Following</p>
+            {#if self}
+                <a class="btn btn-outline" href="/editprofile">Edit Profile</a>
+            {/if}
         </div>
         {#if user.bio }
             <p>{ user.bio }</p>

@@ -6,6 +6,8 @@
 
 </script>
 
-<a href="/createpost" class="btn btn-outline">Create Post</a>
+{#if data.self}
+    <a href="/createpost" class="btn btn-outline">Create Post</a>
+{/if}
 
 <Posts posts={data.posts} />

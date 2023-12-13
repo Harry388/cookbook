@@ -8,7 +8,7 @@
 
 </script>
 
-<Info user={data.user} />
+<Info user={data.user} self={data.self} />
 
 <div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
     {#each routes as route}
