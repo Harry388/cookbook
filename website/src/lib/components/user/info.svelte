@@ -1,10 +1,24 @@
 <script lang="ts">
 
     import Image from '$lib/components/util/image.svelte';
+    import { post, remove } from '$lib/apiFetch';
+    import { getContext } from 'svelte';
     import type { User } from '$lib/app/user';
+    import type { Writable } from 'svelte/store';
 
-    export let user: User;
-    export let self: boolean;
+    const id: Writable<number> = getContext('id');
+    const user: Writable<User> = getContext('user');
+
+    $: self = $id == $user.id;
+
+    async function toggleFollow() {
+        if ($user.is_following) {
+            await remove(`user/${$id}/unfollow/${$user.id}`).run();
+        }
+        else {
+            await post(`user/${$id}/follow/${$user.id}`).run();
+        }
+    }
 
 </script>
 
@@ -14,24 +28,26 @@
             <div class="flex flex-1 gap-x-5 mb-1">
                 <div class="avatar placeholder">
                     <div class="bg-neutral text-neutral-content rounded-full w-24">
-                        <Image src={`user/${user.id}/pfp`} alt={`${user.display_name}'s profile picture`}>
-                            <span class="text-3xl">{ user.display_name[0] }</span>
+                        <Image src={`user/${$user.id}/pfp`} alt={`${$user.display_name}'s profile picture`}>
+                            <span class="text-3xl">{ $user.display_name[0] }</span>
                         </Image>
                     </div>
                 </div> 
                 <div class="flex flex-col gap-y-1">
-                    <h2 class="card-title text-3xl">{ user.display_name }</h2>
-                    <h2 class="card-title">@{ user.username }</h2>
+                    <h2 class="card-title text-3xl">{ $user.display_name }</h2>
+                    <h2 class="card-title">@{ $user.username }</h2>
                 </div>
             </div>
-            <p class="flex-1 font-semibold text-xl">{ user.followers } Followers</p>
-            <p class="flex-1 font-semibold text-xl">{ user.following } Following</p>
+            <p class="flex-1 font-semibold text-xl">{ $user.following } Following</p>
+            <p class="flex-1 font-semibold text-xl">{ $user.followers } Followers</p>
             {#if self}
                 <a class="btn btn-outline" href="/editprofile">Edit Profile</a>
+            {:else}
+                <button class="btn btn-outline" on:click={toggleFollow}>{ $user.is_following ? 'Following' : 'Follow' }</button>
             {/if}
         </div>
-        {#if user.bio }
-            <p>{ user.bio }</p>
+        {#if $user.bio }
+            <p>{ $user.bio }</p>
         {/if}
     </div>
 </div>
