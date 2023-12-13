@@ -14,6 +14,16 @@
             display_name: displayName,
             bio
         }).run();
+        if (files) {
+            const formData = new FormData();
+            const file = files[0];
+            formData.append('pic', file);
+            await put(`user/${data.id}/pfp`, formData, {
+                headers: {
+                    'Content-Type': 'remove'
+                }
+            }).run();
+        }
         goto('user');
     }
 
