@@ -127,6 +127,30 @@ impl UserApi {
         )
     }
 
+    #[oai(path = "/name/:username", method = "get")]
+    async fn get_user_from_name(&self, pool: Data<&MySqlPool>, username: Path<String>, auth: JWTAuthorization) -> Result<GetUserResponse> {
+        let user = sqlx::query_as!(GetUserResult,
+            "select id, username, display_name, bio, pfp, public, 
+            count(following.user_id) as following, count(followers.following_id) as followers,
+            cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
+            from user 
+            left join following as following on user.id = following.user_id 
+            left join following as followers on user.id = followers.following_id
+            where username = ?
+            group by id",
+            auth.0, username.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(
+            match user {
+                Some(user_data) => GetUserResponse::Ok(Json(user_data)),
+                None => GetUserResponse::NotFound(PlainText("User not found".to_string()))
+            }
+        )
+    }
+
     #[oai(path = "/:id", method = "put")]
     async fn update_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user: Json<UpdateUser>, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(id.0, auth)?;
