@@ -1,4 +1,4 @@
-import { get, put } from '$lib/apiFetch';
+import { get, put, remove } from '$lib/apiFetch';
 import type { FetchFn } from '$lib/apiFetch';
 
 export type User = {
@@ -35,4 +35,8 @@ export async function updateUser(id: number | string, username: string, displayN
         display_name: displayName,
         bio
     }).run(fetch);
+}
+
+export async function deleteUser(id: number | string, fetch?: FetchFn): Promise<Response> {
+    return await remove(`user/${id}`).run(fetch);
 }

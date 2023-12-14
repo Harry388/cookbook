@@ -1,10 +1,16 @@
 <script lang="ts">
 
+    import { deleteUser } from '$lib/app/user';
+    import { goto } from '$app/navigation';
+
     export let data;
 
-    function deleteAccount() {
+    async function deleteAccount() {
         if (confirm('Are you sure?')) {
-            
+            const response = await deleteUser(data.id);
+            if (response.ok) {
+                goto('/login');
+            }
         }
     }
 
