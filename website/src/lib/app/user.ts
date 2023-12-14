@@ -19,11 +19,7 @@ export async function getUser(id: number | string, fetch?: FetchFn): Promise<Use
     return user;
 }
 
-export async function updateUser(id: number | string, displayName: string, bio: string | null, files: FileList, fetch?: FetchFn) {
-    await put(`user/${id}`, {
-        display_name: displayName,
-        bio
-    }).run(fetch);
+export async function updateUser(id: number | string, displayName: string, bio: string | null, files: FileList, fetch?: FetchFn): Promise<Response> {
     if (files) {
         const formData = new FormData();
         const file = files[0];
@@ -34,4 +30,8 @@ export async function updateUser(id: number | string, displayName: string, bio: 
             }
         }).run(fetch);
     }
+    return await put(`user/${id}`, {
+        display_name: displayName,
+        bio
+    }).run(fetch);
 }

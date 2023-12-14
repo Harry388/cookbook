@@ -10,8 +10,10 @@
     let files: FileList;
 
     async function create() {
-        await createPost(title, content, files);
-        goto('/user');
+        const response = await createPost(title, content, files);
+        if (response.ok) {
+            goto('/user');
+        }
     }
 
 </script>

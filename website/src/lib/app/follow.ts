@@ -20,10 +20,10 @@ export async function getUserFollow(userId: number | string, fetch?: FetchFn): P
     return { followers, following };
 }
 
-export async function removeFollower(userId: number | string, followingId: number | string, fetch?: FetchFn) {
-    await remove(`user/${userId}/unfollow/${followingId}`).run(fetch);
+export async function removeFollower(userId: number | string, followingId: number | string, fetch?: FetchFn): Promise<Response> {
+    return await remove(`user/${userId}/unfollow/${followingId}`).run(fetch);
 }
 
-export async function followUser(userId: number | string, followingId: number | string, fetch?: FetchFn) {
-    await post(`user/${userId}/follow/${followingId}`).run(fetch);
+export async function followUser(userId: number | string, followingId: number | string, fetch?: FetchFn): Promise<Response> {
+    return await post(`user/${userId}/follow/${followingId}`).run(fetch);
 }

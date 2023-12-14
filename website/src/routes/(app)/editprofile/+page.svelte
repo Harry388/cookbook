@@ -10,8 +10,10 @@
     let files: FileList;
 
     async function editProfile() {
-        await updateUser(data.id, displayName, bio, files);
-        goto('user');
+        const response = await updateUser(data.id, displayName, bio, files);
+        if (response.ok) {
+            goto('user');
+        }
     }
 
 </script>

@@ -15,7 +15,7 @@ export async function getUserPosts(userId: number | string, fetch?: FetchFn): Pr
     return posts;
 }
 
-export async function createPost(title: string, content: string, files: FileList, fetch?: FetchFn) {
+export async function createPost(title: string, content: string, files: FileList, fetch?: FetchFn): Promise<Response> {
     const formData = new FormData();
     const postStr = JSON.stringify({ title, content });
     formData.append('post', postStr);
@@ -24,7 +24,7 @@ export async function createPost(title: string, content: string, files: FileList
             formData.append('media', file);
         }
     }
-    await post('post', formData, {
+    return await post('post', formData, {
         headers: {
             'Content-Type':  'remove'
         }
