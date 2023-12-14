@@ -1,8 +1,9 @@
 <script lang="ts">
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
-    import { post, remove, get } from '$lib/apiFetch';
     import { getContext } from 'svelte';
+    import { getUser } from '$lib/app/user';
+    import { followUser, removeFollower } from '$lib/app/follow';
     import type { User } from '$lib/app/user';
     import type { Writable } from 'svelte/store';
 
@@ -13,13 +14,12 @@
 
     async function toggleFollow() {
         if ($user.is_following) {
-            await remove(`user/${$id}/unfollow/${$user.id}`).run();
+            await removeFollower($id, $user.id);
         }
         else {
-            await post(`user/${$id}/follow/${$user.id}`).run();
+            await followUser($id, $user.id);
         }
-        const userResponse = await get(`user/${$user.id}`).run(fetch);
-        $user = await userResponse.json();
+        $user = await getUser($user.id);
     }
 
 </script>

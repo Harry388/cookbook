@@ -1,10 +1,16 @@
-<script>
+<script lang="ts">
 
     import { logout } from '$lib/auth/auth';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
+    import { writable } from 'svelte/store';
+    import { setContext } from 'svelte';
 
     export let data;
+
+    const id = writable<number>();
+    $: id.set(data.id);
+    setContext('id', id);
 
     async function onLogOut() {
         const response = await logout().run();

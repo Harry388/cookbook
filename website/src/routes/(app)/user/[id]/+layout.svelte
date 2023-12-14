@@ -9,10 +9,6 @@
 
     const routes = ['posts', 'other'];
 
-    const id = writable<number>();
-    $: id.set(data.id);
-    setContext('id', id);
-
     const user = writable<User>();
     $: user.set(data.user);
     setContext('user', user);

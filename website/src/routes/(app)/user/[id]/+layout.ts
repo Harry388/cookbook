@@ -1,5 +1,4 @@
-import { get } from '$lib/apiFetch';
-import type { User } from '$lib/app/user';
+import { getUser } from '$lib/app/user';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ params, fetch, route, parent }) => {
@@ -10,9 +9,7 @@ export const load = async ({ params, fetch, route, parent }) => {
         throw redirect(301, `/user/${params.id}/posts`);
     }
     
-    const userResponse = await get(`user/${params.id}`).run(fetch);
-
-    const user: User = await userResponse.json();
+    const user = await getUser(params.id, fetch);
 
     return {
         user,

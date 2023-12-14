@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { put } from '$lib/apiFetch.js';
+    import { updateUser } from '$lib/app/user';
     import { goto } from '$app/navigation';
 
     export let data;
@@ -10,20 +10,7 @@
     let files: FileList;
 
     async function editProfile() {
-        await put(`user/${data.id}`, {
-            display_name: displayName,
-            bio
-        }).run();
-        if (files) {
-            const formData = new FormData();
-            const file = files[0];
-            formData.append('pic', file);
-            await put(`user/${data.id}/pfp`, formData, {
-                headers: {
-                    'Content-Type': 'remove'
-                }
-            }).run();
-        }
+        await updateUser(data.id, displayName, bio, files);
         goto('user');
     }
 

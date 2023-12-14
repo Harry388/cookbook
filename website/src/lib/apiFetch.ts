@@ -1,7 +1,7 @@
 import { PUBLIC_BROWSER_API_URL, PUBLIC_SERVER_API_URL } from '$env/static/public';
 import { browser } from '$app/environment';
 
-type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+export type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 
 type FetchObj = {
     input: string, 

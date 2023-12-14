@@ -1,13 +1,10 @@
-import { get } from '$lib/apiFetch';
-import type { User } from '$lib/app/user';
+import { getUser } from '$lib/app/user';
 
-export const load = async ({ parent }) => {
+export const load = async ({ parent, fetch }) => {
 
     const { id } = await parent();
-    
-    const userResponse = await get(`user/${id}`).run(fetch);
 
-    const user: User = await userResponse.json();
+    const user = await getUser(id, fetch);
 
     return {
         user,

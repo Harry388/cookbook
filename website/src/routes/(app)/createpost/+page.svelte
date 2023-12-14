@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { post } from '$lib/apiFetch';
+    import { createPost } from '$lib/app/post';
     import { goto } from '$app/navigation';
 
     export let data;
@@ -9,21 +9,8 @@
     let content = '';
     let files: FileList;
 
-    async function createPost() {
-        const formData = new FormData();
-        const postStr = JSON.stringify({ title, content });
-        formData.append('post', postStr);
-        if (files) {
-            for (const file of files) {
-                formData.append('media', file);
-            }
-        }
-        console.log(formData);
-        await post('post', formData, {
-            headers: {
-                'Content-Type':  'remove'
-            }
-        }).run();
+    async function create() {
+        await createPost(title, content, files);
         goto('/user');
     }
 
@@ -49,6 +36,6 @@
             <span class="label-text">Media</span>
         </label>
         <input bind:files={files} type="file" multiple class="file-input file-input-bordered w-full max-w-xs" />
-        <button class="btn btn-primary w-fit mt-5" on:click={createPost}>Create</button>
+        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
     </div>
 </div>
