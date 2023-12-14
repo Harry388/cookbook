@@ -47,6 +47,7 @@
             <li><a href="/">Home</a></li>
             <li><a href="/user/{data.id}">Profile</a></li>
             <div class="flex-grow"></div>
+            <li><a href="/settings">Settings</a></li>
             <li class="place-self-start"><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
             <label class="swap swap-rotate">
                 <input type="checkbox" class="theme-controller" value="cupcake" />
