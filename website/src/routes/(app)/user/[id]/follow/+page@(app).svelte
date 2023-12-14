@@ -1,11 +1,11 @@
-<script>
+<script lang="ts">
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { remove } from '$lib/apiFetch';
 
     export let data;
 
-    async function removeFollower(followerId) {
+    async function removeFollower(followerId: number) {
         await remove(`user/${followerId}/unfollow/${data.id}`).run();
     }
 
