@@ -14,7 +14,7 @@
 </script>
 
 {#if data.self}
-    <a href="/createpost" class="btn btn-outline">Create Post</a>
+    <a href="/post/create" class="btn btn-outline">Create Post</a>
 {/if}
 
 <Posts />
