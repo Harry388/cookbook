@@ -2,27 +2,25 @@
 
     export let files: FileList;
 
-    let src: string;
+	let image: string;
 
-    $: {
-        if (files && files.length) {
-            const file = files[0];
-            src = URL.createObjectURL(file);
+    function onChange() {
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                image = String(reader.result);
+            });
+            reader.readAsDataURL(file);
         }
     }
 
 </script>
 
-{#if src}
-
+{#if image}
     <div class="w-1/5">
-
-        <img {src} alt="Post Image">
-
+        <img src={image} alt="Post Image">
     </div>
-
-{:else}
-
-    <input bind:files={files} type="file" class="file-input file-input-bordered w-full max-w-xs" />
-
 {/if}
+
+<input bind:files={files} on:change={onChange} type="file" accept="image/*" class="file-input file-input-bordered w-full max-w-xs" />
+
