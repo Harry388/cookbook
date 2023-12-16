@@ -123,7 +123,7 @@ impl PostApi {
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
         let post = sqlx::query_as!(PostResult,
             "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
-            from post inner join post_media on post.id = post_media.post_id
+            from post left join post_media on post.id = post_media.post_id
             where post.id = ?
             group by post.id",
             id.0

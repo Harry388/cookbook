@@ -11,6 +11,7 @@
     let files: FileList;
 
     async function create() {
+        if (!title) return;
         const response = await createPost(title, content, files);
         if (response.ok) {
             goto('/user');

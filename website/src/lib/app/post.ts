@@ -9,6 +9,12 @@ export type Post = {
     media: number[]
 }
 
+export async function getPost(id: number | string, fetch?: FetchFn): Promise<Post> {
+    const response = await get(`post/${id}`).run(fetch);
+    const post: Post = await response.json();
+    return post;
+}
+
 export async function getUserPosts(userId: number | string, fetch?: FetchFn): Promise<Post[]> {
     const response = await get(`post/user/${userId}`).run(fetch);
     const posts: Post[] = await response.json();
