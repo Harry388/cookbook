@@ -3,7 +3,6 @@
     export let files: FileList;
 
     let src: string;
-    let height = "250px";
 
     $: {
         if (files && files.length) {
@@ -27,6 +26,3 @@
     <input bind:files={files} type="file" class="file-input file-input-bordered w-full max-w-xs" />
 
 {/if}
-
-
-
