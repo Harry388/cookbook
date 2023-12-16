@@ -2,6 +2,7 @@
 
     import { createPost } from '$lib/app/post';
     import { goto } from '$app/navigation';
+    import ImageInput from '$lib/components/util/imageInput.svelte';
 
     export let data;
 
@@ -37,7 +38,7 @@
         <label class="label">
             <span class="label-text">Media</span>
         </label>
-        <input bind:files={files} type="file" multiple class="file-input file-input-bordered w-full max-w-xs" />
+        <ImageInput bind:files={files} />
         <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
     </div>
 </div>

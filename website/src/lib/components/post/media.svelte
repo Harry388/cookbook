@@ -6,4 +6,4 @@
 
 </script>
 
-<Image src={`post/media/${id}`} alt="Post Image" height="250px" />
+<Image src={`post/media/${id}`} alt="Post Image" />

@@ -2,7 +2,7 @@
 
     import { PUBLIC_BROWSER_API_URL } from "$env/static/public";
 
-    export let height: string = '';
+    export let width: string = '';
     export let src: string;
     export let alt: string = '';
 
@@ -17,8 +17,8 @@
 
 </script>
 
-<div style="height: {height}" class="flex justify-center">
-    <img class={!loaded ? 'hidden' : ''} src={url} {alt} {height} on:load={() => loaded = true}>
+<div class="flex justify-center {width}">
+    <img class={!loaded ? 'hidden' : ''} src={url} {alt} on:load={() => loaded = true}>
     {#if !loaded}
         <slot>
             <span class="loading loading-spinner loading-lg"></span>
