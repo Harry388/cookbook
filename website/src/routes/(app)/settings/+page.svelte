@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import { deleteUser } from '$lib/app/user';
+    import { logout } from '$lib/auth/auth';
     import { goto } from '$app/navigation';
 
     export let data;
@@ -9,6 +10,7 @@
         if (confirm('Are you sure?')) {
             const response = await deleteUser(data.id);
             if (response.ok) {
+                await logout().run();
                 goto('/login');
             }
         }

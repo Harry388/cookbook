@@ -50,5 +50,16 @@ impl Storage for DufsStorage {
         response.bytes().await.map_err(InternalServerError)?.try_into().map_err(InternalServerError)
     }
 
+    async fn delete_file(&self, path: &str) -> Result<()> {
+        let full_path = self.url(&path);
+        let client = Client::new();
+        client
+            .delete(full_path)
+            .send()
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
 }
 

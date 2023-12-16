@@ -181,7 +181,7 @@ impl UserApi {
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+    async fn delete_user(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(id.0, auth)?;
         sqlx::query!(
             "delete from user where id = ?",
@@ -190,6 +190,7 @@ impl UserApi {
             .execute(pool.0)
             .await
             .map_err(InternalServerError)?;
+        storage.delete_file(&format!("user/{}", id.0)).await?;
         Ok(())
     }
 
