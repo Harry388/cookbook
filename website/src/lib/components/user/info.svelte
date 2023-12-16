@@ -37,7 +37,7 @@
             <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.followers } Followers</a>
             <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.following } Following</a>
             {#if self}
-                <a class="btn btn-outline" href="/editprofile">Edit Profile</a>
+                <a class="btn btn-outline" href="/user/edit">Edit Profile</a>
             {:else}
                 <button class="btn btn-outline" on:click={toggleFollow}>{ $user.is_following ? 'Following' : 'Follow' }</button>
             {/if}

@@ -13,7 +13,7 @@
     async function editProfile() {
         const response = await updateUser(data.id, username, displayName, bio, files);
         if (response.ok) {
-            goto('user');
+            goto('/user');
         }
     }
 
