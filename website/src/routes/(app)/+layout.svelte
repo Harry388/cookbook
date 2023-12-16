@@ -23,9 +23,9 @@
 
 <div class="drawer lg:drawer-open">
     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content flex flex-col items-center">
+    <div class="drawer-content flex flex-col items-center bg-base-200 h-full">
         <!-- Page content here -->
-        <div class="navbar bg-base-200 pt-3">
+        <div class="navbar pt-3">
             <div class="navbar-start">
                 <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">Open drawer</label>
             </div>
@@ -36,7 +36,7 @@
 
             </div>
         </div>
-        <div class="bg-base-200 h-full w-full p-5">
+        <div class="h-full w-full p-5">
             <slot />
         </div>
     </div> 
