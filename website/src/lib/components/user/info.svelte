@@ -34,8 +34,8 @@
                     <h2 class="card-title">@{ $user.username }</h2>
                 </div>
             </div>
-            <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.following } Following</a>
             <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.followers } Followers</a>
+            <a class="flex-1 font-semibold text-xl" href={`/user/${$user.id}/follow`}>{ $user.following } Following</a>
             {#if self}
                 <a class="btn btn-outline" href="/editprofile">Edit Profile</a>
             {:else}
