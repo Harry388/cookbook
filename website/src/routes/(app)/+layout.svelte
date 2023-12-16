@@ -26,9 +26,7 @@
     <div class="drawer-content flex flex-col items-center bg-base-200 h-full">
         <!-- Page content here -->
         <div class="navbar pt-3">
-            <div class="navbar-start">
-                <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">Open drawer</label>
-            </div>
+            <div class="navbar-start"></div>
             <div class="navbar-center">
                 <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
             </div>
@@ -38,6 +36,12 @@
         </div>
         <div class="h-full w-full p-5">
             <slot />
+        </div>
+        <div class="h-screen"></div>
+        <div class="btm-nav lg:hidden bg-base-200">
+            <a href="/">Home</a>
+            <a href="/user/{data.id}">Profile</a>
+            <a href="/settings">Settings</a>
         </div>
     </div> 
     <div class="drawer-side">
