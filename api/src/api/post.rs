@@ -41,6 +41,10 @@ struct PostMediaResult {
     uri: String
 }
 
+struct CheckPostResult {
+    user_id: i64
+}
+
 // Responses
 
 #[derive(Object)]
@@ -74,6 +78,14 @@ enum GetUserPostsResponse {
     Ok(Json<Vec<PostResponse>>)
 }
 
+#[derive(ApiResponse)]
+enum DeletePostResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 404)]
+    NotFound(PlainText<String>)
+}
+
 pub struct PostApi;
 
 #[OpenApi(prefix_path = "/post", tag = "ApiTags::Post")]
@@ -93,7 +105,7 @@ impl PostApi {
             .last_insert_id();
         for media in post_payload.media {
             let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
-            let path = format!("user/{}/{}", auth.0, time);
+            let path = format!("user/{}/post/{}/{}", auth.0, post_id, time);
             let media_path = storage.0.put_file(&path, media).await?;
             sqlx::query!( 
                 "insert into post_media (uri, post_id)
@@ -184,8 +196,28 @@ impl PostApi {
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_post(&self) {
-
+    async fn delete_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<DeletePostResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(DeletePostResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_user(check_post.user_id, auth)?;
+        sqlx::query!(
+            "delete from post where id = ?",
+            id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        storage.delete_file(&format!("user/{}/post/{}", check_post.user_id, id.0)).await?;
+        Ok(DeletePostResponse::Ok)
     }
 
 }
