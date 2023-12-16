@@ -107,13 +107,19 @@ impl UserApi {
     #[oai(path = "/:id", method = "get")]
     async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserResponse> {
         let user = sqlx::query_as!(GetUserResult,
-            "select id, username, display_name, bio, pfp, public, 
-            count(following.user_id) as following, count(followers.following_id) as followers,
-            cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
-            from user 
-            left join following as following on user.id = following.user_id 
-            left join following as followers on user.id = followers.following_id
-            where id = ?
+            "with user_and_followers as (
+                select id, username, display_name, bio, pfp, public, 
+                count(followers.following_id) as followers,
+                cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
+                from user
+                left join following as followers on user.id = followers.following_id
+                where id = ?
+                group by id
+            )
+            select id, username, display_name, bio, pfp, public, followers, is_following,
+            count(following.following_id) as following
+            from user_and_followers
+            left join following on user_and_followers.id = following.user_id
             group by id",
             auth.0, id.0
             )
