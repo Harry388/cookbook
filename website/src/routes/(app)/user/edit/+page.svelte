@@ -9,10 +9,11 @@
     let username = data.user.username;
     let displayName = data.user.display_name;
     let bio = data.user.bio;
-    let files: FileList;
+    let files: File[];
 
     async function editProfile() {
-        const response = await updateUser(data.id, username, displayName, bio, files);
+        const pfp = files.length ? files[0] : null;
+        const response = await updateUser(data.id, username, displayName, bio, pfp);
         if (response.ok) {
             goto('/user');
         }

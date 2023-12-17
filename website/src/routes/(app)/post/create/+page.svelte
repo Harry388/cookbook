@@ -8,7 +8,7 @@
 
     let title = '';
     let content = '';
-    let files: FileList;
+    let files: File[];
 
     async function create() {
         if (!title) return;

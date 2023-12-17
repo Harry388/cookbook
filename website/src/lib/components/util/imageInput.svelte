@@ -1,31 +1,47 @@
 <script lang="ts">
 
-    export let files: FileList;
+    import { onDestroy } from 'svelte';
+
+    export let files: File[] = [];
     export let multiple = false;
 
-	let images: string[] = [];
+    let input: HTMLInputElement;
+
+    $: images = files.map(file => URL.createObjectURL(file));
+
+    function onDelete(index: number) {
+        URL.revokeObjectURL(images[index]);
+        files = files.filter((_, i) => index != i);
+    }
 
     function onChange() {
-        images = Array(files.length);
-        for (const i in files) {
-            const file = files[i];
-            const reader = new FileReader();
-            reader.addEventListener("load", () => {
-                images[i] = String(reader.result);
-            });
-            reader.readAsDataURL(file);
+        if (input.files) {
+            if (multiple) {
+                files = [...files, ...input.files];
+            }
+            else {
+                files = [...input.files];
+            }
+            input.files = null;
         }
     }
 
+    onDestroy(() => {
+        for (const image of images) {
+            URL.revokeObjectURL(image);
+        }
+    })
+
 </script>
 
-<div class="flex">
-    {#each images as image}
-        <div class="w-1/5">
+<div class="flex gap-5">
+    {#each images as image, i}
+        <div class="indicator w-1/5">
+            <button on:click={() => onDelete(i)} class="indicator-item badge badge-secondary">x</button> 
             <img src={image} alt="Post Image">
         </div>
     {/each}
 </div>
 
-<input bind:files={files} on:change={onChange} {multiple} type="file" accept="image/*" class="file-input file-input-bordered w-full max-w-xs" />
-
+<label for="files" class="btn btn-success w-fit">{ multiple ? 'Add Images' : 'Select Image' }</label>
+<input bind:this={input} on:change={onChange} {multiple} id="files" type="file" accept="image/*" class="hidden">

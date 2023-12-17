@@ -21,7 +21,7 @@ export async function getUserPosts(userId: number | string, fetch?: FetchFn): Pr
     return posts;
 }
 
-export async function createPost(title: string, content: string, files: FileList, fetch?: FetchFn): Promise<Response> {
+export async function createPost(title: string, content: string, files: File[], fetch?: FetchFn): Promise<Response> {
     const formData = new FormData();
     const postStr = JSON.stringify({ title, content });
     formData.append('post', postStr);
