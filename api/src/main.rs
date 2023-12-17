@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let jwt_secret = env::var("SECRET")?;
 
     let apis = (
-        api::user::UserApi, api::auth::AuthApi, api::post::PostApi
+        api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi
     );
 
     let api_service = 
