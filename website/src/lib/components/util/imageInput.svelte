@@ -34,9 +34,9 @@
 
 </script>
 
-<div class="flex gap-5">
+<div class="flex flex-wrap gap-5 mb-5">
     {#each images as image, i}
-        <div class="indicator w-1/5">
+        <div class="self-start indicator w-fit lg:w-1/4">
             <button on:click={() => onDelete(i)} class="indicator-item badge badge-secondary">x</button> 
             <img src={image} alt="Post Image">
         </div>
