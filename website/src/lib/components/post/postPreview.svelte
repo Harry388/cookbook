@@ -8,14 +8,12 @@
 
 </script>
 
-<svelte:element this={link ? 'a' : 'div'} href="/post/{post.id}" class="card w-80 lg:w-1/4 bg-base-100 shadow-xl">
+<div class="card w-80 lg:w-1/4 bg-base-100 shadow-xl">
     {#if post.media.length}
-        {#each post.media as id}
-            <Media {id} />
-        {/each}
+        <Media media={post.media} />
     {/if}
-    <div class="card-body">
+    <svelte:element this={link ? 'a' : 'div'} href="/post/{post.id}" class="card-body">
         <h2 class="card-title">{ post.title }</h2>
         <p>{ post.content || '' }</p>
-    </div>
-</svelte:element>
+    </svelte:element>
+</div>
