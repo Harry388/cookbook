@@ -39,7 +39,7 @@
         <label class="label">
             <span class="label-text">Media</span>
         </label>
-        <ImageInput bind:files={files} />
+        <ImageInput bind:files={files} multiple />
         <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
     </div>
 </div>
