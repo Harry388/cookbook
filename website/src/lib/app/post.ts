@@ -1,4 +1,4 @@
-import { get, post, remove } from '$lib/apiFetch';
+import { get, post, remove, put } from '$lib/apiFetch';
 import type { FetchFn } from '$lib/apiFetch';
 
 export type Post = {
@@ -35,6 +35,10 @@ export async function createPost(title: string, content: string, files: FileList
             'Content-Type':  'remove'
         }
     }).run(fetch);
+}
+
+export async function updatePost(id: number | string, title: string | null, content: string | null, fetch?: FetchFn): Promise<Response> {
+    return await put(`post/${id}`, { title, content }).run(fetch);
 }
 
 export async function deletePost(id: number | string, fetch?: FetchFn): Promise<Response> {

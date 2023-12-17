@@ -6,8 +6,6 @@
 
     export let data;
 
-    $: ownsPost = data.post.user_id == data.id;
-
     async function onDelete() {
         if (!confirm('Are you sure?')) return;
         const response = await deletePost(data.post.id);
@@ -20,7 +18,8 @@
 
 <a class="btn btn-outline" href="/user/{data.post.user_id}">Back</a>
 
-{#if ownsPost}
+{#if data.ownsPost}
+    <a class="btn btn-primary" href="/post/{data.post.id}/edit">Edit Post</a>
     <button class="btn btn-error" on:click={onDelete}>Delete Post</button>
 {/if}
 
