@@ -6,7 +6,8 @@ export type Post = {
     title: string,
     content: string | null,
     user_id: number,
-    media: number[]
+    media: number[],
+    created: string
 }
 
 export async function getPost(id: number | string, fetch?: FetchFn): Promise<Post> {

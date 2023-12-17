@@ -10,7 +10,8 @@ export type User = {
     public: number,
     following: number,
     followers: number,
-    is_following: number
+    is_following: number,
+    created: string
 }
 
 export async function getUser(id: number | string, fetch?: FetchFn): Promise<User> {

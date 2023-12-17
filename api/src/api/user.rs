@@ -1,6 +1,6 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment, AttachmentType}, Object, ApiResponse, param::Path, Tags, types::{Email, multipart::Upload}, Multipart};
 use poem::{web::Data, error::InternalServerError, Result};
-use sqlx::MySqlPool;
+use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
 use crate::api::auth::{generate_password_hash, JWTAuthorization};
 use crate::permission;
 use crate::storage::{Storage, dufs::DufsStorage};
@@ -46,7 +46,8 @@ struct GetUserResult {
     public: i8,
     following: i64,
     followers: i64,
-    is_following: Option<f32>
+    is_following: Option<f32>,
+    created: DateTime<Utc>
 }
 
 #[derive(Object)]
@@ -108,7 +109,7 @@ impl UserApi {
     async fn get_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserResponse> {
         let user = sqlx::query_as!(GetUserResult,
             "with user_and_followers as (
-                select id, username, display_name, bio, pfp, public, 
+                select id, username, display_name, bio, pfp, public, created,
                 count(followers.following_id) as followers,
                 cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
                 from user
@@ -116,7 +117,7 @@ impl UserApi {
                 where id = ?
                 group by id
             )
-            select id, username, display_name, bio, pfp, public, followers, is_following,
+            select id, username, display_name, bio, pfp, public, followers, is_following, created,
             count(following.following_id) as following
             from user_and_followers
             left join following on user_and_followers.id = following.user_id

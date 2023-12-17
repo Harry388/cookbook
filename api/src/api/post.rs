@@ -1,6 +1,6 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment, AttachmentType}, Object, ApiResponse, param::Path, Tags, Multipart, types::multipart::{Upload, JsonField}};
 use poem::{web::Data, error::InternalServerError, Result};
-use sqlx::MySqlPool;
+use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
@@ -39,7 +39,8 @@ struct PostResult {
     title: String,
     content: Option<String>,
     user_id: i64,
-    media: Option<String>
+    media: Option<String>,
+    created: DateTime<Utc>
 }
 
 struct PostMediaResult {
@@ -59,7 +60,8 @@ struct PostResponse {
     title: String,
     content: Option<String>,
     user_id: i64,
-    media: Vec<i64>
+    media: Vec<i64>,
+    created: DateTime<Utc>
 }
 
 #[derive(ApiResponse)]
@@ -136,7 +138,7 @@ impl PostApi {
     #[oai(path = "/:id", method = "get")]
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
         let post = sqlx::query_as!(PostResult,
-            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created
             from post left join post_media on post.id = post_media.post_id
             where post.id = ?
             group by post.id",
@@ -154,7 +156,7 @@ impl PostApi {
             Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
             None => vec![]
         };
-        let post = PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media };
+        let post = PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created };
         Ok(GetPostResponse::Ok(Json(post)))
     }
 
@@ -184,7 +186,7 @@ impl PostApi {
     async fn get_user_posts(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserPostsResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
         let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created
             from post left join post_media on post.id = post_media.post_id
             where post.user_id = ?
             group by post.id",
@@ -199,7 +201,7 @@ impl PostApi {
                 Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
                 None => vec![]
             };
-            full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media })
+            full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created })
         }
         Ok(GetUserPostsResponse::Ok(Json(full_posts)))
     }
