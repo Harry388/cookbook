@@ -8,7 +8,7 @@
 
 </script>
 
-<div class="card w-80 lg:w-1/4 bg-base-100 shadow-xl">
+<div class="card w-11/12 lg:w-1/4 bg-base-100 shadow-xl">
     {#if post.media.length}
         <Media media={post.media} />
     {/if}
