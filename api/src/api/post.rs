@@ -15,7 +15,7 @@ enum ApiTags {
 
 #[derive(Object)]
 struct Post {
-    title: String,
+    title: Option<String>,
     content: Option<String>
 }
 
@@ -23,6 +23,12 @@ struct Post {
 struct PostPayload {
     post: JsonField<Post>,
     media: Vec<Upload>
+}
+
+#[derive(Object)]
+struct UpdatePost {
+    title: Option<String>,
+    content: Option<String>
 }
 
 
@@ -76,6 +82,14 @@ enum GetPostMediaResponse {
 enum GetUserPostsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<PostResponse>>)
+}
+
+#[derive(ApiResponse)]
+enum UpdatePostResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 404)]
+    NotFound(PlainText<String>)
 }
 
 #[derive(ApiResponse)]
@@ -191,8 +205,27 @@ impl PostApi {
     }
 
     #[oai(path = "/:id", method = "put")]
-    async fn update_post(&self) {
-
+    async fn update_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, update_post: Json<UpdatePost>, auth: JWTAuthorization) -> Result<UpdatePostResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(UpdatePostResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_user(check_post.user_id, auth)?;
+        sqlx::query!(
+            "update post set title = coalesce(?, title), content = coalesce(?, content) where id = ?",
+            update_post.title, update_post.content, id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(UpdatePostResponse::Ok)
     }
 
     #[oai(path = "/:id", method = "delete")]
