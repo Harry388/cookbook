@@ -19,6 +19,10 @@
         }
     }
 
+    function back() {
+        goto(-1);
+    }
+
 </script>
 
 <div class="drawer lg:drawer-open">
@@ -26,7 +30,11 @@
     <div class="drawer-content flex flex-col items-center bg-base-200 h-full">
         <!-- Page content here -->
         <div class="navbar pt-3">
-            <div class="navbar-start"></div>
+            <div class="navbar-start">
+                {#if data.showBack}
+                    <button class="btn btn-outline" on:click={() => history.back()}>Back</button>
+                {/if}
+            </div>
             <div class="navbar-center">
                 <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
             </div>

@@ -19,8 +19,6 @@
 
 </script>
 
-<a class="btn btn-outline" href="/post/{data.post.id}">Back</a>
-
 <h3 class="font-bold text-lg py-5">Edit Post</h3>
 <div class="form-control">
     <!-- svelte-ignore a11y-label-has-associated-control -->

@@ -24,8 +24,6 @@
 
 </script>
 
-<a class="btn btn-outline" href="/user/{data.post.user_id}">Back</a>
-
 {#if data.ownsPost}
     <a class="btn btn-primary" href="/post/{data.post.id}/edit">Edit Post</a>
     <button class="btn btn-error" on:click={onDelete}>Delete Post</button>

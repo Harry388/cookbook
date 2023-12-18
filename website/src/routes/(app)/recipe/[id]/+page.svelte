@@ -16,8 +16,6 @@
 
 </script>
 
-<a class="btn btn-outline" href="/user/{data.recipe.user_id}/recipes">Back</a>
-
 {#if data.ownsRecipe}
     <a class="btn btn-primary" href="/recipe/{data.recipe.id}/edit">Edit Recipe</a>
     <button class="btn btn-error" on:click={onDelete}>Delete Recipe</button>

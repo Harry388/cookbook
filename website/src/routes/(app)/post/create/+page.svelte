@@ -20,8 +20,6 @@
 
 </script>
 
-<a class="btn btn-outline" href={`/user/${data.id}`}>Back</a>
-
 <h3 class="font-bold text-lg py-5">Create a Post</h3>
 <div class="form-control">
     <!-- svelte-ignore a11y-label-has-associated-control -->

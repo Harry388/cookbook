@@ -21,8 +21,6 @@
 
 </script>
 
-<a class="btn btn-outline" href={`/user/${data.userId}`}>Back</a>
-
 <div class="flex justify-center">
 
     <div class="overflow-x-auto w-1/3">

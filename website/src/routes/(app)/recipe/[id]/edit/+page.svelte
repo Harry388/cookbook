@@ -22,8 +22,6 @@
 
 </script>
 
-<a class="btn btn-outline" href="/recipe/{data.recipe.id}">Back</a>
-
 <h3 class="font-bold text-lg py-5">Edit Recipe</h3>
 <div class="form-control">
     <!-- svelte-ignore a11y-label-has-associated-control -->
