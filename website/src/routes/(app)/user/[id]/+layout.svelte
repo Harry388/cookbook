@@ -7,7 +7,7 @@
 
     export let data;
 
-    const routes = ['posts', 'other'];
+    const routes = ['posts', 'recipes'];
 
     const user = writable<User>();
     $: user.set(data.user);
