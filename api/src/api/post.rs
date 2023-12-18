@@ -5,6 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::{Storage, dufs::DufsStorage};
+use crate::api::recipe::RecipeResult;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -84,6 +85,14 @@ enum GetPostMediaResponse {
 enum GetUserPostsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<PostResponse>>)
+}
+
+#[derive(ApiResponse)]
+enum GetPostRecipesResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<RecipeResult>>),
+    #[oai(status = 404)]
+    NotFound(PlainText<String>)
 }
 
 #[derive(ApiResponse)]
@@ -204,6 +213,33 @@ impl PostApi {
             full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created })
         }
         Ok(GetUserPostsResponse::Ok(Json(full_posts)))
+    }
+
+    #[oai(path = "/:id/recipe", method = "get")]
+    async fn get_post_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostRecipesResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(GetPostRecipesResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_following_or_public(pool.0, check_post.user_id, auth).await?;
+        let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+            "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created
+            from recipe
+            inner join recipe_post on recipe.id = recipe_post.recipe_id
+            where recipe_post.post_id = ?",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(GetPostRecipesResponse::Ok(Json(recipes)))
     }
 
     #[oai(path = "/:id", method = "put")]

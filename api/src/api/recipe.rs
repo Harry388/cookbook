@@ -30,14 +30,14 @@ struct UpdateRecipe {
 // Results
 
 #[derive(Object)]
-struct RecipeResult {
-    id: i64,
-    title: String,
-    description: Option<String>,
-    ingredients: JsonValue,
-    method: JsonValue,
-    user_id: i64,
-    created: DateTime<Utc>
+pub struct RecipeResult {
+    pub id: i64,
+    pub title: String,
+    pub description: Option<String>,
+    pub ingredients: JsonValue,
+    pub method: JsonValue,
+    pub user_id: i64,
+    pub created: DateTime<Utc>
 }
 
 struct CheckRecipeResult {
