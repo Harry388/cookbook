@@ -1,5 +1,6 @@
 import { get, post, remove, put } from '$lib/apiFetch';
 import type { FetchFn } from '$lib/apiFetch';
+import type { Recipe } from '$lib/app/recipe';
 
 export type Post = {
     id: number,
@@ -20,6 +21,12 @@ export async function getUserPosts(userId: number | string, fetch?: FetchFn): Pr
     const response = await get(`post/user/${userId}`).run(fetch);
     const posts: Post[] = await response.json();
     return posts;
+}
+
+export async function getPostRecipes(id: number | string, fetch?: FetchFn): Promise<Recipe[]> {
+    const response = await get(`post/${id}/recipe`).run(fetch);
+    const recipes: Recipe[] = await response.json();
+    return recipes;
 }
 
 export async function createPost(title: string, content: string, files: File[], fetch?: FetchFn): Promise<Response> {

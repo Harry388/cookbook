@@ -1,13 +1,14 @@
-import { getPost } from '$lib/app/post';
+import { getPost, getPostRecipes } from '$lib/app/post';
 
 export const load = async ({ params, fetch, parent }) => {
 
     const { id } = await parent();
 
-    const post = await getPost(params.id, fetch);
-
+    const [post, recipes] = await Promise.all([getPost(params.id, fetch), getPostRecipes(params.id, fetch)]);
+    
     return {
         post,
+        recipes,
         title: post.title,
         ownsPost: id == post.user_id
     }

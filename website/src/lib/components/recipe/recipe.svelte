@@ -6,7 +6,7 @@
 
 </script>
 
-<a href="/recipe/{recipe.id}" class="card w-11/12 lg:w-1/4 bg-base-100 shadow-xl">
+<a href="/recipe/{recipe.id}" class="card w-11/12 lg:w-96 bg-base-100 shadow-xl">
     <div class="card-body">
         <h2 class="card-title">{ recipe.title }</h2>
         <p>{ recipe.description || '' }</p>

@@ -9,7 +9,7 @@
 
 </script>
 
-<div class="mt-5 flex gap-5 flex-col items-center">
+<div class="flex gap-5 flex-col items-center">
     {#each $recipes as recipe}
         <RecipeComponent {recipe} />
     {/each}
