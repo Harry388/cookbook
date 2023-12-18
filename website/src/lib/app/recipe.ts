@@ -31,7 +31,7 @@ export async function createRecipe(title: string, description: string | null, in
     return await post(`recipe`, { title, description, ingredients, method }).run(fetch);
 }
 
-export async function editRecipe(id: number | string, title: string | null, description: string | null, ingredients: Ingredients | null, method: Method | null, fetch?: FetchFn): Promise<Response> {
+export async function updateRecipe(id: number | string, title: string | null, description: string | null, ingredients: Ingredients | null, method: Method | null, fetch?: FetchFn): Promise<Response> {
     return await put(`recipe/${id}`, { title, description, ingredients, method }).run(fetch);
 }
 
