@@ -215,33 +215,6 @@ impl PostApi {
         Ok(GetUserPostsResponse::Ok(Json(full_posts)))
     }
 
-    #[oai(path = "/:id/recipe", method = "get")]
-    async fn get_post_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostRecipesResponse> {
-        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
-            "select user_id from post where id = ?",
-            id.0
-            )
-            .fetch_optional(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        if let None = check_post {
-            return Ok(GetPostRecipesResponse::NotFound(PlainText("Post not found".to_string())));
-        }
-        let check_post = check_post.unwrap();
-        permission::user::is_following_or_public(pool.0, check_post.user_id, auth).await?;
-        let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
-            "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created
-            from recipe
-            inner join recipe_post on recipe.id = recipe_post.recipe_id
-            where recipe_post.post_id = ?",
-            id.0
-            )
-            .fetch_all(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        Ok(GetPostRecipesResponse::Ok(Json(recipes)))
-    }
-
     #[oai(path = "/:id", method = "put")]
     async fn update_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, update_post: Json<UpdatePost>, auth: JWTAuthorization) -> Result<UpdatePostResponse> {
         let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
@@ -289,6 +262,81 @@ impl PostApi {
             .map_err(InternalServerError)?;
         storage.delete_file(&format!("user/{}/post/{}", check_post.user_id, id.0)).await?;
         Ok(DeletePostResponse::Ok)
+    }
+
+    #[oai(path = "/:id/recipe", method = "get")]
+    async fn get_post_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostRecipesResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(GetPostRecipesResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_following_or_public(pool.0, check_post.user_id, auth).await?;
+        let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+            "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created
+            from recipe
+            inner join recipe_post on recipe.id = recipe_post.recipe_id
+            where recipe_post.post_id = ?",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(GetPostRecipesResponse::Ok(Json(recipes)))
+    }
+
+    #[oai(path = "/:id/addrecipe/:recipe_id", method = "post")]
+    async fn add_post_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<UpdatePostResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(UpdatePostResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_user(check_post.user_id, auth)?;
+        sqlx::query!(
+            "insert into recipe_post (recipe_id, post_id) values (?,?)",
+            recipe_id.0, id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(UpdatePostResponse::Ok)
+    }
+
+    #[oai(path = "/:id/removerecipe/:recipe_id", method = "delete")]
+    async fn remove_post_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<UpdatePostResponse> {
+        let check_post: Option<CheckPostResult> = sqlx::query_as!(CheckPostResult,
+            "select user_id from post where id = ?",
+            id.0
+            )
+            .fetch_optional(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        if let None = check_post {
+            return Ok(UpdatePostResponse::NotFound(PlainText("Post not found".to_string())));
+        }
+        let check_post = check_post.unwrap();
+        permission::user::is_user(check_post.user_id, auth)?;
+        sqlx::query!(
+            "delete from recipe_post where recipe_id = ? and post_id = ?",
+            recipe_id.0, id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(UpdatePostResponse::Ok)
     }
 
 }
