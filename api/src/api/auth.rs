@@ -25,7 +25,7 @@ struct Claims {
 
 // Auth
 
-#[derive(SecurityScheme, Clone)]
+#[derive(SecurityScheme, Clone, Copy)]
 #[oai(
     ty = "api_key",
     key_in = "cookie",
