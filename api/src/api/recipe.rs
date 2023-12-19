@@ -40,10 +40,6 @@ pub struct RecipeResult {
     pub created: DateTime<Utc>
 }
 
-struct CheckRecipeResult {
-    user_id: i64
-}
-
 // Responses
 
 #[derive(ApiResponse)]
@@ -58,22 +54,6 @@ enum GetRecipeResponse {
 enum GetUserRecipesResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<RecipeResult>>)
-}
-
-#[derive(ApiResponse)]
-enum UpdateRecipeResponse {
-    #[oai(status = 200)]
-    Ok,
-    #[oai(status = 404)]
-    NotFound(PlainText<String>)
-}
-
-#[derive(ApiResponse)]
-enum DeleteRecipeResponse {
-    #[oai(status = 200)]
-    Ok,
-    #[oai(status = 404)]
-    NotFound(PlainText<String>)
 }
 
 pub struct RecipeApi;
@@ -125,19 +105,8 @@ impl RecipeApi {
     }
 
     #[oai(path = "/:id", method = "put")]
-    async fn update_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, update_recipe: Json<UpdateRecipe>, auth: JWTAuthorization) -> Result<UpdateRecipeResponse> {
-        let check_recipe: Option<CheckRecipeResult> = sqlx::query_as!(CheckRecipeResult,
-            "select user_id from recipe where id = ?",
-            id.0
-            )
-            .fetch_optional(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        if let None = check_recipe {
-            return Ok(UpdateRecipeResponse::NotFound(PlainText("Recipe not found".to_string())));
-        }
-        let check_recipe = check_recipe.unwrap();
-        permission::user::is_user(check_recipe.user_id, auth)?;
+    async fn update_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, update_recipe: Json<UpdateRecipe>, auth: JWTAuthorization) -> Result<()> {
+        permission::recipe::owns_recipe(pool.0, id.0, auth).await?;
         sqlx::query!(
             "update recipe set title = coalesce(?, title), description = coalesce(?, description),
             ingredients = coalesce(?, ingredients), method = coalesce(?, method)
@@ -147,23 +116,12 @@ impl RecipeApi {
             .execute(pool.0)
             .await
             .map_err(InternalServerError)?;
-        Ok(UpdateRecipeResponse::Ok)
+        Ok(())
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<DeleteRecipeResponse> {
-        let check_recipe: Option<CheckRecipeResult> = sqlx::query_as!(CheckRecipeResult,
-            "select user_id from recipe where id = ?",
-            id.0
-            )
-            .fetch_optional(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        if let None = check_recipe {
-            return Ok(DeleteRecipeResponse::NotFound(PlainText("Recipe not found".to_string())));
-        }
-        let check_recipe = check_recipe.unwrap();
-        permission::user::is_user(check_recipe.user_id, auth)?;
+    async fn delete_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::recipe::owns_recipe(pool.0, id.0, auth).await?;
         sqlx::query!(
             "delete from recipe where id = ?",
             id.0
@@ -171,7 +129,7 @@ impl RecipeApi {
             .execute(pool.0)
             .await
             .map_err(InternalServerError)?;
-        Ok(DeleteRecipeResponse::Ok)
+        Ok(())
     }
 
 }
