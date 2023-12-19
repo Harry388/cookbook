@@ -15,16 +15,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let jwt_secret = env::var("SECRET")?;
 
+    let production = env::var("PRODUCTION").is_ok();
+
     let apis = (
         api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi
     );
 
     let api_service = 
         OpenApiService::new(apis, "CookBook API", "1.0").server("http://localhost:8000/api");
-    let ui = api_service.swagger_ui();
-    let app = Route::new()
+   
+    let app = 
+        if production {
+            Route::new()
+        }
+        else {
+            let ui = api_service.swagger_ui();
+            Route::new().nest("/", ui)
+        }
         .nest("/api", api_service)
-        .nest("/", ui)
         .with(Cors::new().allow_credentials(true))
         .data(pool)
         .data(storage)

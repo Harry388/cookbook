@@ -1,6 +1,8 @@
 version: '3'
 services:
     api:
+        environment:
+            PRODUCTION: 'true'
         command: sh -c "cargo run --release"
     website:
         environment:
