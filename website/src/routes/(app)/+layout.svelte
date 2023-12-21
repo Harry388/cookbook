@@ -19,10 +19,6 @@
         }
     }
 
-    function back() {
-        goto(-1);
-    }
-
 </script>
 
 <div class="drawer lg:drawer-open">
