@@ -1,7 +1,6 @@
 <script lang="ts">
 
     import { updatePost } from '$lib/app/post';
-    import { goto } from '$app/navigation';
 
     export let data;
 
@@ -14,9 +13,7 @@
     async function save() {
         const response = await updatePost(data.post.id, title, content);
         if (response.ok) {
-            goto(`/post/${data.post.id}`, {
-                invalidateAll: true
-            });
+            history.back();
         }
     }
 
