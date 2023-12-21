@@ -7,7 +7,7 @@ services:
             - './api:/code'
         command: sh -c "cargo watch -x run"
         environment:
-            DATABASE_URL: '${DB_URL}'
+            DATABASE_URL: '${API_DB_URL}'
             STORAGE_URL: '${API_STORAGE_URL}'
             SECRET: '${API_SECRET}'
         ports:
@@ -56,7 +56,7 @@ services:
             - 5000:5000
         volumes:
             - 'files:/data'
-        command: '/data -A -a ${DUFS_ADMIN_AUTH} -a ${DUFS_PUBLIC_AUTH}'
+        command: '/data -A -a ${DUFS_AUTH}'
         networks:
             - cb
 networks:
