@@ -6,7 +6,7 @@
     import { goto } from '$app/navigation';
     import { writable } from 'svelte/store';
     import { setContext } from 'svelte';
-    import type Recipe from '$lib/components/recipe/recipe.svelte';
+    import type { Recipe } from '$lib/app/recipe';
 
     export let data;
 
