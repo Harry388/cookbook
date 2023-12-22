@@ -64,7 +64,7 @@
                 <span class="label-text">Pick Recipe</span>
             </div>
             <select bind:value={newRecipe} class="select select-bordered">
-                <option disabled selected>Pick one</option>
+                <option selected>Pick one</option>
                 {#each newRecipes as recipe}
                     <option value={recipe.id}>{ recipe.title }</option>
                 {/each}
