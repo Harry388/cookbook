@@ -1,10 +1,7 @@
 <script lang="ts">
 
     import { createPost } from '$lib/app/post';
-    import { goto } from '$app/navigation';
     import ImageInput from '$lib/components/util/imageInput.svelte';
-
-    export let data;
 
     let title = '';
     let content = '';
@@ -14,7 +11,7 @@
         if (!title) return;
         const response = await createPost(title, content, files);
         if (response.ok) {
-            goto('/user');
+            history.back();
         }
     }
 

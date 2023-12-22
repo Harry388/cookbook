@@ -2,9 +2,6 @@
 
     import ListInput from '$lib/components/util/listInput.svelte';
     import { createRecipe } from '$lib/app/recipe';
-    import { goto } from '$app/navigation';
-
-    export let data;
 
     let title = '';
     let description = '';
@@ -14,7 +11,7 @@
     async function create() {
         const response = await createRecipe(title, description, ingredients, method);
         if (response.ok) {
-            goto(`/user/${data.id}/recipes`);
+            history.back();
         }
     }
 
