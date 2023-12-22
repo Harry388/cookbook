@@ -70,7 +70,7 @@
                 {/each}
             </select>
             <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
-            <a class="btn btn-outline w-fit" href="/post/create">Create New Recipe</a>
+            <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
         </label>
     </div>
 
