@@ -41,7 +41,7 @@
         <div class="h-full w-full p-5">
             <slot />
         </div>
-        <div class="h-screen"></div>
+        <div class="h-16"></div>
         <div class="btm-nav lg:hidden bg-base-200">
             <a href="/">Home</a>
             <a href="/user/{data.id}">Profile</a>

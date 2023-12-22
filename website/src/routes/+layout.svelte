@@ -7,4 +7,6 @@
     <title>{ $page.data.title ? `${$page.data.title} -` : '' } CookBook</title>
 </svelte:head>
 
-<slot />
+<div class="h-screen bg-base-200">
+    <slot />
+</div>
