@@ -65,7 +65,7 @@
             {#each recipes as recipe}
                 <div class="flex indicator">
                     <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
-                    <RecipeComponent {recipe} />
+                    <RecipeComponent {recipe} link />
                 </div>
             {/each}
         </div>

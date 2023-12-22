@@ -11,6 +11,6 @@
 
 <div class="flex gap-5 flex-col items-center">
     {#each $recipes as recipe}
-        <RecipeComponent {recipe} />
+        <RecipeComponent {recipe} link />
     {/each}
 </div>
