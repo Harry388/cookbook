@@ -1,14 +1,22 @@
 <script lang="ts">
 
-    import { updatePost } from '$lib/app/post';
+    import { updatePost, addPostRecipe, getPostRecipes } from '$lib/app/post';
+    import { writable } from 'svelte/store';
+    import { setContext } from 'svelte';
+    import Recipes from '$lib/components/recipe/recipes.svelte';
+    import type { Recipe } from '$lib/app/recipe';
 
     export let data;
 
     let title = data.post.title;
     let content = data.post.content;
-    let recipe: number;
+    let newRecipe: number;
 
-    $: console.log(recipe);
+    const recipes = writable<Recipe[]>();
+    $: recipes.set(data.recipes);
+    setContext('recipes', recipes);
+
+    $: newRecipes = data.userRecipes.filter(ur => !data.recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
         const response = await updatePost(data.post.id, title, content);
@@ -17,9 +25,16 @@
         }
     }
 
+    async function addRecipe() {
+        const response = await addPostRecipe(data.post.id, newRecipe);
+        if (response.ok) {
+            $recipes = await getPostRecipes(data.post.id);
+        }
+    }
+
 </script>
 
-<div class="flex">
+<div class="flex flex-col lg:flex-row">
 
     <div class="flex-1 form-control">
         <h3 class="font-bold text-lg py-5">Edit Post</h3>
@@ -43,16 +58,19 @@
 
     <div class="flex-1">
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
+        <Recipes />
         <label class="form-control w-full max-w-xs">
             <div class="label">
                 <span class="label-text">Pick Recipe</span>
             </div>
-            <select bind:value={recipe} class="select select-bordered">
+            <select bind:value={newRecipe} class="select select-bordered">
                 <option disabled selected>Pick one</option>
-                {#each data.userRecipes as recipe}
+                {#each newRecipes as recipe}
                     <option value={recipe.id}>{ recipe.title }</option>
                 {/each}
             </select>
+            <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
+            <a class="btn btn-outline w-fit" href="/post/create">Create New Recipe</a>
         </label>
     </div>
 

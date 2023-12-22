@@ -23,12 +23,6 @@ export async function getUserPosts(userId: number | string, fetch?: FetchFn): Pr
     return posts;
 }
 
-export async function getPostRecipes(id: number | string, fetch?: FetchFn): Promise<Recipe[]> {
-    const response = await get(`post/${id}/recipe`).run(fetch);
-    const recipes: Recipe[] = await response.json();
-    return recipes;
-}
-
 export async function createPost(title: string, content: string, files: File[], fetch?: FetchFn): Promise<Response> {
     const formData = new FormData();
     const postStr = JSON.stringify({ title, content });
@@ -51,4 +45,14 @@ export async function updatePost(id: number | string, title: string | null, cont
 
 export async function deletePost(id: number | string, fetch?: FetchFn): Promise<Response> {
     return await remove(`post/${id}`).run(fetch);
+}
+
+export async function getPostRecipes(id: number | string, fetch?: FetchFn): Promise<Recipe[]> {
+    const response = await get(`post/${id}/recipe`).run(fetch);
+    const recipes: Recipe[] = await response.json();
+    return recipes;
+}
+
+export async function addPostRecipe(id: number | string, recipeId: number | string, fetch?: FetchFn): Promise<Response> {
+    return await post(`post/${id}/addrecipe/${recipeId}`).run(fetch);
 }
