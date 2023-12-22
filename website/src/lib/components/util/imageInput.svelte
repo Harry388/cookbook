@@ -37,7 +37,7 @@
 <div class="flex flex-wrap gap-5 mb-5">
     {#each images as image, i}
         <div class="self-start indicator w-fit lg:w-1/4">
-            <button on:click={() => onDelete(i)} class="indicator-item badge badge-secondary text-lg">x</button> 
+            <button on:click={() => onDelete(i)} class="indicator-item badge badge-error text-lg">x</button> 
             <img src={image} alt="Post Image">
         </div>
     {/each}

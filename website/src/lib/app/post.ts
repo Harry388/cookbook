@@ -56,3 +56,7 @@ export async function getPostRecipes(id: number | string, fetch?: FetchFn): Prom
 export async function addPostRecipe(id: number | string, recipeId: number | string, fetch?: FetchFn): Promise<Response> {
     return await post(`post/${id}/addrecipe/${recipeId}`).run(fetch);
 }
+
+export async function deletePostRecipe(id: number | string, recipeId: number | string, fetch?: FetchFn): Promise<Response> {
+    return await remove(`post/${id}/removerecipe/${recipeId}`).run(fetch);
+}

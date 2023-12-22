@@ -1,9 +1,7 @@
 <script lang="ts">
 
-    import { updatePost, addPostRecipe, getPostRecipes } from '$lib/app/post';
-    import { writable } from 'svelte/store';
-    import { setContext } from 'svelte';
-    import Recipes from '$lib/components/recipe/recipes.svelte';
+    import { updatePost, addPostRecipe, getPostRecipes, deletePostRecipe } from '$lib/app/post';
+    import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import type { Recipe } from '$lib/app/recipe';
 
     export let data;
@@ -11,12 +9,9 @@
     let title = data.post.title;
     let content = data.post.content;
     let newRecipe: number;
+    let recipes = data.recipes;
 
-    const recipes = writable<Recipe[]>();
-    $: recipes.set(data.recipes);
-    setContext('recipes', recipes);
-
-    $: newRecipes = data.userRecipes.filter(ur => !data.recipes.map(r => r.id).includes(ur.id));
+    $: newRecipes = data.userRecipes.filter(ur => !recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
         const response = await updatePost(data.post.id, title, content);
@@ -27,8 +22,16 @@
 
     async function addRecipe() {
         const response = await addPostRecipe(data.post.id, newRecipe);
+        newRecipe = -1;
         if (response.ok) {
-            $recipes = await getPostRecipes(data.post.id);
+            recipes = await getPostRecipes(data.post.id);
+        }
+    }
+
+    async function deleteRecipe(recipeId: number) {
+        const response = await deletePostRecipe(data.post.id, recipeId);
+        if (response.ok) {
+            recipes = await getPostRecipes(data.post.id);
         }
     }
 
@@ -58,13 +61,20 @@
 
     <div class="flex-1">
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-        <Recipes />
+        <div class="flex gap-5 flex-col items-center">
+            {#each recipes as recipe}
+                <div class="flex indicator">
+                    <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
+                    <RecipeComponent {recipe} />
+                </div>
+            {/each}
+        </div>
         <label class="form-control w-full max-w-xs">
             <div class="label">
                 <span class="label-text">Pick Recipe</span>
             </div>
             <select bind:value={newRecipe} class="select select-bordered">
-                <option selected>Pick one</option>
+                <option value={-1} selected>Pick one</option>
                 {#each newRecipes as recipe}
                     <option value={recipe.id}>{ recipe.title }</option>
                 {/each}
