@@ -2,7 +2,7 @@ version: '3'
 services:
     api:
         build: ./api
-        image: api/cookbook
+        image: cookbook/api
         volumes:
             - './api:/code'
         command: sh -c "cargo watch -x run"
@@ -16,7 +16,7 @@ services:
             - cb
     website:
         build: ./website
-        image: website/cookbook
+        image: cookbook/website
         volumes:
             - './website:/code'
         command: sh -c "npm install && npm run dev -- --host"
