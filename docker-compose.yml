@@ -10,6 +10,7 @@ services:
             DATABASE_URL: '${API_DB_URL}'
             STORAGE_URL: '${API_STORAGE_URL}'
             SECRET: '${API_SECRET}'
+            CARGO_TARGET_DIR: '/build'
         ports:
             - 8000:8000
         networks:
