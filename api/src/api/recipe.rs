@@ -3,6 +3,7 @@ use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::{MySqlPool, types::{chrono::{DateTime, Utc}, JsonValue}};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
+use crate::api::post::{PostResult, PostResponse};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -54,6 +55,12 @@ enum GetRecipeResponse {
 enum GetUserRecipesResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<RecipeResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetRecipePostsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<PostResponse>>)
 }
 
 pub struct RecipeApi;
@@ -130,6 +137,32 @@ impl RecipeApi {
             .await
             .map_err(InternalServerError)?;
         Ok(())
+    }
+
+    #[oai(path = "/:id/post", method = "get")]
+    async fn get_recipe_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipePostsResponse> {
+        permission::recipe::is_visible(pool.0, id.0, auth).await?;
+        let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created
+            from post
+            left join post_media on post.id = post_media.post_id
+            inner join recipe_post on post.id = recipe_post.post_id
+            where recipe_post.recipe_id = ?
+            group by post.id",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        let mut post_response = vec![];
+        for post in posts {
+            let media = match post.media {
+                Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
+                None => vec![]
+            };
+            post_response.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created });
+        }
+        Ok(GetRecipePostsResponse::Ok(Json(post_response)))
     }
 
 }

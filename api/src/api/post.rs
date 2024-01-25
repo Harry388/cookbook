@@ -35,13 +35,13 @@ struct UpdatePost {
 
 // Results
 
-struct PostResult {
-    id: i64,
-    title: String,
-    content: Option<String>,
-    user_id: i64,
-    media: Option<String>,
-    created: DateTime<Utc>
+pub struct PostResult {
+    pub id: i64,
+    pub title: String,
+    pub content: Option<String>,
+    pub user_id: i64,
+    pub media: Option<String>,
+    pub created: DateTime<Utc>
 }
 
 struct PostMediaResult {
@@ -52,13 +52,13 @@ struct PostMediaResult {
 // Responses
 
 #[derive(Object)]
-struct PostResponse {
-    id: i64,
-    title: String,
-    content: Option<String>,
-    user_id: i64,
-    media: Vec<i64>,
-    created: DateTime<Utc>
+pub struct PostResponse {
+    pub id: i64,
+    pub title: String,
+    pub content: Option<String>,
+    pub user_id: i64,
+    pub media: Vec<i64>,
+    pub created: DateTime<Utc>
 }
 
 #[derive(ApiResponse)]
