@@ -18,9 +18,9 @@ struct Tag {
 // Results
 
 #[derive(Object)]
-struct TagResult {
-    id: i64,
-    tag: String
+pub struct TagResult {
+    pub id: i64,
+    pub tag: String
 }
 
 // Responses
