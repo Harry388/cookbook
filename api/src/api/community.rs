@@ -20,6 +20,12 @@ struct Community {
     description: Option<String>
 }
 
+#[derive(Object)]
+struct UpdateCommunity {
+    title: Option<String>,
+    description: Option<String>
+}
+
 // Results
 
 #[derive(Object)]
@@ -88,4 +94,43 @@ impl CommunityApi {
         Ok(GetCommunityResponse::Ok(Json(community)))
     }
 
+    #[oai(path = "/:id/join", method = "post")]
+    async fn join_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        sqlx::query!(
+            "insert into community_user (community_id, user_id, permission) 
+            values (?, ?, 'USER')",
+            id.0, auth.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id", method = "put")]
+    async fn update_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, update: Json<UpdateCommunity>, auth: JWTAuthorization) -> Result<()> {
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        sqlx::query!(
+            "update community set title = coalesce(?, title), description = coalesce(?, description) where id = ?",
+            update.title, update.description, id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id", method = "delete")]
+    async fn delete_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        sqlx::query!(
+            "delete from community where id = ?",
+            id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+        
 }
