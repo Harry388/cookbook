@@ -6,7 +6,6 @@ use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::{Storage, dufs::DufsStorage};
 use crate::api::recipe::RecipeResult;
-use crate::api::tag::TagResult;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -88,12 +87,6 @@ enum GetUserPostsResponse {
 enum GetPostRecipesResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<RecipeResult>>)
-}
-
-#[derive(ApiResponse)]
-enum GetPostTagsResponse {
-    #[oai(status = 200)]
-    Ok(Json<Vec<TagResult>>)
 }
 
 pub struct PostApi;
@@ -262,48 +255,6 @@ impl PostApi {
         sqlx::query!(
             "delete from recipe_post where recipe_id = ? and post_id = ?",
             recipe_id.0, id.0
-            )
-            .execute(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        Ok(())
-    }
-
-    #[oai(path = "/:id/tag", method = "get")]
-    async fn get_post_tags(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostTagsResponse> {
-        permission::post::is_visible(pool.0, id.0, auth).await?;
-        let tags: Vec<TagResult> = sqlx::query_as!(TagResult,
-            "select id, tag
-            from tag
-            inner join post_tag on tag.id = post_tag.tag_id
-            where post_tag.post_id = ?",
-            id.0
-            )
-            .fetch_all(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        Ok(GetPostTagsResponse::Ok(Json(tags)))
-    }
-
-    #[oai(path = "/:id/addtag/:tag_id", method = "post")]
-    async fn add_post_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, tag_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        permission::post::owns_post(pool.0, id.0, auth).await?;
-        sqlx::query!(
-            "insert into post_tag (tag_id, post_id) values (?,?)",
-            tag_id.0, id.0
-            )
-            .execute(pool.0)
-            .await
-            .map_err(InternalServerError)?;
-        Ok(())
-    }
-
-    #[oai(path = "/:id/removetag/:tag_id", method = "delete")]
-    async fn remove_post_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, tag_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        permission::post::owns_post(pool.0, id.0, auth).await?;
-        sqlx::query!(
-            "delete from post_tag where tag_id = ? and post_id = ?",
-            tag_id.0, id.0
             )
             .execute(pool.0)
             .await
