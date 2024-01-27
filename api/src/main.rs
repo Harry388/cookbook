@@ -18,7 +18,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let production = env::var("PRODUCTION").is_ok();
 
     let apis = (
-        api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi
+        api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi,
+        api::community::CommunityApi
     );
 
     let api_service = 
