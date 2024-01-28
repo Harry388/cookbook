@@ -25,6 +25,11 @@ struct UpdateCommunity {
     description: Option<String>
 }
 
+#[derive(Object)]
+struct UpdateCommunityUser {
+    permission: String 
+}
+
 // Results
 
 #[derive(Object)]
@@ -41,6 +46,10 @@ struct UserResult {
     id: i64,
     username: String,
     display_name: String
+}
+
+struct UserCountResult {
+    count: i64
 }
 
 // Responses
@@ -69,6 +78,14 @@ enum GetUserCommunitiesResponse {
 enum GetCommunityPostsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<PostResponse>>)
+}
+
+#[derive(ApiResponse)]
+enum UpdateCommunityUserResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 401)]
+    Unauthorized
 }
 
 pub struct CommunityApi;
@@ -210,6 +227,62 @@ impl CommunityApi {
             post_response.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
         }
         Ok(GetCommunityPostsResponse::Ok(Json(post_response)))
+    }
+
+    #[oai(path = "/:id/user/:user_id", method = "put")]
+    async fn update_community_user(&self, pool: Data<&MySqlPool>, id: Path<i64>, user_id: Path<i64>, update: Json<UpdateCommunityUser>, auth: JWTAuthorization) -> Result<UpdateCommunityUserResponse> {
+        if user_id.0 == auth.0 {
+            return Ok(UpdateCommunityUserResponse::Unauthorized)
+        }
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        sqlx::query!(
+            "update community_user set permission = ?
+            where community_id = ? and user_id = ?",
+            update.permission, id.0, user_id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(UpdateCommunityUserResponse::Ok)
+    }
+
+    #[oai(path = "/:id/leave/:user_id", method = "delete")]
+    async fn leave_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        if self.has_one_user(pool.0, id.0).await? {
+            return Ok(())
+        }
+        let this_user = permission::user::is_user(user_id.0, auth);
+        if !this_user.is_ok() {
+            permission::community::is_admin(pool.0, id.0, auth).await?;
+        }
+        sqlx::query!(
+            "delete from community_user where community_id = ? and user_id = ?",
+            id.0, user_id.0
+            )
+            .execute(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(())
+    }
+
+    async fn has_one_user(&self, pool: &MySqlPool, id: i64) -> Result<bool> {
+        let user_count = sqlx::query_as!(UserCountResult,
+            "select count(*) as count
+            from community
+            inner join community_user on community.id = community_user.community_id
+            where community.id = ?
+            group by community.id",
+            id
+            )
+            .fetch_optional(pool)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(
+            match user_count {
+                Some(uc) => uc.count == 1,
+                None => true
+            }
+        )
     }
 
 }
