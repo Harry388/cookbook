@@ -1,11 +1,10 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment, AttachmentType}, Object, ApiResponse, param::Path, Tags, Multipart, types::multipart::{Upload, JsonField}};
 use poem::{web::Data, error::InternalServerError, Result};
 use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
-use std::time::{SystemTime, UNIX_EPOCH};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::{Storage, dufs::DufsStorage};
-use crate::api::recipe::RecipeResult;
+use crate::api::post::{PostResult, PostResponse};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -33,9 +32,15 @@ struct CommunityResult {
     id: i64,
     title: String,
     description: Option<String>,
-    pfp: Option<String>,
     created: DateTime<Utc>,
     users: i64
+}
+
+#[derive(Object)]
+struct UserResult {
+    id: i64,
+    username: String,
+    display_name: String
 }
 
 // Responses
@@ -45,7 +50,25 @@ enum GetCommunityResponse {
     #[oai(status = 200)]
     Ok(Json<CommunityResult>),
     #[oai(status = 404)]
-    NotFound
+    NotFound(PlainText<String>)
+}
+
+#[derive(ApiResponse)]
+enum GetMembersResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<UserResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetUserCommunitiesResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<CommunityResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetCommunityPostsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<PostResponse>>)
 }
 
 pub struct CommunityApi;
@@ -77,7 +100,7 @@ impl CommunityApi {
     #[oai(path = "/:id", method = "get")]
     async fn get_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetCommunityResponse> {
         let community = sqlx::query_as!(CommunityResult,
-            "select id, title, description, pfp, created, count(*) as users
+            "select id, title, description, created, count(*) as users
             from community
             inner join community_user on community.id = community_user.community_id
             where community.id = ?
@@ -88,7 +111,7 @@ impl CommunityApi {
             .await
             .map_err(InternalServerError)?;
         if let None = community {
-            return Ok(GetCommunityResponse::NotFound);
+            return Ok(GetCommunityResponse::NotFound(PlainText("Community not found".to_string())));
         }
         let community = community.unwrap();
         Ok(GetCommunityResponse::Ok(Json(community)))
@@ -132,5 +155,61 @@ impl CommunityApi {
             .map_err(InternalServerError)?;
         Ok(())
     }
-        
+
+    #[oai(path = "/:id/members", method = "get")]
+    async fn get_members(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetMembersResponse> {
+        let members = sqlx::query_as!(UserResult,
+             "select id, username, display_name 
+             from user inner join community_user on user.id = community_user.user_id
+             where community_user.community_id = ?
+             group by user.id",
+             id.0
+             )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(GetMembersResponse::Ok(Json(members)))
+    }
+
+    #[oai(path = "/user/:user_id/", method = "get")]
+    async fn get_user_communities(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserCommunitiesResponse> {
+        permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
+        let communities = sqlx::query_as!(CommunityResult,
+            "select id, title, description, created, count(*) as users
+            from community
+            inner join community_user on community.id = community_user.community_id
+            where community_user.user_id = ?
+            group by community.id",
+            user_id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        Ok(GetUserCommunitiesResponse::Ok(Json(communities)))
+    }
+
+    #[oai(path = "/:id/post", method = "get")]
+    async fn get_community_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetCommunityPostsResponse> {
+        let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created, post.community_id
+            from post
+            left join post_media on post.id = post_media.post_id
+            where post.community_id = ?
+            group by post.id",
+            id.0
+            )
+            .fetch_all(pool.0)
+            .await
+            .map_err(InternalServerError)?;
+        let mut post_response = vec![];
+        for post in posts {
+            let media = match post.media {
+                Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
+                None => vec![]
+            };
+            post_response.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
+        }
+        Ok(GetCommunityPostsResponse::Ok(Json(post_response)))
+    }
+
 }

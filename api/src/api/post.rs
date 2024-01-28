@@ -17,7 +17,8 @@ enum ApiTags {
 #[derive(Object)]
 struct Post {
     title: Option<String>,
-    content: Option<String>
+    content: Option<String>,
+    community_id: Option<i64>
 }
 
 #[derive(Multipart)]
@@ -41,6 +42,7 @@ pub struct PostResult {
     pub content: Option<String>,
     pub user_id: i64,
     pub media: Option<String>,
+    pub community_id: Option<i32>,
     pub created: DateTime<Utc>
 }
 
@@ -58,6 +60,7 @@ pub struct PostResponse {
     pub content: Option<String>,
     pub user_id: i64,
     pub media: Vec<i64>,
+    pub community_id: Option<i32>,
     pub created: DateTime<Utc>
 }
 
@@ -98,9 +101,9 @@ impl PostApi {
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: PostPayload, auth: JWTAuthorization) -> Result<()> {
         let post = post_payload.post.0;
         let post_id = sqlx::query!( 
-            "insert into post (title, content, user_id)
-            values (?,?,?)",
-            post.title, post.content, auth.0
+            "insert into post (title, content, user_id, community_id) 
+            values (?,?,?,?)",
+            post.title, post.content, auth.0, post.community_id
             )
             .execute(pool.0)
             .await
@@ -125,7 +128,7 @@ impl PostApi {
     #[oai(path = "/:id", method = "get")]
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
         let post = sqlx::query_as!(PostResult,
-            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created, community_id
             from post left join post_media on post.id = post_media.post_id
             where post.id = ?
             group by post.id",
@@ -143,7 +146,7 @@ impl PostApi {
             Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
             None => vec![]
         };
-        let post = PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created };
+        let post = PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id };
         Ok(GetPostResponse::Ok(Json(post)))
     }
 
@@ -173,7 +176,7 @@ impl PostApi {
     async fn get_user_posts(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserPostsResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
         let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created, community_id
             from post left join post_media on post.id = post_media.post_id
             where post.user_id = ?
             group by post.id",
@@ -188,7 +191,7 @@ impl PostApi {
                 Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
                 None => vec![]
             };
-            full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created })
+            full_posts.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id })
         }
         Ok(GetUserPostsResponse::Ok(Json(full_posts)))
     }

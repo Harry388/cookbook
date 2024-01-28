@@ -143,7 +143,7 @@ impl RecipeApi {
     async fn get_recipe_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipePostsResponse> {
         permission::recipe::is_visible(pool.0, id.0, auth).await?;
         let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created
+            "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created, post.community_id
             from post
             left join post_media on post.id = post_media.post_id
             inner join recipe_post on post.id = recipe_post.post_id
@@ -160,7 +160,7 @@ impl RecipeApi {
                 Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
                 None => vec![]
             };
-            post_response.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created });
+            post_response.push(PostResponse { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
         }
         Ok(GetRecipePostsResponse::Ok(Json(post_response)))
     }
