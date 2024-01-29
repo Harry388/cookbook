@@ -45,7 +45,8 @@ struct CommunityResult {
 struct UserResult {
     id: i64,
     username: String,
-    display_name: String
+    display_name: String,
+    permission: String
 }
 
 struct UserCountResult {
@@ -84,6 +85,16 @@ enum GetCommunityPostsResponse {
 enum UpdateCommunityUserResponse {
     #[oai(status = 200)]
     Ok,
+    #[oai(status = 401)]
+    Unauthorized
+}
+
+#[derive(ApiResponse)]
+enum LeaveCommunityResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 500)]
+    OneAdmin(PlainText<String>),
     #[oai(status = 401)]
     Unauthorized
 }
@@ -176,10 +187,10 @@ impl CommunityApi {
     #[oai(path = "/:id/members", method = "get")]
     async fn get_members(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetMembersResponse> {
         let members = sqlx::query_as!(UserResult,
-             "select id, username, display_name 
+             "select id, username, display_name, permission 
              from user inner join community_user on user.id = community_user.user_id
              where community_user.community_id = ?
-             group by user.id",
+             group by user.id, permission",
              id.0
              )
             .fetch_all(pool.0)
@@ -192,11 +203,16 @@ impl CommunityApi {
     async fn get_user_communities(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserCommunitiesResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
         let communities = sqlx::query_as!(CommunityResult,
-            "select id, title, description, created, count(*) as users
-            from community
-            inner join community_user on community.id = community_user.community_id
-            where community_user.user_id = ?
-            group by community.id",
+            "with community_and_users as (
+                select id, title, description, created, count(*) as users
+                from community
+                inner join community_user on community.id = community_user.community_id
+                group by community.id
+            )
+            select id, title, description, created, users
+            from community_and_users
+            inner join community_user on community_user.community_id = community_and_users.id
+            where community_user.user_id = ?",
             user_id.0
             )
             .fetch_all(pool.0)
@@ -247,13 +263,16 @@ impl CommunityApi {
     }
 
     #[oai(path = "/:id/leave/:user_id", method = "delete")]
-    async fn leave_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        if self.has_one_user(pool.0, id.0).await? {
-            return Ok(())
+    async fn leave_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<LeaveCommunityResponse> {
+        let this_user_is_admin = permission::community::is_admin(pool.0, id.0, auth).await.is_ok();
+        let this_user = permission::user::is_user(user_id.0, auth).is_ok();
+        if !(this_user || this_user_is_admin) {
+            return Ok(LeaveCommunityResponse::Unauthorized);
         }
-        let this_user = permission::user::is_user(user_id.0, auth);
-        if !this_user.is_ok() {
-            permission::community::is_admin(pool.0, id.0, auth).await?;
+        if this_user && this_user_is_admin {
+            if self.has_one_admin(pool.0, id.0).await? {
+                return Ok(LeaveCommunityResponse::OneAdmin(PlainText("User is only admin".to_string())))
+            }
         }
         sqlx::query!(
             "delete from community_user where community_id = ? and user_id = ?",
@@ -262,15 +281,15 @@ impl CommunityApi {
             .execute(pool.0)
             .await
             .map_err(InternalServerError)?;
-        Ok(())
+        Ok(LeaveCommunityResponse::Ok)
     }
 
-    async fn has_one_user(&self, pool: &MySqlPool, id: i64) -> Result<bool> {
-        let user_count = sqlx::query_as!(UserCountResult,
+    async fn has_one_admin(&self, pool: &MySqlPool, id: i64) -> Result<bool> {
+        let admin_count = sqlx::query_as!(UserCountResult,
             "select count(*) as count
             from community
             inner join community_user on community.id = community_user.community_id
-            where community.id = ?
+            where community.id = ? and community_user.permission = 'ADMIN'
             group by community.id",
             id
             )
@@ -278,7 +297,7 @@ impl CommunityApi {
             .await
             .map_err(InternalServerError)?;
         Ok(
-            match user_count {
+            match admin_count {
                 Some(uc) => uc.count == 1,
                 None => true
             }
