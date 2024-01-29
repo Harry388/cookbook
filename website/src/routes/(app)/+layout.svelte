@@ -53,6 +53,7 @@
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
             <!-- Sidebar content here -->
             <li><a href="/">Home</a></li>
+            <li><a href="/community">Communities</a></li>
             <li><a href="/user/{data.id}">Profile</a></li>
             <li class="flex-grow bg-base-300"></li>
             <li><a href="/settings">Settings</a></li>

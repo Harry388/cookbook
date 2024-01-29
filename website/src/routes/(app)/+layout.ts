@@ -3,7 +3,7 @@ import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ url, fetch, route }) => {
     
-    const showBack = !['/(app)/user/[id]/posts', '/(app)/user/[id]/recipes', '/(app)'].includes(route.id);
+    const showBack = !['/(app)/community', '/(app)/user/[id]/posts', '/(app)/user/[id]/recipes', '/(app)'].includes(route.id);
 
     const response = await test().run(fetch);
 
