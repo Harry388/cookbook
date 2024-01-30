@@ -7,7 +7,8 @@ export type Community = {
     title: string,
     description: string | null,
     created: string,
-    users: number
+    users: number,
+    is_member: number
 };
 
 export async function getCommunity(id: number | string, fetch?: FetchFn): Promise<Community> {

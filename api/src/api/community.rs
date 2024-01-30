@@ -38,7 +38,8 @@ struct CommunityResult {
     title: String,
     description: Option<String>,
     created: DateTime<Utc>,
-    users: i64
+    users: i64,
+    is_member: Option<f32>
 }
 
 #[derive(Object)]
@@ -126,14 +127,15 @@ impl CommunityApi {
     }
 
     #[oai(path = "/:id", method = "get")]
-    async fn get_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetCommunityResponse> {
+    async fn get_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetCommunityResponse> {
         let community = sqlx::query_as!(CommunityResult,
-            "select id, title, description, created, count(*) as users
+            "select id, title, description, created, count(*) as users,
+            cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member
             from community
             inner join community_user on community.id = community_user.community_id
             where community.id = ?
             group by community.id",
-            id.0
+            auth.0, id.0
             )
             .fetch_optional(pool.0)
             .await
@@ -204,16 +206,17 @@ impl CommunityApi {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
         let communities = sqlx::query_as!(CommunityResult,
             "with community_and_users as (
-                select id, title, description, created, count(*) as users
+                select id, title, description, created, count(*) as users,
+                cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member
                 from community
                 inner join community_user on community.id = community_user.community_id
                 group by community.id
             )
-            select id, title, description, created, users
+            select id, title, description, created, users, is_member
             from community_and_users
             inner join community_user on community_user.community_id = community_and_users.id
             where community_user.user_id = ?",
-            user_id.0
+            auth.0, user_id.0
             )
             .fetch_all(pool.0)
             .await
