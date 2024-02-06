@@ -29,3 +29,10 @@ export async function getCommunityPosts(id: number | string, fetch?: FetchFn): P
     return posts;
 }
 
+export async function leaveCommunity(id: number | string, userId: number | string, fetch?: FetchFn): Promise<Response> {
+    return await remove(`community/${id}/leave/${userId}`).run(fetch)
+}
+
+export async function joinCommunity(id: number | string, fetch?: FetchFn): Promise<Response> {
+    return await post(`community/${id}/join`).run(fetch)
+}
