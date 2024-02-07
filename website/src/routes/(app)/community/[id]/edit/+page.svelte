@@ -1,6 +1,7 @@
 <script lang="ts">
 
-    import { updateCommunity } from '$lib/app/community';
+    import { updateCommunity, deleteCommunity } from '$lib/app/community';
+    import { goto } from '$app/navigation';
 
     export let data;
 
@@ -14,9 +15,19 @@
         }
     }
 
+    async function onDelete() {
+        if (!confirm('Are you sure?')) return;
+        const response = await deleteCommunity(data.id);
+        if (response.ok) {
+            goto('/community');
+        }
+    }
+
 </script>
 
-<h3 class="font-bold text-lg py-5">Edit Profile</h3>
+<button class="btn btn-error" on:click={onDelete}>Delete Community</button>
+
+<h3 class="font-bold text-lg py-5">Edit Community</h3>
 <div class="form-control">
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">

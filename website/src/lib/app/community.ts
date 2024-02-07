@@ -41,3 +41,11 @@ export async function joinCommunity(id: number | string, fetch?: FetchFn): Promi
 export async function updateCommunity(id: number | string, title: string | null, description: string | null, fetch?: FetchFn): Promise<Response> {
     return await put(`community/${id}`, { title, description }).run(fetch);
 }
+
+export async function deleteCommunity(id: number | string, fetch?: FetchFn): Promise<Response> {
+    return await remove(`community/${id}`).run(fetch);
+}
+
+export async function createCommunity(title: string, desciption: string | null, fetch?: FetchFn): Promise<Response> {
+    return await post(`community`, { title, desciption }).run(fetch);
+}
