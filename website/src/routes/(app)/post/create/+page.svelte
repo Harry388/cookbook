@@ -8,7 +8,7 @@
     let title = '';
     let content = '';
     let files: File[];
-    let community: number | null = null;
+    let community: number | null = data.community;
 
     async function create() {
         if (!title) return;

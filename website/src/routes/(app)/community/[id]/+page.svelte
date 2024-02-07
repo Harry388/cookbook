@@ -54,4 +54,6 @@
     </div>
 </div>
 
+<a href="/post/create?c={community.id}" class="btn btn-outline">Create Post</a>
+
 <Posts />
