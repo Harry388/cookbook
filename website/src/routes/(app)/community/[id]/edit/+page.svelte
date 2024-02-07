@@ -9,7 +9,7 @@
     let description = data.community.description;
 
     async function save() {
-        const response = await updateCommunity(data.id, title, description);
+        const response = await updateCommunity(data.community.id, title, description);
         if (response.ok) {
             history.back();
         }
@@ -17,7 +17,7 @@
 
     async function onDelete() {
         if (!confirm('Are you sure?')) return;
-        const response = await deleteCommunity(data.id);
+        const response = await deleteCommunity(data.community.id);
         if (response.ok) {
             goto('/community');
         }
