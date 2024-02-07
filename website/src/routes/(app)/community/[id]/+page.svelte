@@ -43,7 +43,9 @@
             </div>
             <div class="flex-1">
                 <button on:click={toggleMember} class="btn btn-outline w-full">{ community.is_member ? 'Leave' : 'Join' }</button>
-                <button on:click={toggleMember} class="btn btn-outline w-full">Edit Community</button>
+                {#if community.is_admin} 
+                    <a href="/community/{community.id}/edit" class="btn btn-outline w-full">Edit Community</a>
+                {/if}
             </div>
         </div>
         {#if community.description }

@@ -8,7 +8,8 @@ export type Community = {
     description: string | null,
     created: string,
     users: number,
-    is_member: number
+    is_member: number,
+    is_admin: number
 };
 
 export async function getCommunity(id: number | string, fetch?: FetchFn): Promise<Community> {
@@ -30,9 +31,13 @@ export async function getCommunityPosts(id: number | string, fetch?: FetchFn): P
 }
 
 export async function leaveCommunity(id: number | string, userId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`community/${id}/leave/${userId}`).run(fetch)
+    return await remove(`community/${id}/leave/${userId}`).run(fetch);
 }
 
 export async function joinCommunity(id: number | string, fetch?: FetchFn): Promise<Response> {
-    return await post(`community/${id}/join`).run(fetch)
+    return await post(`community/${id}/join`).run(fetch);
+}
+
+export async function updateCommunity(id: number | string, title: string | null, description: string | null, fetch?: FetchFn): Promise<Response> {
+    return await put(`community/${id}`, { title, description }).run(fetch);
 }
