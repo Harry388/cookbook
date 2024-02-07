@@ -38,7 +38,7 @@
             </div>
             <div class="flex-1">
                 <div class="flex lg:gap-x-10 mb-5">
-                    <div class="flex-2 lg:flex-1 font-semibold text-xl">{ community.users } Members</div>
+                    <a href="/community/{community.id}/members" class="flex-2 lg:flex-1 font-semibold text-xl">{ community.users } Members</a>
                 </div>
             </div>
             <div class="flex-1">
