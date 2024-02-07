@@ -2,7 +2,7 @@
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { leaveCommunity } from '$lib/app/community';
-    import { getCommunityMembers } from '$lib/app/communityMember';
+    import { getCommunityMembers, updateCommunityUser } from '$lib/app/communityMember';
 
     export let data;
 
@@ -15,6 +15,13 @@
         if (!response.ok) return;
         members = await getCommunityMembers(data.community.id);
     }
+
+    async function update(userId: number, permission: 'ADMIN' | 'USER') {
+        const response = await updateCommunityUser(data.community.id, userId, permission);
+        if (!response.ok) return;
+        members = await getCommunityMembers(data.community.id);
+    }
+
 
 </script>
 
@@ -41,6 +48,9 @@
                             </td>
                             <th>
                                 {#if data.community.is_admin}
+                                    {#if admin.id != data.id}
+                                        <button class="btn btn-ghost" on:click={() => update(admin.id, 'USER')}>Demote</button>
+                                    {/if}
                                     <button class="btn btn-ghost" on:click={() => leave(admin.id)}>Remove</button>
                                 {/if}
                             </th>
@@ -80,6 +90,9 @@
                             </td>
                             <th>
                                 {#if data.community.is_admin}
+                                    {#if user.id != data.id}
+                                        <button class="btn btn-ghost" on:click={() => update(user.id, 'ADMIN')}>Premote</button>
+                                    {/if}
                                     <button class="btn btn-ghost" on:click={() => leave(user.id)}>Remove</button>
                                 {/if}
                             </th>

@@ -13,3 +13,7 @@ export async function getCommunityMembers(id: number | string, fetch?: FetchFn):
     const members = await response.json();
     return members;
 }
+
+export async function updateCommunityUser(id: number | string, userId: number | string, permission: 'ADMIN' | 'USER', fetch?: FetchFn): Promise<Response> {
+    return await put(`community/${id}/user/${userId}`, { permission }).run(fetch);
+}
