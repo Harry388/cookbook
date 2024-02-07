@@ -3,13 +3,16 @@
     import { createPost } from '$lib/app/post';
     import ImageInput from '$lib/components/util/imageInput.svelte';
 
+    export let data;
+
     let title = '';
     let content = '';
     let files: File[];
+    let community: number | null = null;
 
     async function create() {
         if (!title) return;
-        const response = await createPost(title, content, files);
+        const response = await createPost(title, content, community, files);
         if (response.ok) {
             history.back();
         }
@@ -19,6 +22,15 @@
 
 <h3 class="font-bold text-lg py-5">Create a Post</h3>
 <div class="form-control">
+    <div class="label">
+        <span class="label-text">Community</span>
+    </div>
+    <select bind:value={community} class="select select-bordered">
+        <option value={null} selected>Pick one</option>
+        {#each data.communities as community}
+            <option value={community.id}>{ community.title }</option>
+        {/each}
+    </select>
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Title</span>

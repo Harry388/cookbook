@@ -23,9 +23,9 @@ export async function getUserPosts(userId: number | string, fetch?: FetchFn): Pr
     return posts;
 }
 
-export async function createPost(title: string, content: string, files: File[], fetch?: FetchFn): Promise<Response> {
+export async function createPost(title: string, content: string, communityId: number | null, files: File[], fetch?: FetchFn): Promise<Response> {
     const formData = new FormData();
-    const postStr = JSON.stringify({ title, content });
+    const postStr = JSON.stringify({ title, content, community_id: communityId });
     formData.append('post', postStr);
     if (files) {
         for (const file of files) {

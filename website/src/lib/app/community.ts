@@ -49,3 +49,4 @@ export async function deleteCommunity(id: number | string, fetch?: FetchFn): Pro
 export async function createCommunity(title: string, desciption: string | null, fetch?: FetchFn): Promise<Response> {
     return await post(`community`, { title, desciption }).run(fetch);
 }
+
