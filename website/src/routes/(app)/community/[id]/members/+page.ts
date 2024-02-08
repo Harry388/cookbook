@@ -7,6 +7,7 @@ export const load = async ({ params, fetch }) => {
 
     return {
         community,
-        members
+        members,
+        title: community.title
     }
 }
