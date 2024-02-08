@@ -12,7 +12,7 @@ type FetchObj = {
 
 function createFetchObj(input: string, body?: any, init?: RequestInit): FetchObj {
     return { input, body, init,
-        run(fetchFn?: FetchFn) {
+        async run(fetchFn?: FetchFn) {
             if (!fetchFn) {
                 fetchFn = fetch;
             }
@@ -35,7 +35,12 @@ function createFetchObj(input: string, body?: any, init?: RequestInit): FetchObj
                 headers,
                 credentials: 'include'
             }
-            return fetchFn(`${url}/${this.input}`, requestInit)
+            const response = await fetchFn(`${url}/${this.input}`, requestInit);
+            if (!response.ok) {
+                const message = await response.text();
+                alert(message);
+            }
+            return response;
         }
     }
 }
