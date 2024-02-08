@@ -1,6 +1,8 @@
 import { get, post, remove, put } from '$lib/apiFetch';
+import { getCommunity } from '$lib/app/community';
+import { getUser } from '$lib/app/user';
 import type { FetchFn } from '$lib/apiFetch';
-import type { Post } from '$lib/app/post';
+import type { PostFull, Post } from '$lib/app/post';
 
 export type Ingredients = string[];
 
@@ -40,8 +42,17 @@ export async function deleteRecipe(id: number | string): Promise<Response> {
     return await remove(`recipe/${id}`).run(fetch);
 }
 
-export async function getRecipePosts(id: number | string, fetch?: FetchFn): Promise<Post[]> {
+export async function getRecipePosts(id: number | string, fetch?: FetchFn): Promise<PostFull[]> {
     const response = await get(`recipe/${id}/post`).run(fetch);
     const posts: Post[] = await response.json();
-    return posts;
+    const postsFull: PostFull[] = [];
+    for (const post of posts) {
+        const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id, fetch) : null, getUser(post.user_id, fetch)]);
+        postsFull.push({
+            ...post,
+            community,
+            user
+        });
+    }
+    return postsFull;
 }
