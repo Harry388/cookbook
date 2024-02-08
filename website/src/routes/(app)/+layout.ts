@@ -2,8 +2,6 @@ import { test } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ url, fetch, route }) => {
-    
-    const showBack = !['/(app)/community', '/(app)/user/[id]/posts', '/(app)/user/[id]/recipes', '/(app)'].includes(route.id);
 
     const response = await test().run(fetch);
 
@@ -14,8 +12,7 @@ export const load = async ({ url, fetch, route }) => {
     const id: number = await response.json();
 
     return {
-        id,
-        showBack
+        id
     }
 }
 

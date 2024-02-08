@@ -27,9 +27,7 @@
         <!-- Page content here -->
         <div class="navbar pt-3">
             <div class="navbar-start">
-                {#if data.showBack}
-                    <button class="btn btn-outline" on:click={() => history.back()}>Back</button>
-                {/if}
+                <button class="btn btn-outline" on:click={() => history.back()}>Back</button>
             </div>
             <div class="navbar-center">
                 <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
