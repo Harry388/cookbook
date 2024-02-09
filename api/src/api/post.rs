@@ -1,11 +1,10 @@
 use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, Object, ApiResponse, param::Path, Tags};
-use poem::{web::Data, error::InternalServerError, Result};
+use poem::{web::Data, Result};
 use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
-use crate::api::recipe::RecipeResult;
-use crate::model::post;
+use crate::model::{post, recipe};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -62,7 +61,7 @@ enum GetUserPostsResponse {
 #[derive(ApiResponse)]
 enum GetPostRecipesResponse {
     #[oai(status = 200)]
-    Ok(Json<Vec<RecipeResult>>)
+    Ok(Json<Vec<recipe::RecipeResult>>)
 }
 
 pub struct PostApi;
@@ -122,16 +121,7 @@ impl PostApi {
     #[oai(path = "/:id/recipe", method = "get")]
     async fn get_post_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostRecipesResponse> {
         permission::post::is_visible(pool.0, id.0, auth).await?;
-        let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
-            "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created
-            from recipe
-            inner join recipe_post on recipe.id = recipe_post.recipe_id
-            where recipe_post.post_id = ?",
-            id.0
-            )
-            .fetch_all(pool.0)
-            .await
-            .map_err(InternalServerError)?;
+        let recipes = recipe::get_post_recipes(pool.0, id.0).await?;
         Ok(GetPostRecipesResponse::Ok(Json(recipes)))
     }
 

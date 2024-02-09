@@ -146,6 +146,30 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
     Ok(full_posts)
 }
 
+
+pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
+    let posts: Vec<PartialPostResult> = sqlx::query_as!(PartialPostResult,
+        "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created, post.community_id
+        from post
+        left join post_media on post.id = post_media.post_id
+        inner join recipe_post on post.id = recipe_post.post_id
+        where recipe_post.recipe_id = ?
+        group by post.id",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    let mut full_posts = vec![];
+    for post in posts {
+        let media = match post.media {
+            Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
+            None => vec![]
+        };
+        full_posts.push(PostResult { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
+    }
+    Ok(full_posts)
+}
+
 pub async fn update_post(pool: &MySqlPool, id: i64, update_post: UpdatePost) -> Result<()> {
     sqlx::query!(
         "update post set title = coalesce(?, title), content = coalesce(?, content) where id = ?",
