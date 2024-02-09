@@ -12,8 +12,7 @@ pub struct User {
     display_name: String,
     email: Email,
     password: String,
-    bio: Option<String>,
-    pfp: Option<String>
+    bio: Option<String>
 }
 
 #[derive(Object)]
@@ -65,9 +64,9 @@ pub enum ProfilePicResult {
 pub async fn create_user(pool: &MySqlPool, user: User) -> Result<u64> {
     let password = generate_password_hash(&user.password)?;
     let id = sqlx::query!( 
-        "insert into user (username, display_name, email, password, bio, pfp, public)
-        values (?,?,?,?,?,?,?)",
-        user.username, user.display_name, user.email.0, password, user.bio, user.pfp, true)
+        "insert into user (username, display_name, email, password, bio, public)
+        values (?,?,?,?,?,?)",
+        user.username, user.display_name, user.email.0, password, user.bio, true)
         .execute(pool)
         .await
         .map_err(InternalServerError)?
