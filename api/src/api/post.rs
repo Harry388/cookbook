@@ -1,6 +1,6 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, Object, ApiResponse, param::Path, Tags};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags};
 use poem::{web::Data, Result};
-use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
+use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
@@ -11,30 +11,7 @@ enum ApiTags {
     Post
 }
 
-// Results
-
-pub struct PostResult {
-    pub id: i64,
-    pub title: String,
-    pub content: Option<String>,
-    pub user_id: i64,
-    pub media: Option<String>,
-    pub community_id: Option<i32>,
-    pub created: DateTime<Utc>
-}
-
 // Responses
-
-#[derive(Object)]
-pub struct PostResponse {
-    pub id: i64,
-    pub title: String,
-    pub content: Option<String>,
-    pub user_id: i64,
-    pub media: Vec<i64>,
-    pub community_id: Option<i32>,
-    pub created: DateTime<Utc>
-}
 
 #[derive(ApiResponse)]
 enum GetPostResponse {

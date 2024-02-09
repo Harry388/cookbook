@@ -61,6 +61,14 @@ pub enum ProfilePicResult {
     PicNotFound
 }
 
+#[derive(Object)]
+pub struct CommunityUserResult {
+    id: i64,
+    username: String,
+    display_name: String,
+    permission: String
+}
+
 pub async fn create_user(pool: &MySqlPool, user: User) -> Result<u64> {
     let password = generate_password_hash(&user.password)?;
     let id = sqlx::query!( 
@@ -194,4 +202,17 @@ pub async fn get_following(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult
         .await
         .map_err(InternalServerError)?;
     Ok(following)
+}
+
+pub async fn get_community_users(pool: &MySqlPool, id: i64) -> Result<Vec<CommunityUserResult>> {
+    let users = sqlx::query_as!(CommunityUserResult,
+        "select id, username, display_name, permission 
+        from user inner join community_user on user.id = community_user.user_id
+        where community_user.community_id = ?
+        group by user.id, permission",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(users)
 }
