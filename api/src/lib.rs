@@ -8,6 +8,8 @@ pub mod api {
 
 pub mod model {
     pub mod user;
+    pub mod post;
+    pub mod recipe;
 }
 
 pub mod permission;
