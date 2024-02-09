@@ -6,6 +6,10 @@ pub mod api {
     pub mod community;
 }
 
+pub mod model {
+    pub mod user;
+}
+
 pub mod permission;
 
 pub mod storage;

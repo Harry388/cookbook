@@ -44,7 +44,7 @@ struct CommunityResult {
 }
 
 #[derive(Object)]
-struct UserResult {
+struct GetUserResult {
     id: i64,
     username: String,
     display_name: String,
@@ -68,7 +68,7 @@ enum GetCommunityResponse {
 #[derive(ApiResponse)]
 enum GetMembersResponse {
     #[oai(status = 200)]
-    Ok(Json<Vec<UserResult>>)
+    Ok(Json<Vec<GetUserResult>>)
 }
 
 #[derive(ApiResponse)]
@@ -190,7 +190,7 @@ impl CommunityApi {
 
     #[oai(path = "/:id/members", method = "get")]
     async fn get_members(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetMembersResponse> {
-        let members = sqlx::query_as!(UserResult,
+        let members = sqlx::query_as!(GetUserResult,
              "select id, username, display_name, permission 
              from user inner join community_user on user.id = community_user.user_id
              where community_user.community_id = ?

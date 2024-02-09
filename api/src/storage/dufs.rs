@@ -26,7 +26,7 @@ impl DufsStorage {
 impl Storage for DufsStorage {
 
     async fn put_file(&self, path: &str, file: Upload) -> Result<String> {
-        let file_data = Self::format_upload(file).await?;
+        let file_data = self.format_upload(file).await?;
         let path = format!("{}.{}", path, file_data.ext);
         let full_path = self.url(&path);
         let client = Client::new();
