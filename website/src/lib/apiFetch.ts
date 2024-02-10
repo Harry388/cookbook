@@ -3,14 +3,15 @@ import { browser } from '$app/environment';
 
 export type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 
-type FetchObj = {
+type FetchObj<T> = {
     input: string, 
     body?: any, 
     init?: RequestInit,
-    run: (fetch?: FetchFn) => Promise<Response>
+    run: (fetch?: FetchFn) => Promise<Response>,
+    json: (fetch?: FetchFn) => Promise<T>
 }
 
-function createFetchObj(input: string, body?: any, init?: RequestInit): FetchObj {
+function createFetchObj<T>(input: string, body?: any, init?: RequestInit): FetchObj<T> {
     return { input, body, init,
         async run(fetchFn?: FetchFn) {
             if (!fetchFn) {
@@ -41,29 +42,34 @@ function createFetchObj(input: string, body?: any, init?: RequestInit): FetchObj
                 alert(message);
             }
             return response;
+        },
+        async json(fetchFn?: FetchFn) {
+            const response = await this.run(fetchFn);
+            const obj: T = await response.json();
+            return obj;
         }
     }
 }
 
-export function get(input: string, body?: any, init?: RequestInit): FetchObj {
+export function get<T>(input: string, body?: any, init?: RequestInit): FetchObj<T> {
     return createFetchObj(input, body, init);
 }
 
-export function post(input: string, body?: any, init?: RequestInit): FetchObj {
+export function post<T>(input: string, body?: any, init?: RequestInit): FetchObj<T> {
     return createFetchObj(input, body, {
         ...init,
         method: 'post'
     })
 }
 
-export function put(input: string, body?: any, init?: RequestInit): FetchObj {
+export function put<T>(input: string, body?: any, init?: RequestInit): FetchObj<T> {
     return createFetchObj(input, body, {
         ...init,
         method: 'put'
     })
 }
 
-export function remove(input: string, body?: any, init?: RequestInit): FetchObj {
+export function remove<T>(input: string, body?: any, init?: RequestInit): FetchObj<T> {
     return createFetchObj(input, body, {
         ...init,
         method: 'delete'
