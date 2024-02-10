@@ -13,50 +13,49 @@ export type Community = {
     is_admin: number
 };
 
-export async function getCommunity(id: number | string, fetch?: FetchFn): Promise<Community> {
-    const response = await get(`community/${id}`).run(fetch);
-    const community: Community = await response.json();
-    return community;
+export function getCommunity(id: number | string) {
+    return get<Community>(`community/${id}`);
 }
 
-export async function getUserCommunities(userId: number | string, fetch?: FetchFn): Promise<Community[]> {
-    const response = await get(`community/user/${userId}`).run(fetch);
-    const communities: Community[] = await response.json();
-    return communities;
+export async function getUserCommunities(userId: number | string) {
+    return get<Community[]>(`community/user/${userId}`);
 }
 
-export async function getCommunityPosts(id: number | string, fetch?: FetchFn): Promise<PostFull[]> {
-    const response = await get(`community/${id}/post`).run(fetch);
-    const posts: Post[] = await response.json();
-    const postsFull: PostFull[] = [];
-    for (const post of posts) {
-        const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id, fetch) : null, getUser(post.user_id, fetch)]);
-        postsFull.push({
-            ...post,
-            community,
-            user
-        });
+export function getCommunityPosts(id: number | string) {
+    return {
+        async json(fetch?: FetchFn) {
+            const posts = await get<Post[]>(`community/${id}/post`).json(fetch);
+            const postsFull: PostFull[] = [];
+            for (const post of posts) {
+                const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
+                postsFull.push({
+                    ...post,
+                    community,
+                    user
+                });
+            }
+            return postsFull;
+        }
     }
-    return postsFull;
 }
 
-export async function leaveCommunity(id: number | string, userId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`community/${id}/leave/${userId}`).run(fetch);
+export  function leaveCommunity(id: number | string, userId: number | string) {
+    return remove(`community/${id}/leave/${userId}`);
 }
 
-export async function joinCommunity(id: number | string, fetch?: FetchFn): Promise<Response> {
-    return await post(`community/${id}/join`).run(fetch);
+export function joinCommunity(id: number | string) {
+    return post(`community/${id}/join`);
 }
 
-export async function updateCommunity(id: number | string, title: string | null, description: string | null, fetch?: FetchFn): Promise<Response> {
-    return await put(`community/${id}`, { title, description }).run(fetch);
+export function updateCommunity(id: number | string, title: string | null, description: string | null) {
+    return put(`community/${id}`, { title, description });
 }
 
-export async function deleteCommunity(id: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`community/${id}`).run(fetch);
+export function deleteCommunity(id: number | string) {
+    return remove(`community/${id}`);
 }
 
-export async function createCommunity(title: string, desciption: string | null, fetch?: FetchFn): Promise<Response> {
-    return await post(`community`, { title, desciption }).run(fetch);
+export function createCommunity(title: string, desciption: string | null) {
+    return post(`community`, { title, desciption });
 }
 

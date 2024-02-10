@@ -21,33 +21,39 @@ export type PostFull = Post & {
     user: User
 }
 
-export async function getPost(id: number | string, fetch?: FetchFn): Promise<PostFull> {
-    const response = await get(`post/${id}`).run(fetch);
-    const post: Post = await response.json();
-    const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id, fetch) : null, getUser(post.user_id, fetch)]);
+export function getPost(id: number | string) {
     return {
-        ...post,
-        community,
-        user
-    };
-}
-
-export async function getUserPosts(userId: number | string, fetch?: FetchFn): Promise<PostFull[]> {
-    const response = await get(`post/user/${userId}`).run(fetch);
-    const posts: Post[] = await response.json();
-    const postsFull: PostFull[] = [];
-    for (const post of posts) {
-        const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id, fetch) : null, getUser(post.user_id, fetch)]);
-        postsFull.push({
-            ...post,
-            community,
-            user
-        });
+        async json(fetch?: FetchFn) {
+            const post = await get<Post>(`post/${id}`).json(fetch);
+            const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
+            return {
+                ...post,
+                community,
+                user
+            };
+        }
     }
-    return postsFull;
 }
 
-export async function createPost(title: string, content: string, communityId: number | null, files: File[], fetch?: FetchFn): Promise<Response> {
+export function getUserPosts(userId: number | string) {
+    return {
+        async json(fetch?: FetchFn) {
+            const posts = await get<Post[]>(`post/user/${userId}`).json(fetch);
+            const postsFull: PostFull[] = [];
+            for (const post of posts) {
+                const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
+                postsFull.push({
+                    ...post,
+                    community,
+                    user
+                });
+            }
+            return postsFull;
+        }
+    }
+}
+
+export function createPost(title: string, content: string, communityId: number | null, files: File[]) {
     const formData = new FormData();
     const postStr = JSON.stringify({ title, content, community_id: communityId });
     formData.append('post', postStr);
@@ -56,31 +62,29 @@ export async function createPost(title: string, content: string, communityId: nu
             formData.append('media', file);
         }
     }
-    return await post('post', formData, {
+    return post('post', formData, {
         headers: {
             'Content-Type':  'remove'
         }
-    }).run(fetch);
+    });
 }
 
-export async function updatePost(id: number | string, title: string | null, content: string | null, fetch?: FetchFn): Promise<Response> {
-    return await put(`post/${id}`, { title, content }).run(fetch);
+export function updatePost(id: number | string, title: string | null, content: string | null) {
+    return put(`post/${id}`, { title, content });
 }
 
-export async function deletePost(id: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`post/${id}`).run(fetch);
+export function deletePost(id: number | string) {
+    return remove(`post/${id}`);
 }
 
-export async function getPostRecipes(id: number | string, fetch?: FetchFn): Promise<Recipe[]> {
-    const response = await get(`post/${id}/recipe`).run(fetch);
-    const recipes: Recipe[] = await response.json();
-    return recipes;
+export function getPostRecipes(id: number | string) {
+    return get<Recipe[]>(`post/${id}/recipe`);
 }
 
-export async function addPostRecipe(id: number | string, recipeId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await post(`post/${id}/addrecipe/${recipeId}`).run(fetch);
+export function addPostRecipe(id: number | string, recipeId: number | string) {
+    return post(`post/${id}/addrecipe/${recipeId}`);
 }
 
-export async function deletePostRecipe(id: number | string, recipeId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`post/${id}/removerecipe/${recipeId}`).run(fetch);
+export function deletePostRecipe(id: number | string, recipeId: number | string) {
+    return remove(`post/${id}/removerecipe/${recipeId}`);
 }

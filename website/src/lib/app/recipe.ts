@@ -18,41 +18,40 @@ export type Recipe = {
     created: string
 }
 
-export async function getRecipe(id: number | string, fetch?: FetchFn): Promise<Recipe> {
-    const response = await get(`recipe/${id}`).run(fetch);
-    const recipe: Recipe = await response.json();
-    return recipe;
+export function getRecipe(id: number | string) {
+    return get<Recipe>(`recipe/${id}`);
 }
 
-export async function getUserRecipes(userId: number | string, fetch?: FetchFn): Promise<Recipe[]> {
-    const respose = await get(`recipe/user/${userId}`).run(fetch);
-    const recipes: Recipe[] = await respose.json();
-    return recipes;
+export function getUserRecipes(userId: number | string) {
+    return get<Recipe[]>(`recipe/user/${userId}`);
 }
 
-export async function createRecipe(title: string, description: string | null, ingredients: Ingredients, method: Method, fetch?: FetchFn): Promise<Response> {
-    return await post(`recipe`, { title, description, ingredients, method }).run(fetch);
+export function createRecipe(title: string, description: string | null, ingredients: Ingredients, method: Method) {
+    return post(`recipe`, { title, description, ingredients, method });
 }
 
-export async function updateRecipe(id: number | string, title: string | null, description: string | null, ingredients: Ingredients | null, method: Method | null, fetch?: FetchFn): Promise<Response> {
-    return await put(`recipe/${id}`, { title, description, ingredients, method }).run(fetch);
+export function updateRecipe(id: number | string, title: string | null, description: string | null, ingredients: Ingredients | null, method: Method | null) {
+    return put(`recipe/${id}`, { title, description, ingredients, method });
 }
 
-export async function deleteRecipe(id: number | string): Promise<Response> {
-    return await remove(`recipe/${id}`).run(fetch);
+export function deleteRecipe(id: number | string) {
+    return  remove(`recipe/${id}`);
 }
 
-export async function getRecipePosts(id: number | string, fetch?: FetchFn): Promise<PostFull[]> {
-    const response = await get(`recipe/${id}/post`).run(fetch);
-    const posts: Post[] = await response.json();
-    const postsFull: PostFull[] = [];
-    for (const post of posts) {
-        const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id, fetch) : null, getUser(post.user_id, fetch)]);
-        postsFull.push({
-            ...post,
-            community,
-            user
-        });
+export async function getRecipePosts(id: number | string) {
+    return {
+        async json(fetch?: FetchFn) {
+            const posts = await get<Post[]>(`recipe/${id}/post`).json(fetch);
+            const postsFull: PostFull[] = [];
+            for (const post of posts) {
+                const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
+                postsFull.push({
+                    ...post,
+                    community,
+                    user
+                });
+            }
+            return postsFull;
+        }
     }
-    return postsFull;
 }

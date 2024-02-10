@@ -1,5 +1,4 @@
-import { get, post, remove, put } from '$lib/apiFetch';
-import type { FetchFn } from '$lib/apiFetch';
+import { get, put } from '$lib/apiFetch';
 
 export type CommunityMember = {
     id: number,
@@ -8,12 +7,10 @@ export type CommunityMember = {
     permission: 'ADMIN' | 'USER'
 }
 
-export async function getCommunityMembers(id: number | string, fetch?: FetchFn): Promise<CommunityMember[]> {
-    const response = await get(`community/${id}/members`).run(fetch);
-    const members = await response.json();
-    return members;
+export function getCommunityMembers(id: number | string) {
+    return get<CommunityMember[]>(`community/${id}/members`);
 }
 
-export async function updateCommunityUser(id: number | string, userId: number | string, permission: 'ADMIN' | 'USER', fetch?: FetchFn): Promise<Response> {
-    return await put(`community/${id}/user/${userId}`, { permission }).run(fetch);
+export function updateCommunityUser(id: number | string, userId: number | string, permission: 'ADMIN' | 'USER') {
+    return put(`community/${id}/user/${userId}`, { permission });
 }

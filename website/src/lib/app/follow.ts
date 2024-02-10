@@ -8,22 +8,22 @@ export type Follow = {
     pfp: string | null
 }
 
-export async function getUserFollow(userId: number | string, fetch?: FetchFn): Promise<{followers: Follow[], following: Follow[]}> {
-    const [responseFollowers, responseFollowing] = await Promise.all([
-        get(`user/${userId}/followers`).run(fetch),
-        get(`user/${userId}/following`).run(fetch)
-    ]);
-    const [followers, following]: [Follow[], Follow[]] = await Promise.all([
-        responseFollowers.json(),
-        responseFollowing.json()
-    ]);
-    return { followers, following };
+export function getUserFollow(userId: number | string) {
+    return {
+        async json(fetch?: FetchFn) {
+            const [followers, following] = await Promise.all([
+                get<Follow[]>(`user/${userId}/followers`).json(fetch),
+                get<Follow[]>(`user/${userId}/following`).json(fetch)
+            ]);
+            return { followers, following };
+        }
+    }
 }
 
-export async function removeFollower(userId: number | string, followingId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await remove(`user/${userId}/unfollow/${followingId}`).run(fetch);
+export function removeFollower(userId: number | string, followingId: number | string) {
+    return remove(`user/${userId}/unfollow/${followingId}`);
 }
 
-export async function followUser(userId: number | string, followingId: number | string, fetch?: FetchFn): Promise<Response> {
-    return await post(`user/${userId}/follow/${followingId}`).run(fetch);
+export function followUser(userId: number | string, followingId: number | string) {
+    return  post(`user/${userId}/follow/${followingId}`);
 }
