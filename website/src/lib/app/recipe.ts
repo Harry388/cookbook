@@ -38,7 +38,7 @@ export function deleteRecipe(id: number | string) {
     return  remove(`recipe/${id}`);
 }
 
-export async function getRecipePosts(id: number | string) {
+export function getRecipePosts(id: number | string) {
     return {
         async json(fetch?: FetchFn) {
             const posts = await get<Post[]>(`recipe/${id}/post`).json(fetch);

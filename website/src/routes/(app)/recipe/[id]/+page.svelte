@@ -4,19 +4,12 @@
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import { deleteRecipe } from '$lib/app/recipe';
     import { goto } from '$app/navigation';
-    import { writable } from 'svelte/store';
-    import { setContext } from 'svelte';
-    import type { Post } from '$lib/app/post';
 
     export let data;
 
-    const posts = writable<Post[]>();
-    $: posts.set(data.posts);
-    setContext('posts', posts);
-
     async function onDelete() {
         if (!confirm('Are you sure?')) return;
-        const response = await deleteRecipe(data.recipe.id);
+        const response = await deleteRecipe(data.recipe.id).run();
         if (response.ok) {
             goto(`/user/${data.id}/recipes`);
         }
@@ -35,7 +28,7 @@
 
     <div>
 
-        <Posts />
+        <Posts posts={data.posts} />
 
     </div>
 

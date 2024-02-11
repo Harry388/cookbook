@@ -6,7 +6,7 @@ export const load = async ({ parent, fetch, url }) => {
     const communityRaw = Number(String(url.searchParams.get('c')));
     const community = isNaN(communityRaw) ? null : communityRaw;
 
-    const communities = await getUserCommunities(id, fetch);
+    const communities = await getUserCommunities(id).json(fetch);
 
     //@ts-ignore
     const communityChecked = communities.map(c => c.id).includes(community) ? community : null;

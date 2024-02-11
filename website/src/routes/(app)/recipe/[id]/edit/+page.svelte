@@ -2,6 +2,7 @@
 
     import ListInput from '$lib/components/util/listInput.svelte';
     import { updateRecipe } from '$lib/app/recipe';
+    import { invalidate } from '$app/navigation';
 
     export let data;
 
@@ -11,8 +12,9 @@
     let method = data.recipe.method;
 
     async function save() {
-        const response = await updateRecipe(data.recipe.id, title, description, ingredients, method);
+        const response = await updateRecipe(data.recipe.id, title, description, ingredients, method).run();
         if (response.ok) {
+            invalidate('app:recipe');
             history.back();
         }
     }

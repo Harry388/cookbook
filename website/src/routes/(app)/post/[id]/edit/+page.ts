@@ -5,7 +5,7 @@ export const load = async ({ parent, fetch }) => {
 
     const { ownsPost, post, id } = await parent();
 
-    const userRecipes = await getUserRecipes(id, fetch);
+    const userRecipes = await getUserRecipes(id).json(fetch);
 
     if (!ownsPost) {
         throw redirect(301, `/post/${post.id}`);

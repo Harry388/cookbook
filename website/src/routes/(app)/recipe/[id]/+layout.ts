@@ -1,10 +1,12 @@
 import { getRecipe, getRecipePosts } from '$lib/app/recipe';
 
-export const load = async ({ params, fetch, parent }) => {
+export const load = async ({ params, fetch, parent, depends }) => {
 
     const { id } = await parent();
     
-    const [recipe, posts] = await Promise.all([getRecipe(params.id, fetch), getRecipePosts(params.id, fetch)]);
+    const [recipe, posts] = await Promise.all([getRecipe(params.id).json(fetch), getRecipePosts(params.id).json(fetch)]);
+
+    depends('app:recipe');
 
     return {
         recipe,

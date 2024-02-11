@@ -17,7 +17,7 @@ export function getCommunity(id: number | string) {
     return get<Community>(`community/${id}`);
 }
 
-export async function getUserCommunities(userId: number | string) {
+export function getUserCommunities(userId: number | string) {
     return get<Community[]>(`community/user/${userId}`);
 }
 
@@ -39,7 +39,7 @@ export function getCommunityPosts(id: number | string) {
     }
 }
 
-export  function leaveCommunity(id: number | string, userId: number | string) {
+export function leaveCommunity(id: number | string, userId: number | string) {
     return remove(`community/${id}/leave/${userId}`);
 }
 

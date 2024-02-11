@@ -12,7 +12,7 @@
 
     async function create() {
         if (!title) return;
-        const response = await createPost(title, content, community, files);
+        const response = await createPost(title, content, community, files).run();
         if (response.ok) {
             history.back();
         }

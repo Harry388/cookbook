@@ -2,7 +2,7 @@
 
     import { updatePost, addPostRecipe, getPostRecipes, deletePostRecipe } from '$lib/app/post';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
-    import type { Recipe } from '$lib/app/recipe';
+    import { invalidate } from '$app/navigation';
 
     export let data;
 
@@ -14,24 +14,27 @@
     $: newRecipes = data.userRecipes.filter(ur => !recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
-        const response = await updatePost(data.post.id, title, content);
+        const response = await updatePost(data.post.id, title, content).run();
         if (response.ok) {
+            invalidate('app:post');
             history.back();
         }
     }
 
     async function addRecipe() {
-        const response = await addPostRecipe(data.post.id, newRecipe);
+        const response = await addPostRecipe(data.post.id, newRecipe).run();
         newRecipe = -1;
         if (response.ok) {
-            recipes = await getPostRecipes(data.post.id);
+            invalidate('app:post');
+            recipes = await getPostRecipes(data.post.id).json();
         }
     }
 
     async function deleteRecipe(recipeId: number) {
-        const response = await deletePostRecipe(data.post.id, recipeId);
+        const response = await deletePostRecipe(data.post.id, recipeId).run();
         if (response.ok) {
-            recipes = await getPostRecipes(data.post.id);
+            invalidate('app:post');
+            recipes = await getPostRecipes(data.post.id).json();
         }
     }
 
