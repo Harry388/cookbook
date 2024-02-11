@@ -10,6 +10,7 @@
 <svelte:element this={link ? 'a' : 'div'} href="/recipe/{recipe.id}" class="card w-11/12 lg:w-96 bg-base-100 shadow-xl">
     <div class="card-body">
         <h2 class="card-title">{ recipe.title }</h2>
+        <a class="w-fit" href="/user/{recipe.user_id}">Posted by: { recipe.user_display_name }</a>
         <p>{ recipe.description || '' }</p>
         <h3 class="font-bold text-lg py-5">Ingredients</h3>
         {#each recipe.ingredients as ingredient, i}

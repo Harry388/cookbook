@@ -30,6 +30,7 @@ pub struct RecipeResult {
     ingredients: JsonValue,
     method: JsonValue,
     pub user_id: i64,
+    user_display_name: String,
     created: DateTime<Utc>
 }
 
@@ -46,7 +47,9 @@ pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Resul
 
 pub async fn get_recipe(pool: &MySqlPool, id: i64) -> Result<Option<RecipeResult>> {
     let recipe: Option<RecipeResult> = sqlx::query_as!(RecipeResult,
-        "select id, title, description, ingredients, method, user_id, created from recipe where id = ?",
+        "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name
+        from recipe inner join user on recipe.user_id = user.id
+        where recipe.id = ?",
         id)
         .fetch_optional(pool)
         .await
@@ -60,7 +63,9 @@ pub async fn get_recipe(pool: &MySqlPool, id: i64) -> Result<Option<RecipeResult
 
 pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
-        "select id, title, description, ingredients, method, user_id, created from recipe where user_id = ?",
+        "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name
+        from recipe inner join user on recipe.user_id = user.id
+        where user_id = ?",
         user_id)
         .fetch_all(pool)
         .await
@@ -70,9 +75,10 @@ pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64) -> Result<Vec<Reci
 
 pub async fn get_post_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
-        "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created
+        "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
         from recipe
         inner join recipe_post on recipe.id = recipe_post.recipe_id
+        inner join user on recipe.user_id = user.id
         where recipe_post.post_id = ?",
         id)
         .fetch_all(pool)

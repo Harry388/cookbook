@@ -10,6 +10,7 @@ export type Recipe = {
     title: string,
     description: string | null,
     user_id: number,
+    user_display_name: string,
     ingredients: Ingredients,
     method: Method,
     created: string
