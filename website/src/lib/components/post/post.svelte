@@ -6,6 +6,8 @@
     export let post: Post;
     export let link = false;
 
+    $: created = new Date(post.created);
+
     $: media = post.media.filter(m => m != null);
 
 </script>
@@ -20,6 +22,7 @@
         {#if post.community_id != null }
             <a class="w-fit" href="/community/{post.community_id}">In Community: { post.community_title }</a>
         {/if}
+        <p class="w-fit">On: { created.toDateString() }</p>
         <p>{ post.content || '' }</p>
     </svelte:element>
 </div>
