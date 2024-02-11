@@ -1,25 +1,23 @@
 <script lang="ts">
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
-    import { removeFollower, getUserFollow } from '$lib/app/follow';
+    import { removeFollower } from '$lib/app/follow';
+    import { invalidate } from '$app/navigation';
 
     export let data;
 
-    let following = data.following;
-    let followers = data.followers;
-
     async function remove(followerId: number) {
-        await removeFollower(followerId, data.id).run();
-        const follow = await getUserFollow(data.id).json();
-        following = follow.following;
-        followers = follow.followers;
+        const response = await removeFollower(followerId, data.id).run();
+        if (response.ok) {
+            invalidate('app:userFollow');
+        }
     }
 
     async function unfollow(followingId: number) {
-        await removeFollower(data.id, followingId).run();
-        const follow = await getUserFollow(data.id).json();
-        following = follow.following;
-        followers = follow.followers;
+        const response = await removeFollower(data.id, followingId).run();
+        if (response.ok) {
+            invalidate('app:userFollow');
+        }
     }
 
 </script>
@@ -30,11 +28,11 @@
 
         <h3 class="font-bold text-lg">Followers</h3>
 
-        {#if followers.length}
+        {#if data.followers.length}
 
             <table class="table">
                 <tbody>
-                    {#each followers as follower}
+                    {#each data.followers as follower}
                         <tr>
                             <td>
                                 <a class="flex items-center gap-3" href={`/user/${follower.id}`}>
@@ -69,11 +67,11 @@
 
         <h3 class="font-bold text-lg">Following</h3>
         
-        {#if following.length}
+        {#if data.following.length}
 
             <table class="table">
                 <tbody>
-                    {#each following as following}
+                    {#each data.following as following}
                         <tr>
                             <td>
                                 <a class="flex items-center gap-3" href={`/user/${following.id}`}>

@@ -2,26 +2,29 @@
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { leaveCommunity } from '$lib/app/community';
-    import { getCommunityMembers, updateCommunityUser } from '$lib/app/communityMember';
+    import { updateCommunityUser } from '$lib/app/communityMember.js';
+    import { invalidate } from '$app/navigation';
 
     export let data;
 
-    let members = data.members;
-    $: admins = members.filter(m => m.permission == 'ADMIN');
-    $: users = members.filter(m => m.permission == 'USER');
+    $: admins = data.members.filter(m => m.permission == 'ADMIN');
+    $: users = data.members.filter(m => m.permission == 'USER');
 
     async function leave(userId: number) {
-        const response = await leaveCommunity(data.community.id, userId);
-        if (!response.ok) return;
-        members = await getCommunityMembers(data.community.id);
+        const response = await leaveCommunity(data.community.id, userId).run();
+        if (response.ok) {
+            invalidate('app:communityMembers');
+            invalidate('app:community');
+        }
     }
 
-    async function update(userId: number, permission: 'ADMIN' | 'USER') {
-        const response = await updateCommunityUser(data.community.id, userId, permission);
-        if (!response.ok) return;
-        members = await getCommunityMembers(data.community.id);
+    async function setPermission(userId: number, permission: 'ADMIN' | 'USER') {
+        const response = await updateCommunityUser(data.community.id, userId, permission).run();
+        if (response.ok) {
+            invalidate('app:communityMembers');
+            invalidate('app:community');
+        }
     }
-
 
 </script>
 
@@ -29,7 +32,7 @@
 
     <div class="overflow-x-auto w-1/3">
 
-        <h3 class="font-bold text-lg">Admins</h3>
+        <h3 class="font-bold text-lg">Followers</h3>
 
         {#if admins.length}
 
@@ -38,7 +41,7 @@
                     {#each admins as admin}
                         <tr>
                             <td>
-                                <a class="flex items-center gap-3" href={`/user/${admin.id}`}>
+                                <a class="flex items-center gap-3" href="/user/{admin.id}">
                                     <ProfilePic user={admin} />
                                     <div>
                                         <div class="font-bold">{ admin.display_name }</div>
@@ -48,8 +51,8 @@
                             </td>
                             <th>
                                 {#if data.community.is_admin}
-                                    {#if admin.id != data.id}
-                                        <button class="btn btn-ghost" on:click={() => update(admin.id, 'USER')}>Demote</button>
+                                    {#if data.id != admin.id }
+                                        <button class="btn btn-ghost" on:click={() => setPermission(admin.id, 'USER')}>Demote</button>
                                     {/if}
                                     <button class="btn btn-ghost" on:click={() => leave(admin.id)}>Remove</button>
                                 {/if}
@@ -71,7 +74,7 @@
     
     <div class="overflow-x-auto w-1/3">
 
-        <h3 class="font-bold text-lg">Users</h3>
+        <h3 class="font-bold text-lg">Following</h3>
         
         {#if users.length}
 
@@ -80,7 +83,7 @@
                     {#each users as user}
                         <tr>
                             <td>
-                                <a class="flex items-center gap-3" href={`/user/${user.id}`}>
+                                <a class="flex items-center gap-3" href="/user/{user.id}">
                                     <ProfilePic user={user} />
                                     <div>
                                         <div class="font-bold">{ user.display_name }</div>
@@ -90,9 +93,7 @@
                             </td>
                             <th>
                                 {#if data.community.is_admin}
-                                    {#if user.id != data.id}
-                                        <button class="btn btn-ghost" on:click={() => update(user.id, 'ADMIN')}>Premote</button>
-                                    {/if}
+                                    <button class="btn btn-ghost" on:click={() => setPermission(user.id, 'ADMIN')}>Promote</button>
                                     <button class="btn btn-ghost" on:click={() => leave(user.id)}>Remove</button>
                                 {/if}
                             </th>

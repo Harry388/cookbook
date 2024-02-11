@@ -1,7 +1,7 @@
 import { getUserFollow } from '$lib/app/follow';
 import { getUser } from '$lib/app/user';
 
-export const load = async ({ params, fetch, parent }) => {
+export const load = async ({ params, fetch, parent, depends }) => {
     
     const { id } = await parent();
 
@@ -9,11 +9,13 @@ export const load = async ({ params, fetch, parent }) => {
 
     const { followers, following } = await getUserFollow(params.id).json(fetch);
 
+    depends('app:userFollow');
+
     return {
         followers,
         following,
         self: id == Number(params.id),
         userId: Number(params.id),
-       title: user.display_name
+        title: user.display_name
     }
 }

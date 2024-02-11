@@ -1,7 +1,7 @@
 <script lang="ts">
 
-    import { updateCommunity, deleteCommunity } from '$lib/app/community';
-    import { goto } from '$app/navigation';
+    import { updateCommunity } from '$lib/app/community.js';
+    import { invalidate } from '$app/navigation';
 
     export let data;
 
@@ -9,23 +9,14 @@
     let description = data.community.description;
 
     async function save() {
-        const response = await updateCommunity(data.community.id, title, description);
+        const response = await updateCommunity(data.community.id, title, description).run();
         if (response.ok) {
+            invalidate('app:community');
             history.back();
         }
     }
 
-    async function onDelete() {
-        if (!confirm('Are you sure?')) return;
-        const response = await deleteCommunity(data.community.id);
-        if (response.ok) {
-            goto('/community');
-        }
-    }
-
 </script>
-
-<button class="btn btn-error" on:click={onDelete}>Delete Community</button>
 
 <h3 class="font-bold text-lg py-5">Edit Community</h3>
 <div class="form-control">
@@ -38,6 +29,6 @@
     <label class="label">
         <span class="label-text">Description</span>
     </label>
-    <textarea class="textarea textarea-bordered" placeholder="Desciption" bind:value={description}></textarea>
+    <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
     <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
 </div>

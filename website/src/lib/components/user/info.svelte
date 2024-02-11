@@ -34,9 +34,9 @@
             </div>
             <div class="flex-1">
                 <div class="flex lg:gap-x-10 mb-5">
-                    <a class="flex-2 lg:flex-1 font-semibold text-xl" href={`/user/${user.id}/follow`}>{ user.followers } Followers</a>
+                    <a class="flex-2 lg:flex-1 font-semibold text-xl" href="/user/{user.id}/follow">{ user.followers } Followers</a>
                     <div class="flex-1 lg:flex-2"></div>
-                    <a class="flex-2 lg:flex-1 font-semibold text-xl" href={`/user/${user.id}/follow`}>{ user.following } Following</a>
+                    <a class="flex-2 lg:flex-1 font-semibold text-xl" href="/user/{user.id}/follow">{ user.following } Following</a>
                 </div>
             </div>
             <div class="flex-1">

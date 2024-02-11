@@ -1,13 +1,13 @@
 import { getCommunityMembers } from '$lib/app/communityMember';
-import { getCommunity } from '$lib/app/community';
 
-export const load = async ({ params, fetch }) => {
+export const load = async ({ fetch, params, depends }) => {
+
+    const members = await getCommunityMembers(params.id).json(fetch);
+
+    depends('app:communityMembers');
     
-    const [community, members] = await Promise.all([getCommunity(params.id, fetch), getCommunityMembers(params.id, fetch)]);
-
     return {
-        community,
-        members,
-        title: community.title
+        members
     }
+
 }

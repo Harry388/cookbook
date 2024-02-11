@@ -51,5 +51,6 @@
             <li class="flex-grow bg-base-300"></li>
             <li><a href="/settings">Settings</a></li>
             <li class="place-self-start"><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
+        </ul>
     </div>
 </div>

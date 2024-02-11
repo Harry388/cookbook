@@ -15,14 +15,9 @@
     <div class="drawer-side">
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
-            <!-- Sidebar content here -->
-            <li class="btn btn-outline w-full">
-                <a href="/community/create">Create Community</a>
-            </li>
             {#each data.communities as community}
-                <li>
-                    <a href="/community/{community.id}">{ community.title }</a>
-                </li>                
+                <li><a href="/community/{community.id}">{ community.title }</a></li>
             {/each}
+        </ul>
     </div>
 </div>
