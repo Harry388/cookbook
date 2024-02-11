@@ -1,7 +1,5 @@
 import { get, post, remove, put } from '$lib/apiFetch';
-import { getUser } from '$lib/app/user';
-import type { FetchFn } from '$lib/apiFetch';
-import type { PostFull, Post } from '$lib/app/post';
+import type { Post } from '$lib/app/post';
 
 export type Community = {
     id: number,
@@ -22,21 +20,7 @@ export function getUserCommunities(userId: number | string) {
 }
 
 export function getCommunityPosts(id: number | string) {
-    return {
-        async json(fetch?: FetchFn) {
-            const posts = await get<Post[]>(`community/${id}/post`).json(fetch);
-            const postsFull: PostFull[] = [];
-            for (const post of posts) {
-                const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
-                postsFull.push({
-                    ...post,
-                    community,
-                    user
-                });
-            }
-            return postsFull;
-        }
-    }
+    return get<Post[]>(`community/${id}/post`);
 }
 
 export function leaveCommunity(id: number | string, userId: number | string) {

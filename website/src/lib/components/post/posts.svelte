@@ -1,9 +1,9 @@
 <script lang="ts">
 
     import PostComponent from '$lib/components/post/post.svelte';
-    import type { PostFull } from '$lib/app/post';
+    import type { Post } from '$lib/app/post';
 
-    export let posts: PostFull[];
+    export let posts: Post[];
 
 </script>
 

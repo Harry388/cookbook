@@ -33,8 +33,10 @@ pub struct PostResult {
     title: String,
     content: Option<String>,
     pub user_id: i64,
+    user_display_name: String,
     media: JsonValue,
     community_id: Option<i32>,
+    community_title: Option<String>,
     created: DateTime<Utc>
 }
 
@@ -75,8 +77,11 @@ pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: 
 
 pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
     let post = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, created, community_id
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
+        user.display_name as user_display_name, community.title as community_title
         from post left join post_media on post.id = post_media.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
         where post.id = ?
         group by post.id",
         id)
@@ -108,8 +113,11 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
 
 pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, created, community_id
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
+        user.display_name as user_display_name, community.title as community_title
         from post left join post_media on post.id = post_media.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
         where post.user_id = ?
         group by post.id",
         user_id)
@@ -122,10 +130,13 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
 
 pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title
         from post
         left join post_media on post.id = post_media.post_id
         inner join recipe_post on post.id = recipe_post.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
         where recipe_post.recipe_id = ?
         group by post.id",
         id)
@@ -137,9 +148,12 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResul
 
 pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title
         from post
         left join post_media on post.id = post_media.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
         where post.community_id = ?
         group by post.id",
         id)

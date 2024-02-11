@@ -1,8 +1,5 @@
 import { get, post, remove, put } from '$lib/apiFetch';
-import { getCommunity } from '$lib/app/community';
-import { getUser } from '$lib/app/user';
-import type { FetchFn } from '$lib/apiFetch';
-import type { PostFull, Post } from '$lib/app/post';
+import type { Post } from '$lib/app/post';
 
 export type Ingredients = string[];
 
@@ -35,23 +32,9 @@ export function updateRecipe(id: number | string, title: string | null, descript
 }
 
 export function deleteRecipe(id: number | string) {
-    return  remove(`recipe/${id}`);
+    return remove(`recipe/${id}`);
 }
 
 export function getRecipePosts(id: number | string) {
-    return {
-        async json(fetch?: FetchFn) {
-            const posts = await get<Post[]>(`recipe/${id}/post`).json(fetch);
-            const postsFull: PostFull[] = [];
-            for (const post of posts) {
-                const [community, user] = await Promise.all([post.community_id ? getCommunity(post.community_id).json(fetch) : null, getUser(post.user_id).json(fetch)]);
-                postsFull.push({
-                    ...post,
-                    community,
-                    user
-                });
-            }
-            return postsFull;
-        }
-    }
+    return get<Post[]>(`recipe/${id}/post`);
 }

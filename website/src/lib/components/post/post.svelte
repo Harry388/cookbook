@@ -1,9 +1,9 @@
 <script lang="ts">
 
     import Media from '$lib/components/post/media.svelte';
-    import type { PostFull } from '$lib/app/post';
+    import type { Post } from '$lib/app/post';
 
-    export let post: PostFull;
+    export let post: Post;
     export let link = false;
 
     $: media = post.media.filter(m => m != null);
@@ -16,9 +16,9 @@
     {/if}
     <svelte:element this={link ? 'a' : 'div'} href="/post/{post.id}" class="card-body">
         <h2 class="card-title">{ post.title }</h2>
-        <a class="w-fit" href="/user/{post.user_id}">Posted by: { post.user.display_name }</a>
-        {#if post.community }
-            <a class="w-fit" href="/community/{post.community_id}">In Community: { post.community.title }</a>
+        <a class="w-fit" href="/user/{post.user_id}">Posted by: { post.user_display_name }</a>
+        {#if post.community_id != null }
+            <a class="w-fit" href="/community/{post.community_id}">In Community: { post.community_title }</a>
         {/if}
         <p>{ post.content || '' }</p>
     </svelte:element>
