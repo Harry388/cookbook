@@ -1,6 +1,6 @@
 use poem_openapi::{payload::{Attachment, AttachmentType}, Object, Multipart, types::multipart::{Upload, JsonField}};
 use poem::{error::InternalServerError, Result};
-use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
+use sqlx::{MySqlPool, types::{JsonValue, chrono::{DateTime, Utc}}};
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::storage::Storage;
 
@@ -27,23 +27,13 @@ pub struct UpdatePost {
 
 // Results
 
-struct PartialPostResult {
-    id: i64,
-    title: String,
-    content: Option<String>,
-    user_id: i64,
-    media: Option<String>,
-    community_id: Option<i32>,
-    created: DateTime<Utc>
-}
-
 #[derive(Object)]
 pub struct PostResult {
     id: i64,
     title: String,
     content: Option<String>,
     pub user_id: i64,
-    media: Vec<i64>,
+    media: JsonValue,
     community_id: Option<i32>,
     created: DateTime<Utc>
 }
@@ -84,8 +74,8 @@ pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: 
 }
 
 pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
-    let post = sqlx::query_as!(PartialPostResult,
-        "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created, community_id
+    let post = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, created, community_id
         from post left join post_media on post.id = post_media.post_id
         where post.id = ?
         group by post.id",
@@ -96,13 +86,7 @@ pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
     if let None = post {
         return Ok(None);
     }
-    let post: PartialPostResult = post.unwrap();
-    let media = match post.media {
-        Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
-        None => vec![]
-    };
-    let post = PostResult { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id };
-    Ok(Some(post))
+    Ok(post)
 }
 
 pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i64) -> Result<Option<PostMediaResult>> {
@@ -126,8 +110,8 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
 }
 
 pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostResult>> {
-    let posts: Vec<PartialPostResult> = sqlx::query_as!(PartialPostResult,
-        "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, created, community_id
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, created, community_id
         from post left join post_media on post.id = post_media.post_id
         where post.user_id = ?
         group by post.id",
@@ -135,21 +119,13 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
-    let mut full_posts = vec![];
-    for post in posts {
-        let media = match post.media {
-            Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
-            None => vec![]
-        };
-        full_posts.push(PostResult { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id })
-    }
-    Ok(full_posts)
+    Ok(posts)
 }
 
 
 pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
-    let posts: Vec<PartialPostResult> = sqlx::query_as!(PartialPostResult,
-        "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created, post.community_id
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id
         from post
         left join post_media on post.id = post_media.post_id
         inner join recipe_post on post.id = recipe_post.post_id
@@ -159,20 +135,12 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResul
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
-    let mut full_posts = vec![];
-    for post in posts {
-        let media = match post.media {
-            Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
-            None => vec![]
-        };
-        full_posts.push(PostResult { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
-    }
-    Ok(full_posts)
+    Ok(posts)
 }
 
 pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
-    let posts: Vec<PartialPostResult> = sqlx::query_as!(PartialPostResult,
-        "select post.id, post.title, post.content, post.user_id, group_concat(post_media.id) as media, post.created, post.community_id
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id
         from post
         left join post_media on post.id = post_media.post_id
         where post.community_id = ?
@@ -181,15 +149,7 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
-    let mut full_posts = vec![];
-    for post in posts {
-        let media = match post.media {
-            Some(media_ids) => media_ids.split(",").map(|m| m.parse().unwrap()).collect(),
-            None => vec![]
-        };
-        full_posts.push(PostResult { id: post.id, title: post.title, content: post.content, user_id: post.user_id, media, created: post.created, community_id: post.community_id });
-    }
-    Ok(full_posts)
+    Ok(posts)
 }
 
 pub async fn update_post(pool: &MySqlPool, id: i64, update_post: UpdatePost) -> Result<()> {

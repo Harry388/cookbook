@@ -6,11 +6,13 @@
     export let post: PostFull;
     export let link = false;
 
+    $: media = post.media.filter(m => m != null);
+
 </script>
 
 <div class="card w-11/12 lg:w-1/4 bg-base-100 shadow-xl">
-    {#if post.media.length}
-        <Media media={post.media} />
+    {#if media.length}
+        <Media media={media} />
     {/if}
     <svelte:element this={link ? 'a' : 'div'} href="/post/{post.id}" class="card-body">
         <h2 class="card-title">{ post.title }</h2>
