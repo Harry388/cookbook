@@ -4,7 +4,7 @@ export const load = async ({ parent, fetch }) => {
 
     const { id } = await parent();
 
-    const user = await getUser(id, fetch);
+    const user = await getUser(id).json(fetch);
 
     return {
         user,

@@ -2,6 +2,7 @@
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { followUser, removeFollower } from '$lib/app/follow';
+    import { invalidate } from '$app/navigation';
     import type { User } from '$lib/app/user';
 
     export let user: User;
@@ -16,7 +17,7 @@
         else {
             await followUser(id, user.id).run();
         }
-        // TODO update user
+        invalidate('app:user'); // rerun user load
     }
 
 </script>
@@ -42,7 +43,7 @@
                 {#if thisUser}
                     <a class="btn btn-outline w-full" href="/user/edit">Edit Profile</a>
                 {:else}
-                    <button class="btn btn-outline w-full" on:click={toggleFollow}>{ user.is_following ? 'Following' : 'Follow' }</button>
+                    <button class="btn btn-outline w-full" on:click={toggleFollow}>{ user.is_following ? 'Unfollow' : 'Follow' }</button>
                 {/if}
             </div>
         </div>

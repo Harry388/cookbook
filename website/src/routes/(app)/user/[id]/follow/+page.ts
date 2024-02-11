@@ -5,15 +5,15 @@ export const load = async ({ params, fetch, parent }) => {
     
     const { id } = await parent();
 
-    const user = await getUser(params.id, fetch);
+    const user = await getUser(params.id).json(fetch);
 
-    const { followers, following } = await getUserFollow(params.id, fetch);
+    const { followers, following } = await getUserFollow(params.id).json(fetch);
 
     return {
         followers,
         following,
         self: id == Number(params.id),
         userId: Number(params.id),
-        title: user.display_name
+       title: user.display_name
     }
 }
