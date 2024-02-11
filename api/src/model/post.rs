@@ -83,9 +83,6 @@ pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
         .fetch_optional(pool)
         .await
         .map_err(InternalServerError)?;
-    if let None = post {
-        return Ok(None);
-    }
     Ok(post)
 }
 

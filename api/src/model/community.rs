@@ -69,11 +69,7 @@ pub async fn get_community(pool: &MySqlPool, id: i64, auth: i64) -> Result<Optio
         .fetch_optional(pool)
         .await
         .map_err(InternalServerError)?;
-    if let None = community {
-        return Ok(None);
-    }
-    let community = community.unwrap();
-    Ok(Some(community))
+    Ok(community)
 }
 
 pub async fn join_community(pool: &MySqlPool, id: i64, auth: i64) -> Result<()> {
