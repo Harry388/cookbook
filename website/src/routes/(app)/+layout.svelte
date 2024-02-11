@@ -3,14 +3,8 @@
     import { logout } from '$lib/auth/auth';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    import { writable } from 'svelte/store';
-    import { setContext } from 'svelte';
 
     export let data;
-
-    const id = writable<number>();
-    $: id.set(data.id);
-    setContext('id', id);
 
     async function onLogOut() {
         const response = await logout().run();
@@ -42,6 +36,7 @@
         <div class="h-16"></div>
         <div class="btm-nav lg:hidden bg-base-200">
             <a href="/">Home</a>
+            <a href="/community">Communities</a>
             <a href="/user/{data.id}">Profile</a>
             <a href="/settings">Settings</a>
         </div>

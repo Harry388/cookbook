@@ -15,7 +15,7 @@
 
     async function deleteAccount() {
         if (confirm('Are you sure?')) {
-            const response = await deleteUser(data.id);
+            const response = await deleteUser(data.id).run();
             if (response.ok) {
                 await logout().run();
                 goto('/login');
