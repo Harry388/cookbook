@@ -17,6 +17,7 @@
     <div class="drawer-side">
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
+            <li><a href="/community/create" class="btn btn-outline">Create Community</a></li>
             {#each data.communities as community}
                 <li><a href="/community/{community.id}" class={$page.data.community?.id == community.id ? 'active' : ''}>{ community.title }</a></li>
             {/each}

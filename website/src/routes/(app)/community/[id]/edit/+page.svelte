@@ -1,7 +1,7 @@
 <script lang="ts">
 
-    import { updateCommunity } from '$lib/app/community.js';
-    import { invalidate } from '$app/navigation';
+    import { updateCommunity, deleteCommunity } from '$lib/app/community.js';
+    import { invalidate, goto } from '$app/navigation';
 
     export let data;
 
@@ -16,7 +16,19 @@
         }
     }
 
+    async function remove() {
+        if (!confirm('Are you sure?')) return;
+        const response = await deleteCommunity(data.community.id).run();
+        if (response.ok) {
+            goto('/community').then(() => {
+                invalidate('app:community');
+            });
+        }
+    }
+
 </script>
+
+<button class="btn btn-error" on:click={remove}>Delete Community</button>
 
 <h3 class="font-bold text-lg py-5">Edit Community</h3>
 <div class="form-control">

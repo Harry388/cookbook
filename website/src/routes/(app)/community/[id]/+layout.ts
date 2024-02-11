@@ -8,7 +8,8 @@ export const load = async ({ fetch, params, depends }) => {
 
     return {
         community,
-        posts
+        posts,
+        title: community.title
     }
 
 }
