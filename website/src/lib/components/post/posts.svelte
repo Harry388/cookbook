@@ -1,16 +1,14 @@
 <script lang="ts">
 
-    import PostPreview from '$lib/components/post/postPreview.svelte';
-    import { getContext } from 'svelte';
-    import type { Writable } from 'svelte/store';
-    import type { Post } from '$lib/app/post';
+    import PostComponent from '$lib/components/post/post.svelte';
+    import type { PostFull } from '$lib/app/post';
 
-    const posts: Writable<Post[]> = getContext('posts');
+    export let posts: PostFull[] = [];
 
 </script>
 
 <div class="flex gap-5 flex-col items-center">
-    {#each $posts as post}
-        <PostPreview {post} link />
+    {#each posts as post}
+        <PostComponent {post} link />
     {/each}
 </div>
