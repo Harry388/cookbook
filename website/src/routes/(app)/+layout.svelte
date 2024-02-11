@@ -6,6 +6,9 @@
 
     export let data;
 
+    $: pageName = $page.route.id?.split('/')[2];
+
+
     async function onLogOut() {
         const response = await logout().run();
         if (response.ok) {
@@ -35,22 +38,22 @@
         </div>
         <div class="h-16"></div>
         <div class="btm-nav lg:hidden bg-base-200">
-            <a href="/">Home</a>
-            <a href="/community">Communities</a>
-            <a href="/user/{data.id}">Profile</a>
-            <a href="/settings">Settings</a>
+            <a href="/" class={pageName == undefined ? 'active' : ''}>Home</a>
+            <a href="/community" class={pageName == 'community' ? 'active' : ''}>Communities</a>
+            <a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}>Profile</a>
+            <a href="/settings" class={pageName == 'settings' ? 'active' : ''}>Settings</a>
         </div>
     </div> 
     <div class="drawer-side">
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
             <!-- Sidebar content here -->
-            <li><a href="/">Home</a></li>
-            <li><a href="/community">Communities</a></li>
-            <li><a href="/user/{data.id}">Profile</a></li>
+            <li><a href="/" class={pageName == undefined ? 'active' : ''}>Home</a></li>
+            <li><a href="/community" class={pageName == 'community' ? 'active' : ''}>Communities</a></li>
+            <li><a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}>Profile</a></li>
             <li class="flex-grow bg-base-300"></li>
-            <li><a href="/settings">Settings</a></li>
-            <li class="place-self-start"><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
+            <li><a href="/settings" class={pageName == 'settings' ? 'active' : ''}>Settings</a></li>
+            <li class="place-self-start" ><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
         </ul>
     </div>
 </div>
