@@ -2,6 +2,7 @@ pub mod user;
 pub mod recipe;
 pub mod post;
 pub mod community;
+pub mod comment;
 
 use poem::{Result, http::StatusCode, error::Error};
 

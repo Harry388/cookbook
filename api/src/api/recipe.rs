@@ -3,7 +3,7 @@ use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
-use crate::model::{post, recipe};
+use crate::model::{post, recipe, comment};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -30,6 +30,12 @@ enum GetUserRecipesResponse {
 enum GetRecipePostsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<post::PostResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetRecipeCommentsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<comment::CommentResult>>)
 }
 
 pub struct RecipeApi;
@@ -80,6 +86,20 @@ impl RecipeApi {
         permission::recipe::is_visible(pool.0, id.0, auth).await?;
         let posts = post::get_recipe_posts(pool.0, id.0).await?;
         Ok(GetRecipePostsResponse::Ok(Json(posts)))
+    }
+
+    #[oai(path = "/:id/comment", method = "get")]
+    async fn get_recipe_comments(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipeCommentsResponse> {
+        permission::recipe::is_visible(pool.0, id.0, auth).await?;
+        let comments = comment::get_recipe_comments(pool.0, id.0).await?;
+        Ok(GetRecipeCommentsResponse::Ok(Json(comments)))
+    }
+
+    #[oai(path = "/:id/comment", method = "post")]
+    async fn create_recipe_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, comment: Json<comment::Comment>, auth: JWTAuthorization) -> Result<()> {
+        permission::recipe::is_visible(pool.0, id.0, auth).await?;
+        comment::create_recipe_comment(pool.0, comment.0, id.0, auth.0).await?;
+        Ok(())
     }
 
 }

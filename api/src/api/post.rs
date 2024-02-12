@@ -4,7 +4,7 @@ use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
-use crate::model::{post, recipe};
+use crate::model::{post, recipe, comment};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -39,6 +39,12 @@ enum GetUserPostsResponse {
 enum GetPostRecipesResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<recipe::RecipeResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetPostCommentsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<comment::CommentResult>>)
 }
 
 pub struct PostApi;
@@ -113,6 +119,20 @@ impl PostApi {
     async fn remove_post_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::post::owns_post(pool.0, id.0, auth).await?;
         post::remove_post_recipe(pool.0, id.0, recipe_id.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/comment", method = "get")]
+    async fn get_post_comments(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostCommentsResponse> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        let comments = comment::get_post_comments(pool.0, id.0).await?;
+        Ok(GetPostCommentsResponse::Ok(Json(comments)))
+    }
+
+    #[oai(path = "/:id/comment", method = "post")]
+    async fn create_post_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, comment: Json<comment::Comment>, auth: JWTAuthorization) -> Result<()> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        comment::create_post_comment(pool.0, comment.0, id.0, auth.0).await?;
         Ok(())
     }
 
