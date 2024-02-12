@@ -4,6 +4,7 @@ pub mod api {
     pub mod post;
     pub mod recipe;
     pub mod community;
+    pub mod comment;
 }
 
 pub mod model {
@@ -11,6 +12,7 @@ pub mod model {
     pub mod post;
     pub mod recipe;
     pub mod community;
+    pub mod comment;
 }
 
 pub mod permission;
