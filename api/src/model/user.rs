@@ -115,6 +115,17 @@ pub async fn update_user(pool: &MySqlPool, id: i64, user: UpdateUser) -> Result<
 }
 
 pub async fn set_profile_pic(pool: &MySqlPool, storage: &dyn Storage, id: i64, pfp: SetProfilePic) -> Result<()> {
+    let current_pfp: Option<GetProfilePicResult> = sqlx::query_as!(GetProfilePicResult,
+        "select pfp from user where id = ?",
+        id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let Some(cpfp) = current_pfp {
+        if let Some(current_path) = cpfp.pfp {
+            storage.delete_file(&current_path).await?;
+        }
+    }
     let path = format!("user/{}/pfp", id);
     let pfp_path = storage.put_file(&path, pfp.pic).await?;
     sqlx::query!(
