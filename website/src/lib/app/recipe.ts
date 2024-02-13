@@ -1,5 +1,6 @@
 import { get, post, remove, put } from '$lib/apiFetch';
 import type { Post } from '$lib/app/post';
+import type { Comment } from '$lib/app/comment';
 
 export type Ingredients = string[];
 
@@ -38,4 +39,12 @@ export function deleteRecipe(id: number | string) {
 
 export function getRecipePosts(id: number | string) {
     return get<Post[]>(`recipe/${id}/post`);
+}
+
+export function getRecipeComments(id: number | string) {
+    return get<Comment[]>(`recipe/${id}/comment`);
+}
+
+export function createRecipeComment(id: number | string, content: string, replyId: number | null) {
+    return post(`recipe/${id}/comment`, { content, reply_id: replyId });
 }

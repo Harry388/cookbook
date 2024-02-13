@@ -7,8 +7,6 @@
 
 </script>
 
-<div class="flex gap-5 flex-col items-center">
-    {#each posts as post}
-        <PostComponent {post} link />
-    {/each}
-</div>
+{#each posts as post}
+    <PostComponent {post} link />
+{/each}

@@ -2,6 +2,7 @@
 
     import Posts from '$lib/components/post/posts.svelte';
     import Recipe from '$lib/components/recipe/recipe.svelte';
+    import CommentBlock from '$lib/components/comment/commentBlock.svelte';
     import { deleteRecipe } from '$lib/app/recipe';
     import { goto } from '$app/navigation';
 
@@ -22,15 +23,18 @@
     <button class="btn btn-error" on:click={onDelete}>Delete Recipe</button>
 {/if}
 
-<div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-x-72 gap-y-5">
+<div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
 
-    <Recipe recipe={data.recipe} />
+    <div class="basis-1/3">
+        <Recipe recipe={data.recipe} />
+    </div>
 
-    <div>
-
+    <div class="basis-1/3">
+        <CommentBlock comments={data.comments} type="RECIPE" id={data.recipe.id} />
+    </div>
+    
+    <div class="basis-1/3">
         <Posts posts={data.posts} />
-
     </div>
 
 </div>
-

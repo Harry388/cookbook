@@ -1,4 +1,5 @@
 import { get, put, remove } from '$lib/apiFetch';
+import type { FetchFn } from '$lib/apiFetch';
 
 export type User = {
     id: number,
@@ -18,20 +19,24 @@ export function getUser(id: number | string) {
 }
 
 export function updateUser(id: number | string, username: string, displayName: string, bio: string | null, pfp: File | null) {
-    if (pfp) {
-        const formData = new FormData();
-        formData.append('pic', pfp);
-        put(`user/${id}/pfp`, formData, {
-            headers: {
-                'Content-Type': 'remove'
+    return {
+        run(fetch?: FetchFn) {
+            if (pfp) {
+                const formData = new FormData();
+                formData.append('pic', pfp);
+                put(`user/${id}/pfp`, formData, {
+                    headers: {
+                        'Content-Type': 'remove'
+                    }
+                }).run(fetch);
             }
-        });
+            return put(`user/${id}`, {
+                username,
+                display_name: displayName,
+                bio
+            }).run(fetch);
+        }
     }
-    return put(`user/${id}`, {
-        username,
-        display_name: displayName,
-        bio
-    });
 }
 
 export function deleteUser(id: number | string) {

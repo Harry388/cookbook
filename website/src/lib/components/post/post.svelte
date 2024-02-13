@@ -12,7 +12,7 @@
 
 </script>
 
-<div class="card w-11/12 lg:w-1/4 bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-xl">
     {#if media.length}
         <Media media={media} />
     {/if}
