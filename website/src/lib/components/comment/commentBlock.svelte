@@ -12,5 +12,5 @@
 
 </script>
 
-<Comments {comments} />
+<Comments {comments} {type} />
 <AddComment {type} {id} {depends} />
