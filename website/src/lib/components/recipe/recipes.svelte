@@ -8,5 +8,6 @@
 </script>
 
 {#each recipes as recipe}
+    <div class="mt-5"></div>
     <RecipeComponent {recipe} link />
 {/each}

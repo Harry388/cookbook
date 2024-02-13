@@ -10,4 +10,6 @@
     <a href="/post/create" class="btn btn-outline">Create Post</a>
 {/if}
 
-<Posts posts={data.posts} />
+<div class="w-11/12 lg:w-1/3 m-auto">
+    <Posts posts={data.posts} />
+</div>
