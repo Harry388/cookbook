@@ -35,7 +35,6 @@ pub struct UserResult {
     username: String,
     display_name: String,
     bio: Option<String>,
-    pfp: Option<String>,
     public: i8,
     following: i64,
     followers: i64,
@@ -85,7 +84,7 @@ pub async fn create_user(pool: &MySqlPool, user: User) -> Result<u64> {
 pub async fn get_user(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<UserResult>> {
     let user = sqlx::query_as!(UserResult,
         "with user_and_followers as (
-            select id, username, display_name, bio, pfp, public, created,
+            select id, username, display_name, bio, public, created,
             count(followers.following_id) as followers,
             cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
             from user
@@ -93,7 +92,7 @@ pub async fn get_user(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<Use
             where id = ?
             group by id
         )
-        select id, username, display_name, bio, pfp, public, followers, is_following, created,
+        select id, username, display_name, bio, public, followers, is_following, created,
         count(following.following_id) as following
         from user_and_followers
         left join following on user_and_followers.id = following.user_id
