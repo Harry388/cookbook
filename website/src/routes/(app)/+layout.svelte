@@ -3,11 +3,13 @@
     import { logout } from '$lib/auth/auth';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
+    import { setContext } from 'svelte';
 
     export let data;
 
-    $: pageName = $page.route.id?.split('/')[2];
+    setContext('id', data.id);
 
+    $: pageName = $page.route.id?.split('/')[2];
 
     async function onLogOut() {
         const response = await logout().run();
