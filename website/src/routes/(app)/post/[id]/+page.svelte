@@ -41,7 +41,6 @@
         {/each}
     </select>
     <button class="btn btn-primary w-fit my-5" on:click={addAlbum}>Save to Album</button>
-    <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
 </label>
 
 <div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
