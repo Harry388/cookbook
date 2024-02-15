@@ -87,6 +87,20 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRes
     Ok(recipes)
 }
 
+pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResult>> {
+    let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+        "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
+        from recipe
+        inner join album_entry on recipe.id = album_entry.recipe_id
+        inner join user on recipe.user_id = user.id
+        where album_entry.album_id = ?",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(recipes)
+}
+
 pub async fn update_recipe(pool: &MySqlPool, id: i64, update_recipe: UpdateRecipe) -> Result<()> {
     sqlx::query!(
         "update recipe set title = coalesce(?, title), description = coalesce(?, description),
@@ -103,6 +117,26 @@ pub async fn delete_recipe(pool: &MySqlPool, id: i64) -> Result<()> {
     sqlx::query!(
         "delete from recipe where id = ?",
         id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn add_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
+    sqlx::query!(
+        "insert into album_entry (album_id, recipe_id) values (?,?)",
+        album_id, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn remove_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
+    sqlx::query!(
+        "delete from album_entry where album_id = ? and recipe_id = ?",
+        album_id, id)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;

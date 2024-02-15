@@ -1,9 +1,9 @@
-use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse};
+use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse, Object};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
-use crate::model::album;
+use crate::model::{album, post, recipe};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -24,6 +24,26 @@ enum GetAlbumResponse {
 enum GetUserAlbumsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<album::AlbumResult>>)
+}
+
+#[derive(Object)]
+struct Entries {
+    posts: Vec<post::PostResult>,
+    recipes: Vec<recipe::RecipeResult>
+}
+
+#[derive(ApiResponse)]
+enum GetAlbumEntriesResponse {
+    #[oai(status = 200)]
+    Ok(Json<Entries>)
+}
+
+#[derive(ApiResponse)]
+enum AlbumEntryResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 400)]
+    BadRequest
 }
 
 pub struct AlbumApi;
@@ -63,11 +83,48 @@ impl AlbumApi {
         Ok(())
     }
 
-    #[oai(path="/:id", method = "delete")]
+    #[oai(path = "/:id", method = "delete")]
     async fn delete_album(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::album::owns_album(pool.0, id.0, auth).await?;
         album::delete_album(pool.0, id.0).await?;
         Ok(())
+    }
+
+    #[oai(path = "/:id/contents", method = "get")]
+    async fn get_album_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetAlbumEntriesResponse> {
+        permission::album::is_visible(pool.0, id.0, auth).await?;
+        let posts = post::get_album_posts(pool.0, id.0).await?;
+        let recipes = recipe::get_album_recipes(pool.0, id.0).await?;
+        let entries = Entries { posts, recipes };
+        Ok(GetAlbumEntriesResponse::Ok(Json(entries)))
+    }
+
+    #[oai(path = "/:id/:entry/:entry_id", method = "post")]
+    async fn add_album_entry(&self, pool: Data<&MySqlPool>, id: Path<i64>, entry: Path<String>, entry_id: Path<i64>, auth: JWTAuthorization) -> Result<AlbumEntryResponse> {
+        permission::album::owns_album(pool.0, id.0, auth).await?;
+        match entry.0.as_str() {
+           "post" => {
+               permission::post::is_visible(pool.0, entry_id.0, auth).await?;
+               post::add_album_post(pool.0, entry_id.0, id.0).await?;
+           },
+           "recipe" => {
+               permission::recipe::is_visible(pool.0, entry_id.0, auth).await?;
+               recipe::add_album_recipe(pool.0, entry_id.0, id.0).await?;
+           },
+           _ => return Ok(AlbumEntryResponse::BadRequest)
+        }
+        Ok(AlbumEntryResponse::Ok)
+    }
+
+    #[oai(path = "/:id/:entry/:entry_id", method = "delete")]
+    async fn delete_album_entry(&self, pool: Data<&MySqlPool>, id: Path<i64>, entry: Path<String>, entry_id: Path<i64>, auth: JWTAuthorization) -> Result<AlbumEntryResponse> {
+        permission::album::owns_album(pool.0, id.0, auth).await?;
+        match entry.0.as_str() {
+           "post" => post::remove_album_post(pool.0, entry_id.0, id.0).await?,
+           "recipe" => recipe::remove_album_recipe(pool.0, entry_id.0, id.0).await?,
+           _ => return Ok(AlbumEntryResponse::BadRequest)
+        }
+        Ok(AlbumEntryResponse::Ok)
     }
 
 }

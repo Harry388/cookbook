@@ -163,6 +163,24 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
     Ok(posts)
 }
 
+pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title
+        from post
+        left join post_media on post.id = post_media.post_id
+        inner join album_entry on post.id = album_entry.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
+        where album_entry.album_id = ?
+        group by post.id",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(posts)
+}
+
 pub async fn update_post(pool: &MySqlPool, id: i64, update_post: UpdatePost) -> Result<()> {
     sqlx::query!(
         "update post set title = coalesce(?, title), content = coalesce(?, content) where id = ?",
@@ -198,6 +216,26 @@ pub async fn remove_post_recipe(pool: &MySqlPool, id: i64, recipe_id: i64) -> Re
     sqlx::query!(
         "delete from recipe_post where recipe_id = ? and post_id = ?",
         recipe_id, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn add_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
+    sqlx::query!(
+        "insert into album_entry (album_id, post_id) values (?,?)",
+        album_id, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn remove_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
+    sqlx::query!(
+        "delete from album_entry where album_id = ? and post_id = ?",
+        album_id, id)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
