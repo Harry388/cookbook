@@ -11,6 +11,10 @@
 
 </script>
 
+{#if data.self}
+    <a href="/user/{data.user.id}/albums/{data.album.id}/edit" class="btn btn-outline">Edit Album</a>
+{/if}
+
 <div class="w-11/12 lg:w-1/3 m-auto">
     {#each entries as entry }
         <div class="mt-5"></div>
