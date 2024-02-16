@@ -14,7 +14,8 @@ export const load = async ({ fetch, params, depends }) => {
 
     return {
         album,
-        entries
+        entries,
+        title: album.title
     }
 
 }
