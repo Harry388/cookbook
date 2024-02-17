@@ -64,8 +64,12 @@ impl PostApi {
     
     #[oai(path = "/", method = "post")]
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post: PostWithMediaWithTags, auth: JWTAuthorization) -> Result<()> {
-        let id = post::create_post(pool.0, post.post.0, auth.0).await?;
-        post::add_post_post_media(pool.0, storage.0, id as i64, post.media, auth.0).await?;
+        let post_fut = post::create_post(pool.0, post.post.0, auth.0);
+        let tags_fut = tag::create_tags(pool.0, post.tags);
+        let (post_id, tag_ids) = try_join!(post_fut, tags_fut)?;
+        let media_fut = post::add_post_post_media(pool.0, storage.0, post_id as i64, post.media, auth.0);
+        let tags_fut = post::add_post_tags(pool.0, post_id as i64, tag_ids);
+        try_join!(media_fut, tags_fut)?;
         Ok(())
     }
 
