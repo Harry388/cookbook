@@ -50,7 +50,7 @@ pub struct PostMediaResult {
     pub attachment: Attachment<Vec<u8>>
 }
 
-pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: PostPayload, auth: i64) -> Result<()> {
+pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: PostPayload, auth: i64) -> Result<u64> {
     let post = post_payload.post.0;
     let post_id = sqlx::query!( 
         "insert into post (title, content, user_id, community_id) 
@@ -72,7 +72,7 @@ pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: 
             .await
             .map_err(InternalServerError)?;
         }
-    Ok(())
+    Ok(post_id)
 }
 
 pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
@@ -181,6 +181,24 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult
     Ok(posts)
 }
 
+pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title
+        from post
+        left join post_media on post.id = post_media.post_id
+        inner join tag_entry on post.id = tag_entry.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
+        where tag_entry.tag_id = ?
+        group by post.id",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(posts)
+}
+
 pub async fn update_post(pool: &MySqlPool, id: i64, update_post: UpdatePost) -> Result<()> {
     sqlx::query!(
         "update post set title = coalesce(?, title), content = coalesce(?, content) where id = ?",
@@ -239,5 +257,29 @@ pub async fn remove_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Resu
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn add_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
+    for tag_id in tag_ids.iter() {
+        sqlx::query!(
+            "insert into tag_entry (tag_id, post_id) values (?,?)",
+            tag_id, id) 
+            .execute(pool)
+            .await
+            .map_err(InternalServerError)?;
+    }
+    Ok(())
+}
+
+pub async fn remove_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
+    for tag_id in tag_ids.iter() {
+        sqlx::query!(
+            "delete from tag_entry where tag_id = ? and post_id = ?",
+            tag_id, id) 
+            .execute(pool)
+            .await
+            .map_err(InternalServerError)?;
+    }
     Ok(())
 }

@@ -1,15 +1,17 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags, Object};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
+use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
-use crate::model::{post, recipe, comment};
+use crate::model::{post, recipe, comment, tag};
 
 #[derive(Tags)]
 enum ApiTags {
     Post
 }
+
 
 // Responses
 
@@ -53,8 +55,8 @@ pub struct PostApi;
 impl PostApi {
     
     #[oai(path = "/", method = "post")]
-    async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post_payload: post::PostPayload, auth: JWTAuthorization) -> Result<()> {
-        post::create_post(pool.0, storage.0, post_payload, auth.0).await?;
+    async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post: post::PostPayload, auth: JWTAuthorization) -> Result<()> {
+        post::create_post(pool.0, storage.0, post, auth.0).await?;
         Ok(())
     }
 

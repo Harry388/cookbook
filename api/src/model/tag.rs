@@ -52,3 +52,15 @@ pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64) -> Result<Vec<Tag
         .map_err(InternalServerError)?;
     Ok(tags)
 }
+
+pub async fn get_post_tags(pool: &MySqlPool, post_id: i64) -> Result<Vec<TagResult>> {
+    let tags = sqlx::query_as!(TagResult,
+        "select tag.id, tag.tag
+        from tag inner join tag_entry on tag.id = tag_entry.tag_id
+        where tag_entry.post_id = ?",
+        post_id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(tags)
+}

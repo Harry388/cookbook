@@ -28,7 +28,7 @@ enum GetUserAlbumsResponse {
 }
 
 #[derive(Object)]
-struct Entries {
+struct AlbumEntries {
     posts: Vec<post::PostResult>,
     recipes: Vec<recipe::RecipeResult>
 }
@@ -36,7 +36,7 @@ struct Entries {
 #[derive(ApiResponse)]
 enum GetAlbumEntriesResponse {
     #[oai(status = 200)]
-    Ok(Json<Entries>)
+    Ok(Json<AlbumEntries>)
 }
 
 #[derive(ApiResponse)]
@@ -97,7 +97,7 @@ impl AlbumApi {
         let posts_fut = post::get_album_posts(pool.0, id.0);
         let recipes_fut = recipe::get_album_recipes(pool.0, id.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = Entries { posts, recipes };
+        let entries = AlbumEntries { posts, recipes };
         Ok(GetAlbumEntriesResponse::Ok(Json(entries)))
     }
 
