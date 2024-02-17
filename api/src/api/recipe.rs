@@ -1,13 +1,22 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText}, ApiResponse, param::Path, Tags};
+use poem_openapi::{OpenApi, payload::{Json, PlainText}, ApiResponse, param::Path, Tags, Object};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
+use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
-use crate::model::{post, recipe, comment};
+use crate::model::{post, recipe, comment, tag};
 
 #[derive(Tags)]
 enum ApiTags {
     Recipe
+}
+
+// Inputs
+
+#[derive(Object)]
+struct RecipeWithTags {
+    recipe: recipe::Recipe,
+    tags: tag::Tags
 }
 
 // Responses
@@ -44,8 +53,11 @@ pub struct RecipeApi;
 impl RecipeApi {
     
     #[oai(path = "/", method = "post")]
-    async fn create_recipe(&self, pool: Data<&MySqlPool>, recipe: Json<recipe::Recipe>, auth: JWTAuthorization) -> Result<()> {
-        recipe::create_recipe(pool.0, recipe.0, auth.0).await?;
+    async fn create_recipe(&self, pool: Data<&MySqlPool>, recipe: Json<RecipeWithTags>, auth: JWTAuthorization) -> Result<()> {
+        let recipe_fut = recipe::create_recipe(pool.0, recipe.0.recipe, auth.0);
+        let tags_fut = tag::create_tags(pool.0, recipe.0.tags);
+        let (recipe_id, tag_ids) = try_join!(recipe_fut, tags_fut)?;
+        recipe::add_recipe_tags(pool.0, recipe_id as i64, tag_ids).await?;
         Ok(())
     }
 

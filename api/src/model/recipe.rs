@@ -34,15 +34,16 @@ pub struct RecipeResult {
     created: DateTime<Utc>
 }
 
-pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Result<()> {
-    sqlx::query!(
+pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Result<u64> {
+    let id = sqlx::query!(
         "insert into recipe (title, description, ingredients, method, user_id)
         values (?,?,?,?,?)",
         recipe.title, recipe.description, recipe.ingredients, recipe.method, auth)
         .execute(pool)
         .await
-        .map_err(InternalServerError)?;
-    Ok(())
+        .map_err(InternalServerError)?
+        .last_insert_id();
+    Ok(id)
 }
 
 pub async fn get_recipe(pool: &MySqlPool, id: i64) -> Result<Option<RecipeResult>> {
@@ -101,6 +102,20 @@ pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRe
     Ok(recipes)
 }
 
+pub async fn get_tag_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResult>> {
+    let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+        "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
+        from recipe
+        inner join tag_entry on recipe.id = tag_entry.recipe_id
+        inner join user on recipe.user_id = user.id
+        where tag_entry.tag_id = ?",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(recipes)
+}
+
 pub async fn update_recipe(pool: &MySqlPool, id: i64, update_recipe: UpdateRecipe) -> Result<()> {
     sqlx::query!(
         "update recipe set title = coalesce(?, title), description = coalesce(?, description),
@@ -140,5 +155,29 @@ pub async fn remove_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Re
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn add_recipe_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
+    for tag_id in tag_ids.iter() {
+        sqlx::query!(
+            "insert into tag_entry (tag_id, recipe_id) values (?,?)",
+            tag_id, id) 
+            .execute(pool)
+            .await
+            .map_err(InternalServerError)?;
+    }
+    Ok(())
+}
+
+pub async fn remove_recipe_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
+    for tag_id in tag_ids.iter() {
+        sqlx::query!(
+            "delete from tag_entry where tag_id = ? and recipe_id = ?",
+            tag_id, id) 
+            .execute(pool)
+            .await
+            .map_err(InternalServerError)?;
+    }
     Ok(())
 }
