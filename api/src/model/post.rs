@@ -1,4 +1,4 @@
-use poem_openapi::{payload::{Attachment, AttachmentType}, Object, Multipart, types::multipart::{Upload, JsonField}};
+use poem_openapi::{payload::{Attachment, AttachmentType}, Object, types::multipart::Upload};
 use poem::{error::InternalServerError, Result};
 use sqlx::{MySqlPool, types::{JsonValue, chrono::{DateTime, Utc}}};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -13,11 +13,7 @@ pub struct Post {
     community_id: Option<i64>
 }
 
-#[derive(Multipart)]
-pub struct PostPayload {
-    post: JsonField<Post>,
-    media: Vec<Upload>
-}
+pub type Media = Vec<Upload>;
 
 #[derive(Object)]
 pub struct UpdatePost {
@@ -50,8 +46,7 @@ pub struct PostMediaResult {
     pub attachment: Attachment<Vec<u8>>
 }
 
-pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: PostPayload, auth: i64) -> Result<u64> {
-    let post = post_payload.post.0;
+pub async fn create_post(pool: &MySqlPool, post: Post, auth: i64) -> Result<u64> {
     let post_id = sqlx::query!( 
         "insert into post (title, content, user_id, community_id) 
         values (?,?,?,?)",
@@ -60,19 +55,23 @@ pub async fn create_post(pool: &MySqlPool, storage: &dyn Storage, post_payload: 
         .await
         .map_err(InternalServerError)?
         .last_insert_id();
-    for media in post_payload.media {
+    Ok(post_id)
+}
+
+pub async fn add_post_post_media(pool: &MySqlPool, storage: &dyn Storage, id: i64, media_list: Media, auth: i64) -> Result<()> {
+    for media in media_list {
         let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
-        let path = format!("user/{}/post/{}/{}", auth, post_id, time);
+        let path = format!("user/{}/post/{}/{}", auth, id, time);
         let media_path = storage.put_file(&path, media).await?;
         sqlx::query!( 
             "insert into post_media (uri, post_id)
             values (?,?)",
-            media_path, post_id)
+            media_path, id)
             .execute(pool)
             .await
             .map_err(InternalServerError)?;
-        }
-    Ok(post_id)
+    }
+    Ok(())
 }
 
 pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {

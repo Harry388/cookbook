@@ -1,4 +1,4 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags, Object};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags, types::multipart::JsonField, Multipart};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use futures::try_join;
@@ -12,6 +12,14 @@ enum ApiTags {
     Post
 }
 
+// Inputs
+
+#[derive(Multipart)]
+struct PostWithMediaWithTags {
+    post: JsonField<post::Post>,
+    media: post::Media,
+    tags: tag::Tags
+}
 
 // Responses
 
@@ -55,8 +63,9 @@ pub struct PostApi;
 impl PostApi {
     
     #[oai(path = "/", method = "post")]
-    async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post: post::PostPayload, auth: JWTAuthorization) -> Result<()> {
-        post::create_post(pool.0, storage.0, post, auth.0).await?;
+    async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post: PostWithMediaWithTags, auth: JWTAuthorization) -> Result<()> {
+        let id = post::create_post(pool.0, post.post.0, auth.0).await?;
+        post::add_post_post_media(pool.0, storage.0, id as i64, post.media, auth.0).await?;
         Ok(())
     }
 
