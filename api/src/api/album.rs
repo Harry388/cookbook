@@ -1,6 +1,7 @@
 use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse, Object};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
+use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::model::{album, post, recipe};
@@ -93,8 +94,9 @@ impl AlbumApi {
     #[oai(path = "/:id/contents", method = "get")]
     async fn get_album_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetAlbumEntriesResponse> {
         permission::album::is_visible(pool.0, id.0, auth).await?;
-        let posts = post::get_album_posts(pool.0, id.0).await?;
-        let recipes = recipe::get_album_recipes(pool.0, id.0).await?;
+        let posts_fut = post::get_album_posts(pool.0, id.0);
+        let recipes_fut = recipe::get_album_recipes(pool.0, id.0);
+        let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
         let entries = Entries { posts, recipes };
         Ok(GetAlbumEntriesResponse::Ok(Json(entries)))
     }
