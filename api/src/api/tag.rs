@@ -1,4 +1,4 @@
-use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, Object};
+use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, Object, ApiResponse};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use futures::try_join;
@@ -13,7 +13,21 @@ enum ApiTags {
 
 // Responses
 
-type GetTagsResponse = Result<Json<Vec<tag::TagResult>>>;
+#[derive(ApiResponse)]
+enum GetTagsResponse {
+    #[oai(status = 200)]
+    Ok(Json<Vec<tag::TagResult>>),
+    #[oai(status = 400)]
+    BadRequest
+}
+
+#[derive(ApiResponse)]
+enum UpdateTagsResponse {
+    #[oai(status = 200)]
+    Ok,
+    #[oai(status = 400)]
+    BadRequest
+}
 
 #[derive(Object)]
 struct TagEntries {
@@ -23,25 +37,10 @@ struct TagEntries {
 
 type GetTagEntriesResponse = Result<Json<TagEntries>>;
 
-
 pub struct TagApi;
 
 #[OpenApi(prefix_path = "/tag", tag = "ApiTags::Tag")]
 impl TagApi {
-
-    #[oai(path = "/recipe/:recipe_id", method = "get")]
-    async fn get_recipe_tags(&self, pool: Data<&MySqlPool>, recipe_id: Path<i64>, auth: JWTAuthorization) -> GetTagsResponse {
-        permission::recipe::is_visible(pool.0, recipe_id.0, auth).await?;
-        let tags = tag::get_recipe_tags(pool.0, recipe_id.0).await?;
-        Ok(Json(tags))
-    }
-
-    #[oai(path = "/post/:post_id", method = "get")]
-    async fn get_post_tags(&self, pool: Data<&MySqlPool>, post_id: Path<i64>, auth: JWTAuthorization) -> GetTagsResponse {
-        permission::post::is_visible(pool.0, post_id.0, auth).await?;
-        let tags = tag::get_post_tags(pool.0, post_id.0).await?;
-        Ok(Json(tags))
-    }
 
     #[oai(path = "/:id/entries", method = "get")]
     async fn get_tag_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> GetTagEntriesResponse {
@@ -51,5 +50,69 @@ impl TagApi {
         let entries = TagEntries { posts, recipes };
         Ok(Json(entries))
     }
+
+    #[oai(path = "/:entry/:entry_id", method = "get")]
+    async fn get_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, auth: JWTAuthorization) -> Result<GetTagsResponse> {
+        Ok(
+            match entry.0.as_str() {
+                "post" => {
+                    permission::post::is_visible(pool.0, entry_id.0, auth).await?;
+                    let tags = tag::get_post_tags(pool.0, entry_id.0).await?;
+                    GetTagsResponse::Ok(Json(tags))
+                },
+                "recipe" => {
+                    permission::recipe::is_visible(pool.0, entry_id.0, auth).await?;
+                    let tags = tag::get_recipe_tags(pool.0, entry_id.0).await?;
+                    GetTagsResponse::Ok(Json(tags))
+                },
+                _ => {
+                    GetTagsResponse::BadRequest
+                }
+            }
+        )
+    }
     
+    #[oai(path = "/:entry/:entry_id", method = "post")]
+    async fn add_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, tags: Json<tag::Tags>, auth: JWTAuthorization) -> Result<UpdateTagsResponse> {
+        Ok(
+            match entry.0.as_str() {
+                "post" => {
+                    permission::post::owns_post(pool.0, entry_id.0, auth).await?;
+                    let tag_ids = tag::create_tags(pool.0, tags.0).await?;
+                    post::add_post_tags(pool.0, entry_id.0, tag_ids).await?;
+                    UpdateTagsResponse::Ok
+                },
+                "recipe" => {
+                    permission::recipe::owns_recipe(pool.0, entry_id.0, auth).await?;
+                    let tag_ids = tag::create_tags(pool.0, tags.0).await?;
+                    recipe::add_recipe_tags(pool.0, entry_id.0, tag_ids).await?;
+                    UpdateTagsResponse::Ok
+                },
+                _ => {
+                    UpdateTagsResponse::BadRequest
+                }
+            }
+        )
+    }
+
+    #[oai(path = "/:entry/:entry_id", method = "delete")]
+    async fn remove_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, tags: Json<Vec<i64>>, auth: JWTAuthorization) -> Result<UpdateTagsResponse> {
+        Ok(
+            match entry.0.as_str() {
+                "post" => {
+                    permission::post::owns_post(pool.0, entry_id.0, auth).await?;
+                    post::remove_post_tags(pool.0, entry_id.0, tags.0).await?;
+                    UpdateTagsResponse::Ok
+                },
+                "recipe" => {
+                    permission::recipe::owns_recipe(pool.0, entry_id.0, auth).await?;
+                    recipe::remove_recipe_tags(pool.0, entry_id.0, tags.0).await?;
+                    UpdateTagsResponse::Ok
+                },
+                _ => {
+                    UpdateTagsResponse::BadRequest
+                }
+            }
+        )
+    }
 }
