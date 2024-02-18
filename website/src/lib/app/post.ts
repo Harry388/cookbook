@@ -22,13 +22,18 @@ export function getUserPosts(userId: number | string) {
     return get<Post[]>(`post/user/${userId}`);
 }
 
-export function createPost(title: string, content: string, communityId: number | null, files: File[]) {
+export function createPost(title: string, content: string, communityId: number | null, files: File[], tags: string[]) {
     const formData = new FormData();
     const postStr = JSON.stringify({ title, content, community_id: communityId });
     formData.append('post', postStr);
     if (files) {
         for (const file of files) {
             formData.append('media', file);
+        }
+    }
+    if (tags) {
+        for (const tag of tags) {
+            formData.append('tags', tag);
         }
     }
     return post('post', formData, {

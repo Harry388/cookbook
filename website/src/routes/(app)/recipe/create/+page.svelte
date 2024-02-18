@@ -9,7 +9,7 @@
     let method: string[];
 
     async function create() {
-        const response = await createRecipe(title, description, ingredients, method).run();
+        const response = await createRecipe(title, description, ingredients, method, []).run();
         if (response.ok) {
             history.back();
         }

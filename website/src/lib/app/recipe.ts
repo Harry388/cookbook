@@ -25,8 +25,12 @@ export function getUserRecipes(userId: number | string) {
     return get<Recipe[]>(`recipe/user/${userId}`);
 }
 
-export function createRecipe(title: string, description: string | null, ingredients: Ingredients, method: Method) {
-    return post(`recipe`, { title, description, ingredients, method });
+export function createRecipe(title: string, description: string | null, ingredients: Ingredients, method: Method, tags: string[]) {
+    const body = {
+        recipe: { title, description, ingredients, method },
+        tags
+    };
+    return post(`recipe`, body);
 }
 
 export function updateRecipe(id: number | string, title: string | null, description: string | null, ingredients: Ingredients | null, method: Method | null) {
