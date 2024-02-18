@@ -16,7 +16,7 @@
     <div class="flex items-center">
         <p class="mr-5">{i + 1}.</p>
         <form on:submit={add}>
-            <input autofocus={(i == (list.length - 1)) && !item} type="text" class="input input-bordered" bind:value={list[i]} placeholder="{i + 1}.">
+            <input type="text" class="input input-bordered" bind:value={item} placeholder="{i + 1}.">
         </form>
         <button class="btn btn-outline w-fit" on:click={() => remove(i)}>Remove</button>
     </div>

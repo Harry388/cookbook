@@ -2,6 +2,7 @@
 
     import { createPost } from '$lib/app/post';
     import ImageInput from '$lib/components/util/imageInput.svelte';
+    import TagInput from '$lib/components/tag/tagInput.svelte';
 
     export let data;
 
@@ -9,10 +10,11 @@
     let content = '';
     let files: File[];
     let community: number | null = data.community;
+    let tags: string[];
 
     async function create() {
         if (!title) return;
-        const response = await createPost(title, content, community, files, []).run();
+        const response = await createPost(title, content, community, files, tags).run();
         if (response.ok) {
             history.back();
         }
@@ -41,6 +43,11 @@
         <span class="label-text">Content</span>
     </label>
     <textarea class="textarea textarea-bordered" placeholder="Content" bind:value={content}></textarea>
+    <!-- svelte-ignore a11y-label-has-associated-control -->
+    <label class="label">
+        <span class="label-text">Tags</span>
+    </label>
+    <TagInput bind:tags={tags} />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Media</span>
