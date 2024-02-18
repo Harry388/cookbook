@@ -1,5 +1,6 @@
 import { getRecipe, getRecipePosts, getRecipeComments } from '$lib/app/recipe';
 import { getUserAblums } from '$lib/app/album';
+import { getEntryTags } from '$lib/app/tag';
 
 export const load = async ({ params, fetch, parent, depends }) => {
 
@@ -9,12 +10,14 @@ export const load = async ({ params, fetch, parent, depends }) => {
         recipe,
         posts,
         comments,
-        albums
+        albums,
+        tags
     ] = await Promise.all([
         getRecipe(params.id).json(fetch),
         getRecipePosts(params.id).json(fetch),
         getRecipeComments(params.id).json(fetch),
-        getUserAblums(id).json(fetch)
+        getUserAblums(id).json(fetch),
+        getEntryTags(params.id, 'recipe').json(fetch)
     ]);
 
     depends('app:recipe');
@@ -24,6 +27,7 @@ export const load = async ({ params, fetch, parent, depends }) => {
         posts,
         comments,
         albums,
+        tags,
         title: recipe.title,
         ownsRecipe: id == recipe.user_id
     }

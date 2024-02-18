@@ -51,7 +51,7 @@ impl TagApi {
         Ok(Json(entries))
     }
 
-    #[oai(path = "/:entry/:entry_id", method = "get")]
+    #[oai(path = "/entry/:entry/:entry_id", method = "get")]
     async fn get_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, auth: JWTAuthorization) -> Result<GetTagsResponse> {
         Ok(
             match entry.0.as_str() {
@@ -72,7 +72,7 @@ impl TagApi {
         )
     }
     
-    #[oai(path = "/:entry/:entry_id", method = "post")]
+    #[oai(path = "/entry/:entry/:entry_id", method = "post")]
     async fn add_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, tags: Json<tag::Tags>, auth: JWTAuthorization) -> Result<UpdateTagsResponse> {
         Ok(
             match entry.0.as_str() {
@@ -95,7 +95,7 @@ impl TagApi {
         )
     }
 
-    #[oai(path = "/:entry/:entry_id", method = "delete")]
+    #[oai(path = "/entry/:entry/:entry_id", method = "delete")]
     async fn remove_entry_tags(&self, pool: Data<&MySqlPool>, entry: Path<String>, entry_id: Path<i64>, tags: Json<Vec<i64>>, auth: JWTAuthorization) -> Result<UpdateTagsResponse> {
         Ok(
             match entry.0.as_str() {

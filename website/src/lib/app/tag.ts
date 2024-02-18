@@ -17,13 +17,13 @@ export function getTagEntries(id: number | string) {
 }
 
 export function getEntryTags(entry_id: number | string, type: 'post' | 'recipe') {
-    return get<Tag[]>(`tag/${type}/${entry_id}`);
+    return get<Tag[]>(`tag/entry/${type}/${entry_id}`);
 }
 
 export function addEntryTags(entry_id: number | string, tags: string[], type: 'post' | 'recipe') {
-    return post(`tag/${type}/${entry_id}`, tags);
+    return post(`tag/entry/${type}/${entry_id}`, tags);
 }
 
 export function removeEntryTags(entry_id: number | string, tags: number[], type: 'post' | 'recipe') {
-    return remove(`tag/${type}/${entry_id}`, tags);
+    return remove(`tag/entry/${type}/${entry_id}`, tags);
 }

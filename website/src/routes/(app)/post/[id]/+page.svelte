@@ -3,6 +3,7 @@
     import Post from '$lib/components/post/post.svelte';
     import Recipes from '$lib/components/recipe/recipes.svelte';
     import CommentBlock from '$lib/components/comment/commentBlock.svelte';
+    import Tags from '$lib/components/tag/tags.svelte';
     import { deletePost } from '$lib/app/post';
     import { addAlbumEntry } from '$lib/app/album';
     import { goto } from '$app/navigation';
@@ -42,6 +43,8 @@
     </select>
     <button class="btn btn-primary w-fit my-5" on:click={addAlbum}>Save to Album</button>
 </label>
+
+<Tags tags={data.tags} />
 
 <div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
 
