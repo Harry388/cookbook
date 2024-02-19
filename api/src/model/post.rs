@@ -168,10 +168,10 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult
         user.display_name as user_display_name, community.title as community_title
         from post
         left join post_media on post.id = post_media.post_id
-        inner join album_entry on post.id = album_entry.post_id
+        inner join album_post on post.id = album_post.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
-        where album_entry.album_id = ?
+        where album_post.album_id = ?
         group by post.id",
         id)
         .fetch_all(pool)
@@ -241,7 +241,7 @@ pub async fn remove_post_recipe(pool: &MySqlPool, id: i64, recipe_id: i64) -> Re
 
 pub async fn add_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
     sqlx::query!(
-        "insert into album_entry (album_id, post_id) values (?,?)",
+        "insert into album_post (album_id, post_id) values (?,?)",
         album_id, id)
         .execute(pool)
         .await
@@ -251,7 +251,7 @@ pub async fn add_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Result<
 
 pub async fn remove_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
     sqlx::query!(
-        "delete from album_entry where album_id = ? and post_id = ?",
+        "delete from album_post where album_id = ? and post_id = ?",
         album_id, id)
         .execute(pool)
         .await

@@ -92,9 +92,9 @@ pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRe
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
         from recipe
-        inner join album_entry on recipe.id = album_entry.recipe_id
+        inner join album_recipe on recipe.id = album_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where album_entry.album_id = ?",
+        where album_recipe.album_id = ?",
         id)
         .fetch_all(pool)
         .await
@@ -140,7 +140,7 @@ pub async fn delete_recipe(pool: &MySqlPool, id: i64) -> Result<()> {
 
 pub async fn add_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
     sqlx::query!(
-        "insert into album_entry (album_id, recipe_id) values (?,?)",
+        "insert into album_recipe (album_id, recipe_id) values (?,?)",
         album_id, id)
         .execute(pool)
         .await
@@ -150,7 +150,7 @@ pub async fn add_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Resul
 
 pub async fn remove_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Result<()> {
     sqlx::query!(
-        "delete from album_entry where album_id = ? and recipe_id = ?",
+        "delete from album_recipe where album_id = ? and recipe_id = ?",
         album_id, id)
         .execute(pool)
         .await
