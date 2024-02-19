@@ -186,10 +186,10 @@ pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>>
         user.display_name as user_display_name, community.title as community_title
         from post
         left join post_media on post.id = post_media.post_id
-        inner join tag_entry on post.id = tag_entry.post_id
+        inner join tag_post on post.id = tag_post.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
-        where tag_entry.tag_id = ?
+        where tag_post.tag_id = ?
         group by post.id",
         id)
         .fetch_all(pool)
@@ -262,7 +262,7 @@ pub async fn remove_album_post(pool: &MySqlPool, id: i64, album_id: i64) -> Resu
 pub async fn add_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
     for tag_id in tag_ids.iter() {
         sqlx::query!(
-            "insert into tag_entry (tag_id, post_id) values (?,?)",
+            "insert into tag_post (tag_id, post_id) values (?,?)",
             tag_id, id) 
             .execute(pool)
             .await
@@ -274,7 +274,7 @@ pub async fn add_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Resu
 pub async fn remove_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
     for tag_id in tag_ids.iter() {
         sqlx::query!(
-            "delete from tag_entry where tag_id = ? and post_id = ?",
+            "delete from tag_post where tag_id = ? and post_id = ?",
             tag_id, id) 
             .execute(pool)
             .await

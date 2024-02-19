@@ -12,6 +12,10 @@
     $: tags = internalTags.map(t => t.tag);
 
     function add() {
+        if (tags.includes(newTag)) {
+            newTag = '';
+            return;
+        }
         internalTags = [...internalTags, {
             tag: newTag,
             id: count

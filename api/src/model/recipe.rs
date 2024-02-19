@@ -106,9 +106,9 @@ pub async fn get_tag_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResu
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
         from recipe
-        inner join tag_entry on recipe.id = tag_entry.recipe_id
+        inner join tag_recipe on recipe.id = tag_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where tag_entry.tag_id = ?",
+        where tag_recipe.tag_id = ?",
         id)
         .fetch_all(pool)
         .await
@@ -161,7 +161,7 @@ pub async fn remove_album_recipe(pool: &MySqlPool, id: i64, album_id: i64) -> Re
 pub async fn add_recipe_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
     for tag_id in tag_ids.iter() {
         sqlx::query!(
-            "insert into tag_entry (tag_id, recipe_id) values (?,?)",
+            "insert into tag_recipe (tag_id, recipe_id) values (?,?)",
             tag_id, id) 
             .execute(pool)
             .await
@@ -173,7 +173,7 @@ pub async fn add_recipe_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Re
 pub async fn remove_recipe_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> Result<()> {
     for tag_id in tag_ids.iter() {
         sqlx::query!(
-            "delete from tag_entry where tag_id = ? and recipe_id = ?",
+            "delete from tag_recipe where tag_id = ? and recipe_id = ?",
             tag_id, id) 
             .execute(pool)
             .await
