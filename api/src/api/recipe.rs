@@ -4,7 +4,7 @@ use sqlx::MySqlPool;
 use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
-use crate::model::{post, recipe, comment, tag};
+use crate::model::{post, recipe, comment, tag, like};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -111,6 +111,20 @@ impl RecipeApi {
     async fn create_recipe_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, comment: Json<comment::Comment>, auth: JWTAuthorization) -> Result<()> {
         permission::recipe::is_visible(pool.0, id.0, auth).await?;
         comment::create_recipe_comment(pool.0, comment.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "post")]
+    async fn like_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        like::like_recipe(pool.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "delete")]
+    async fn unlike_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        like::unlike_recipe(pool.0, id.0, auth.0).await?;
         Ok(())
     }
 

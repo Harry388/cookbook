@@ -3,7 +3,7 @@ use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
-use crate::model::comment;
+use crate::model::{comment, like};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -29,6 +29,18 @@ impl CommentApi {
     async fn delete_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::comment::owns_comment(pool.0, id.0, auth).await?;
         comment::delete_comment(pool.0, id.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "post")]
+    async fn like_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        like::like_comment(pool.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "delete")]
+    async fn unlike_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        like::unlike_comment(pool.0, id.0, auth.0).await?;
         Ok(())
     }
     

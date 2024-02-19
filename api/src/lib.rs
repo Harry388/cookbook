@@ -17,6 +17,7 @@ pub mod model {
     pub mod comment;
     pub mod album;
     pub mod tag;
+    pub mod like;
 }
 
 pub mod permission;

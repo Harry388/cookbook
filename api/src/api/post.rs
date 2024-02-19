@@ -5,7 +5,7 @@ use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
-use crate::model::{post, recipe, comment, tag};
+use crate::model::{post, recipe, comment, tag, like};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -148,6 +148,20 @@ impl PostApi {
     async fn create_post_comment(&self, pool: Data<&MySqlPool>, id: Path<i64>, comment: Json<comment::Comment>, auth: JWTAuthorization) -> Result<()> {
         permission::post::is_visible(pool.0, id.0, auth).await?;
         comment::create_post_comment(pool.0, comment.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "post")]
+    async fn like_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        like::like_post(pool.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/like", method = "delete")]
+    async fn unlike_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::post::is_visible(pool.0, id.0, auth).await?;
+        like::unlike_post(pool.0, id.0, auth.0).await?;
         Ok(())
     }
 
