@@ -4,6 +4,7 @@
     import Recipes from '$lib/components/recipe/recipes.svelte';
     import CommentBlock from '$lib/components/comment/commentBlock.svelte';
     import Tags from '$lib/components/tag/tags.svelte';
+    import Share from '$lib/components/util/share.svelte';
     import { deletePost } from '$lib/app/post';
     import { addAlbumEntry } from '$lib/app/album';
     import { goto } from '$app/navigation';
@@ -45,6 +46,8 @@
 </label>
 
 <Tags tags={data.tags} />
+
+<Share />
 
 <div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
 
