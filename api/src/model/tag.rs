@@ -41,6 +41,16 @@ pub async fn create_tags(pool: &MySqlPool, tags: Tags) -> Result<Vec<i64>> {
     Ok(ids)
 }
 
+pub async fn get_tag(pool: &MySqlPool, id: i64) -> Result<Option<TagResult>> {
+    let tag = sqlx::query_as!(TagResult,
+        "select id, tag from tag where id = ?",
+        id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(tag)
+}
+
 pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64) -> Result<Vec<TagResult>> {
     let tags = sqlx::query_as!(TagResult,
         "select tag.id, tag.tag

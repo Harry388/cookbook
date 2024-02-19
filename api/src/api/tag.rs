@@ -14,6 +14,14 @@ enum ApiTags {
 // Responses
 
 #[derive(ApiResponse)]
+enum GetTagResponse {
+    #[oai(status = 200)]
+    Ok(Json<tag::TagResult>),
+    #[oai(status = 404)]
+    NotFound
+}
+
+#[derive(ApiResponse)]
 enum GetTagsResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<tag::TagResult>>),
@@ -41,6 +49,17 @@ pub struct TagApi;
 
 #[OpenApi(prefix_path = "/tag", tag = "ApiTags::Tag")]
 impl TagApi {
+
+    #[oai(path = "/:id", method = "get")]
+    async fn get_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetTagResponse> {
+        let tag = tag::get_tag(pool.0, id.0).await?;
+        Ok(
+            match tag {
+                Some(t) => GetTagResponse::Ok(Json(t)),
+                None => GetTagResponse::NotFound
+            }
+        )
+    }
 
     #[oai(path = "/:id/entries", method = "get")]
     async fn get_tag_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> GetTagEntriesResponse {

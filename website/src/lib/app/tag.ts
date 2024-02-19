@@ -12,6 +12,10 @@ export type Entries = {
     recipes: Recipe[]
 }
 
+export function getTag(id: number | string) {
+    return get<Tag>(`tag/${id}`);
+}
+
 export function getTagEntries(id: number | string) {
     return get<Entries>(`tag/${id}/entries`);
 }

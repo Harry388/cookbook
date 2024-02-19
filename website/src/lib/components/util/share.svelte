@@ -2,13 +2,20 @@
 
     import { page } from '$app/stores';
 
-    function share() {
+    async function share() {
         if (navigator.share) {
-            navigator.share({
+            await navigator.share({
                 title: 'Cookbook',
                 text: 'Check out this post from cookbook!',
                 url: $page.url.href,
             })
+        }
+        else {
+            const permission = await  navigator.permissions.query({ name: "clipboard-write" as PermissionName })
+            if (permission.state == "granted" || permission.state == "prompt") {
+                navigator.clipboard.writeText($page.url.href);
+                alert('Copied to clipboard!');
+            }
         }
     }
 
