@@ -15,7 +15,8 @@ struct IdResult {
 #[derive(Object)]
 pub struct TagResult {
     id: i64,
-    tag: String
+    tag: String,
+    is_following: Option<f32>
 }
 
 pub async fn create_tags(pool: &MySqlPool, tags: Tags) -> Result<Vec<i64>> {
@@ -41,36 +42,47 @@ pub async fn create_tags(pool: &MySqlPool, tags: Tags) -> Result<Vec<i64>> {
     Ok(ids)
 }
 
-pub async fn get_tag(pool: &MySqlPool, id: i64) -> Result<Option<TagResult>> {
+pub async fn get_tag(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<TagResult>> {
     let tag = sqlx::query_as!(TagResult,
-        "select id, tag from tag where id = ?",
-        id)
+        "select id, tag,
+        cast(sum(case when tag_user.user_id = ? then 1 else 0 end) as float) as is_following
+        from tag
+        left join tag_user on tag_user.tag_id = tag.id
+        where id = ?
+        group by tag.id",
+        auth, id)
         .fetch_optional(pool)
         .await
         .map_err(InternalServerError)?;
     Ok(tag)
 }
 
-pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64) -> Result<Vec<TagResult>> {
+pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64, auth: i64) -> Result<Vec<TagResult>> {
     let tags = sqlx::query_as!(TagResult,
-        "select tag.id, tag.tag
+        "select tag.id, tag.tag,
+        cast(sum(case when tag_user.user_id = ? then 1 else 0 end) as float) as is_following
         from tag inner join tag_recipe on tag.id = tag_recipe.tag_id
+        left join tag_user on tag_user.tag_id = tag.id
         where tag_recipe.recipe_id = ?
+        group by tag.id
         order by tag",
-        recipe_id)
+        auth, recipe_id)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
     Ok(tags)
 }
 
-pub async fn get_post_tags(pool: &MySqlPool, post_id: i64) -> Result<Vec<TagResult>> {
+pub async fn get_post_tags(pool: &MySqlPool, post_id: i64, auth: i64) -> Result<Vec<TagResult>> {
     let tags = sqlx::query_as!(TagResult,
-        "select tag.id, tag.tag
+        "select tag.id, tag.tag,
+        cast(sum(case when tag_user.user_id = ? then 1 else 0 end) as float) as is_following
         from tag inner join tag_post on tag.id = tag_post.tag_id
+        left join tag_user on tag_user.tag_id = tag.id
         where tag_post.post_id = ?
+        group by tag.id
         order by tag",
-        post_id)
+        auth, post_id)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;

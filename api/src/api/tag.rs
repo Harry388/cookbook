@@ -51,8 +51,8 @@ pub struct TagApi;
 impl TagApi {
 
     #[oai(path = "/:id", method = "get")]
-    async fn get_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetTagResponse> {
-        let tag = tag::get_tag(pool.0, id.0).await?;
+    async fn get_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetTagResponse> {
+        let tag = tag::get_tag(pool.0, id.0, auth.0).await?;
         Ok(
             match tag {
                 Some(t) => GetTagResponse::Ok(Json(t)),
@@ -76,12 +76,12 @@ impl TagApi {
             match entry.0.as_str() {
                 "post" => {
                     permission::post::is_visible(pool.0, entry_id.0, auth).await?;
-                    let tags = tag::get_post_tags(pool.0, entry_id.0).await?;
+                    let tags = tag::get_post_tags(pool.0, entry_id.0, auth.0).await?;
                     GetTagsResponse::Ok(Json(tags))
                 },
                 "recipe" => {
                     permission::recipe::is_visible(pool.0, entry_id.0, auth).await?;
-                    let tags = tag::get_recipe_tags(pool.0, entry_id.0).await?;
+                    let tags = tag::get_recipe_tags(pool.0, entry_id.0, auth.0).await?;
                     GetTagsResponse::Ok(Json(tags))
                 },
                 _ => {
