@@ -121,7 +121,7 @@ pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResul
         left join community_user on community_user.community_id = post.community_id
         where post.user_id != ? and (following.user_id = ? or community_user.user_id = ?)
         group by post.id
-        order by created",
+        order by created desc",
         auth, auth, auth)
         .fetch_all(pool)
         .await
@@ -138,7 +138,7 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
         left join community on community.id = post.community_id
         where post.user_id = ?
         group by post.id
-        order by created",
+        order by created desc",
         user_id)
         .fetch_all(pool)
         .await
@@ -157,7 +157,7 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResul
         left join community on community.id = post.community_id
         where recipe_post.recipe_id = ?
         group by post.id
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
@@ -175,7 +175,7 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
         left join community on community.id = post.community_id
         where post.community_id = ?
         group by post.id
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
@@ -194,7 +194,7 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult
         left join community on community.id = post.community_id
         where album_post.album_id = ?
         group by post.id
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
@@ -213,7 +213,7 @@ pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>>
         left join community on community.id = post.community_id
         where tag_post.tag_id = ?
         group by post.id
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await

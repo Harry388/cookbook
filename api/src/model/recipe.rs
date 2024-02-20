@@ -81,7 +81,7 @@ pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64) -> Result<Vec<Reci
         "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name
         from recipe inner join user on recipe.user_id = user.id
         where user_id = ?
-        order by created",
+        order by created desc",
         user_id)
         .fetch_all(pool)
         .await
@@ -96,7 +96,7 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRes
         inner join recipe_post on recipe.id = recipe_post.recipe_id
         inner join user on recipe.user_id = user.id
         where recipe_post.post_id = ?
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
@@ -111,7 +111,7 @@ pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRe
         inner join album_recipe on recipe.id = album_recipe.recipe_id
         inner join user on recipe.user_id = user.id
         where album_recipe.album_id = ?
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
@@ -126,7 +126,7 @@ pub async fn get_tag_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResu
         inner join tag_recipe on recipe.id = tag_recipe.recipe_id
         inner join user on recipe.user_id = user.id
         where tag_recipe.tag_id = ?
-        order by created",
+        order by created desc",
         id)
         .fetch_all(pool)
         .await
