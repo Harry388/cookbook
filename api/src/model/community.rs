@@ -116,7 +116,8 @@ pub async fn get_user_communities(pool: &MySqlPool, user_id: i64, auth: i64) -> 
         select id, title, description, created, users, is_member, is_admin
         from community_and_users
         inner join community_user on community_user.community_id = community_and_users.id
-        where community_user.user_id = ?",
+        where community_user.user_id = ?
+        order by title",
         auth, auth, user_id)
         .fetch_all(pool)
         .await

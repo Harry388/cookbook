@@ -66,7 +66,8 @@ pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64) -> Result<Vec<Reci
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name
         from recipe inner join user on recipe.user_id = user.id
-        where user_id = ?",
+        where user_id = ?
+        order by created",
         user_id)
         .fetch_all(pool)
         .await
@@ -80,7 +81,8 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRes
         from recipe
         inner join recipe_post on recipe.id = recipe_post.recipe_id
         inner join user on recipe.user_id = user.id
-        where recipe_post.post_id = ?",
+        where recipe_post.post_id = ?
+        order by created",
         id)
         .fetch_all(pool)
         .await
@@ -94,7 +96,8 @@ pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRe
         from recipe
         inner join album_recipe on recipe.id = album_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where album_recipe.album_id = ?",
+        where album_recipe.album_id = ?
+        order by created",
         id)
         .fetch_all(pool)
         .await
@@ -108,7 +111,8 @@ pub async fn get_tag_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResu
         from recipe
         inner join tag_recipe on recipe.id = tag_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where tag_recipe.tag_id = ?",
+        where tag_recipe.tag_id = ?
+        order by created",
         id)
         .fetch_all(pool)
         .await

@@ -194,7 +194,8 @@ pub async fn get_followers(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult
     let followers = sqlx::query_as!(FollowResult,
         "select id, username, display_name, pfp from user where id in (
             select user_id from following where following_id = ?
-        )",
+        )
+        order by display_name",
         id)
         .fetch_all(pool)
         .await
@@ -206,7 +207,8 @@ pub async fn get_following(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult
     let following = sqlx::query_as!(FollowResult,
         "select id, username, display_name, pfp from user where id in (
             select following_id from following where user_id = ?
-        )",
+        )
+        order by display_name",
         id)
         .fetch_all(pool)
         .await
@@ -219,7 +221,8 @@ pub async fn get_community_users(pool: &MySqlPool, id: i64) -> Result<Vec<Commun
         "select id, username, display_name, permission 
         from user inner join community_user on user.id = community_user.user_id
         where community_user.community_id = ?
-        group by user.id, permission",
+        group by user.id, permission
+        order by display_name",
         id)
         .fetch_all(pool)
         .await

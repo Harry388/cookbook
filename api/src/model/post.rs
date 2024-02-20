@@ -118,7 +118,8 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
         where post.user_id = ?
-        group by post.id",
+        group by post.id
+        order by created",
         user_id)
         .fetch_all(pool)
         .await
@@ -137,7 +138,8 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResul
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
         where recipe_post.recipe_id = ?
-        group by post.id",
+        group by post.id
+        order by created",
         id)
         .fetch_all(pool)
         .await
@@ -154,7 +156,8 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
         where post.community_id = ?
-        group by post.id",
+        group by post.id
+        order by created",
         id)
         .fetch_all(pool)
         .await
@@ -172,7 +175,8 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
         where album_post.album_id = ?
-        group by post.id",
+        group by post.id
+        order by created",
         id)
         .fetch_all(pool)
         .await
@@ -190,7 +194,8 @@ pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>>
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
         where tag_post.tag_id = ?
-        group by post.id",
+        group by post.id
+        order by created",
         id)
         .fetch_all(pool)
         .await

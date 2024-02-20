@@ -44,7 +44,8 @@ pub async fn get_user_albums(pool: &MySqlPool, user_id: i64) -> Result<Vec<Album
     let albums = sqlx::query_as!(AlbumResult,
         "select id, title, user_id
         from album
-        where user_id = ?",
+        where user_id = ?
+        order by title",
         user_id)
         .fetch_all(pool)
         .await

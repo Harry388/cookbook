@@ -65,7 +65,8 @@ pub async fn get_post_comments(pool: &MySqlPool, post_id: i64) -> Result<Vec<Com
         "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created
         from comment inner join post_comment on comment.id = post_comment.comment_id
         inner join user on comment.user_id = user.id
-        where post_comment.post_id = ?",
+        where post_comment.post_id = ?
+        order by comment.created",
         post_id)
         .fetch_all(pool)
         .await
@@ -78,7 +79,8 @@ pub async fn get_recipe_comments(pool: &MySqlPool, recipe_id: i64) -> Result<Vec
         "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created
         from comment inner join recipe_comment on comment.id = recipe_comment.comment_id
         inner join user on comment.user_id = user.id
-        where recipe_comment.recipe_id = ?",
+        where recipe_comment.recipe_id = ?
+        order by comment.created",
         recipe_id)
         .fetch_all(pool)
         .await

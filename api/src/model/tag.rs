@@ -55,7 +55,8 @@ pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64) -> Result<Vec<Tag
     let tags = sqlx::query_as!(TagResult,
         "select tag.id, tag.tag
         from tag inner join tag_recipe on tag.id = tag_recipe.tag_id
-        where tag_recipe.recipe_id = ?",
+        where tag_recipe.recipe_id = ?
+        order by tag",
         recipe_id)
         .fetch_all(pool)
         .await
@@ -67,7 +68,8 @@ pub async fn get_post_tags(pool: &MySqlPool, post_id: i64) -> Result<Vec<TagResu
     let tags = sqlx::query_as!(TagResult,
         "select tag.id, tag.tag
         from tag inner join tag_post on tag.id = tag_post.tag_id
-        where tag_post.post_id = ?",
+        where tag_post.post_id = ?
+        order by tag",
         post_id)
         .fetch_all(pool)
         .await
