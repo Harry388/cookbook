@@ -62,6 +62,20 @@ pub async fn get_recipe(pool: &MySqlPool, id: i64) -> Result<Option<RecipeResult
     Ok(Some(recipe))
 }
 
+pub async fn get_feed_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeResult>> {
+    let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+        "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name
+        from recipe inner join user on recipe.user_id = user.id
+        inner join following on following.following_id = recipe.user_id
+        where following.user_id = ?
+        order by created",
+        auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(recipes)
+}
+
 pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name

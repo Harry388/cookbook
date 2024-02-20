@@ -110,6 +110,25 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
     Ok(Some(post_media))
 }
 
+pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResult>> {
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title
+        from post left join post_media on post.id = post_media.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
+        left join following on following.following_id = post.user_id
+        left join community_user on community_user.community_id = post.community_id
+        where post.user_id != ? and (following.user_id = ? or community_user.user_id = ?)
+        group by post.id
+        order by created",
+        auth, auth, auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(posts)
+}
+
 pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
@@ -126,7 +145,6 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64) -> Result<Vec<PostRe
         .map_err(InternalServerError)?;
     Ok(posts)
 }
-
 
 pub async fn get_recipe_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,

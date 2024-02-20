@@ -1,10 +1,11 @@
-use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags};
+use poem_openapi::{OpenApi, payload::{Json, PlainText, Attachment}, ApiResponse, param::Path, Tags, Object};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
+use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
-use crate::model::user;
+use crate::model::{user, post, recipe};
 
 #[derive(Tags)]
 enum ApiTags {
@@ -34,6 +35,14 @@ enum GetProfilePicResponse {
     #[oai(status = 404)]
     NotFound(PlainText<String>)
 }
+
+#[derive(Object)]
+struct FeedEntries {
+    posts: Vec<post::PostResult>,
+    recipes: Vec<recipe::RecipeResult>
+}
+
+type GetFeedResponse = Json<FeedEntries>;
 
 pub struct UserApi;
 
@@ -121,5 +130,14 @@ impl UserApi {
         permission::user::is_following_or_public(pool.0, id.0, auth).await?;
         let following = user::get_following(pool.0, id.0).await?;
         Ok(FollowResponse::Ok(Json(following)))
+    }
+
+    #[oai(path = "/feed", method = "get")]
+    async fn get_feed(&self, pool: Data<&MySqlPool>, auth: JWTAuthorization) -> Result<GetFeedResponse> {
+        let posts_fut = post::get_feed_posts(pool.0, auth.0);
+        let recipes_fut = recipe::get_feed_recipes(pool.0, auth.0);
+        let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
+        let entries = FeedEntries { posts, recipes };
+        Ok(Json(entries))
     }
 }
