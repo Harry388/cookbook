@@ -8,7 +8,7 @@
 
     $: created = new Date(post.created);
 
-    $: media = post.media.filter(m => m != null);
+    $: media = post.media ? post.media.filter(m => m != null) : [];
 
 </script>
 

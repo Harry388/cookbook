@@ -1,5 +1,6 @@
 import { get, put, remove } from '$lib/apiFetch';
 import type { FetchFn } from '$lib/apiFetch';
+import type { Entries } from '$lib/app/album';
 
 export type User = {
     id: number,
@@ -40,4 +41,8 @@ export function updateUser(id: number | string, username: string, displayName: s
 
 export function deleteUser(id: number | string) {
     return remove(`user/${id}`);
+}
+
+export function getUserFeed() {
+    return get<Entries>('user/feed');
 }

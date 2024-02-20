@@ -1,10 +1,15 @@
+<script lang="ts">
 
+    import Entries from '$lib/components/entries/entries.svelte';
 
-<div class="hero pt-20 bg-base-200">
-    <div class="hero-content flex-col lg:flex-row-reverse">
-        <div class="text-center lg:text-left">
-            <h1 class="text-5xl font-bold">Welcome to CookBook!</h1>
-            <p class="py-6">Chomp chomp</p>
-        </div>
-    </div>
+    export let data;
+
+    console.log(data)
+
+</script>
+
+<div class="w-11/12 lg:w-1/3 m-auto">
+
+    <Entries entries={data.entries} />
+
 </div>
