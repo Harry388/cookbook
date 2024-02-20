@@ -76,3 +76,23 @@ pub async fn get_post_tags(pool: &MySqlPool, post_id: i64) -> Result<Vec<TagResu
         .map_err(InternalServerError)?;
     Ok(tags)
 }
+
+pub async fn follow_tag(pool: &MySqlPool, id: i64, auth: i64) -> Result<()> {
+    sqlx::query!(
+        "insert into tag_user (tag_id, user_id) values (?,?)",
+        id, auth)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn unfollow_tag(pool: &MySqlPool, id: i64, auth: i64) -> Result<()> {
+    sqlx::query!(
+        "delete from tag_user where tag_id = ? and user_id = ?",
+        id, auth)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}

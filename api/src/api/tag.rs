@@ -134,4 +134,16 @@ impl TagApi {
             }
         )
     }
+
+    #[oai(path = "/:id/follow", method = "post")]
+    async fn follow_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        tag::follow_tag(pool.0, id.0, auth.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/unfollow", method = "delete")]
+    async fn unfollow_tag(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        tag::unfollow_tag(pool.0, id.0, auth.0).await?;
+        Ok(())
+    }
 }
