@@ -1,16 +1,33 @@
 <script lang="ts">
 
     import Info from '$lib/components/community/info.svelte';
-    import Posts from '$lib/components/post/posts.svelte';
+    import Post from '$lib/components/post/post.svelte';
+    import { removePost } from '$lib/app/community';
+    import { invalidate } from '$app/navigation';
 
     export let data;
+
+    async function remove(id: number) {
+        if (!confirm('Are you sure?')) return;
+        const response = await removePost(data.community.id, id).run();
+        if (response.ok) {
+            invalidate('app:community');
+        }
+    }
 
 </script>
 
 <Info community={data.community} id={data.id} />
 
-<div class="pt-5">
-
-    <Posts posts={data.posts} />
-
+<div class="w-11/12 lg:w-1/3 m-auto">
+    {#each data.posts as post}
+        <div class="mt-5"></div>
+        <Post {post} />
+        {#if data.community.is_admin }
+            <button class="btn btn-outline" on:click={() => remove(post.id)}>Remove</button> 
+        {/if}
+    {/each}
 </div>
+
+
+

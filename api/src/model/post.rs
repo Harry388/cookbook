@@ -282,3 +282,13 @@ pub async fn remove_post_tags(pool: &MySqlPool, id: i64, tag_ids: Vec<i64>) -> R
     }
     Ok(())
 }
+
+pub async fn remove_community(pool: &MySqlPool, id: i64) -> Result<()> {
+    sqlx::query!(
+            "update post set community_id = null where id = ?",
+            id)
+            .execute(pool)
+            .await
+            .map_err(InternalServerError)?;
+    Ok(())
+}

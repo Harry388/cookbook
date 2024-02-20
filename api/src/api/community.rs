@@ -142,4 +142,11 @@ impl CommunityApi {
         Ok(LeaveCommunityResponse::Ok)
     }
 
+    #[oai(path = "/:id/removepost/:post_id", method = "delete")]
+    async fn remove_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, post_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        post::remove_community(pool.0, post_id.0).await?;
+        Ok(())
+    }
+
 }
