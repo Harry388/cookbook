@@ -39,8 +39,8 @@ export function deleteCommunity(id: number | string) {
     return remove(`community/${id}`);
 }
 
-export function createCommunity(title: string, desciption: string | null) {
-    return post(`community`, { title, desciption });
+export function createCommunity(title: string, description: string | null) {
+    return post(`community`, { title, description });
 }
 
 export function removePost(id: number | string, post_id: number | string) {

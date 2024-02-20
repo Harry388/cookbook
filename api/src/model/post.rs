@@ -10,7 +10,7 @@ use crate::storage::Storage;
 pub struct Post {
     title: Option<String>,
     content: Option<String>,
-    community_id: Option<i64>
+    pub community_id: Option<i64>
 }
 
 pub type Media = Vec<Upload>;

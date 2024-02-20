@@ -64,6 +64,9 @@ impl PostApi {
     
     #[oai(path = "/", method = "post")]
     async fn create_post(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, post: PostWithMediaWithTags, auth: JWTAuthorization) -> Result<()> {
+        if let Some(community_id) = post.post.0.community_id {
+            permission::community::is_in(pool.0, community_id, auth).await?;
+        }
         let post_fut = post::create_post(pool.0, post.post.0, auth.0);
         let tags_fut = tag::create_tags(pool.0, post.tags);
         let (post_id, tag_ids) = try_join!(post_fut, tags_fut)?;
