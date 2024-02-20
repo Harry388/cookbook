@@ -4,7 +4,8 @@ import type { Post } from '$lib/app/post';
 
 export type Tag = {
     id: number,
-    tag: string
+    tag: string,
+    is_following: number
 };
 
 export type Entries = {
@@ -30,4 +31,12 @@ export function addEntryTags(entry_id: number | string, tags: string[], type: 'p
 
 export function removeEntryTags(entry_id: number | string, tags: number[], type: 'post' | 'recipe') {
     return remove(`tag/entry/${type}/${entry_id}`, tags);
+}
+
+export function followTag(id: number | string) {
+    return post(`tag/${id}/follow`);
+}
+
+export function unfollowTag(id: number | string) {
+    return remove(`tag/${id}/unfollow`);
 }
