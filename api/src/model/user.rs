@@ -190,6 +190,19 @@ pub async fn unfollow(pool: &MySqlPool, id: i64, follow_id: i64) -> Result<()> {
     Ok(())
 }
 
+pub async fn search_users(pool: &MySqlPool, search: String) -> Result<Vec<FollowResult>> {
+    let search = format!("%{search}%");
+    let users = sqlx::query_as!(FollowResult,
+        "select id, username, display_name, pfp from user 
+        where (username like ?) or (display_name like ?)
+        order by display_name",
+        search, search)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(users)
+}
+
 pub async fn get_followers(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult>> {
     let followers = sqlx::query_as!(FollowResult,
         "select id, username, display_name, pfp from user where id in (

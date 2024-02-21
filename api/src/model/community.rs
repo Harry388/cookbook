@@ -103,6 +103,30 @@ pub async fn delete_community(pool: &MySqlPool, id: i64) -> Result<()> {
     Ok(())
 }
 
+pub async fn search_communities(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<CommunityResult>> {
+    let search = format!("%{search}%");
+    let communities = sqlx::query_as!(CommunityResult,
+        "with community_and_users as (
+            select id, title, description, created, count(*) as users,
+            cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
+            cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
+            from community
+            inner join community_user on community.id = community_user.community_id
+            group by community.id
+        )
+        select id, title, description, created, users, is_member, is_admin
+        from community_and_users
+        inner join community_user on community_user.community_id = community_and_users.id
+        where (title like ?) or (description like ?)
+        group by id
+        order by title",
+        auth, auth, search, search)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(communities)
+}
+
 pub async fn get_user_communities(pool: &MySqlPool, user_id: i64, auth: i64) -> Result<Vec<CommunityResult>> {
     let communities = sqlx::query_as!(CommunityResult,
         "with community_and_users as (

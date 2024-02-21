@@ -7,6 +7,7 @@ pub mod api {
     pub mod comment;
     pub mod album;
     pub mod tag;
+    pub mod search;
 }
 
 pub mod model {

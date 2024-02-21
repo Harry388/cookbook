@@ -57,6 +57,22 @@ pub async fn get_tag(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<TagR
     Ok(tag)
 }
 
+pub async fn search_tags(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<TagResult>> {
+    let search = format!("%{search}%");
+    let tags = sqlx::query_as!(TagResult,
+        "select tag.id, tag.tag,
+        cast(sum(case when tag_user.user_id = ? then 1 else 0 end) as float) as is_following
+        from tag left join tag_user on tag_user.tag_id = tag.id
+        where tag like ?
+        group by tag.id
+        order by tag",
+        auth, search)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(tags)
+}
+
 pub async fn get_recipe_tags(pool: &MySqlPool, recipe_id: i64, auth: i64) -> Result<Vec<TagResult>> {
     let tags = sqlx::query_as!(TagResult,
         "select tag.id, tag.tag,
