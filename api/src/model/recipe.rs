@@ -31,7 +31,7 @@ pub struct RecipeResult {
     method: JsonValue,
     pub user_id: i64,
     user_display_name: String,
-    created: DateTime<Utc>
+    pub created: DateTime<Utc>
 }
 
 pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Result<u64> {

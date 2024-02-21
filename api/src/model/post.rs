@@ -33,7 +33,7 @@ pub struct PostResult {
     media: JsonValue,
     community_id: Option<i32>,
     community_title: Option<String>,
-    created: DateTime<Utc>
+    pub created: DateTime<Utc>
 }
 
 struct PartialPostMediaResult {
