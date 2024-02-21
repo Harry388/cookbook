@@ -2,10 +2,12 @@
 
     import { joinCommunity, leaveCommunity } from '$lib/app/community';
     import { invalidate } from '$app/navigation';
+    import { getContext } from 'svelte';
     import type { Community } from '$lib/app/community';
 
     export let community: Community;
-    export let id: number;
+
+    const id: number = getContext('id');
 
     async function toggleJoin() {
         if (community.is_member) {
