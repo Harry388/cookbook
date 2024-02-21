@@ -2,19 +2,15 @@
 
     import Post from '$lib/components/post/post.svelte';
     import Recipe from '$lib/components/recipe/recipe.svelte';
-    import type { Entries } from '$lib/app/album';
+    import type { Entry } from '$lib/app/entry';
 
-    export let entries: Entries;
-
-    $: posts = entries.posts.map(p => ({...p, type: 'post'}));
-    $: recipes = entries.recipes.map(r => ({...r, type: 'recipe'}));
-    $: mappedEntries = [...posts, ...recipes];
+    export let entries: Entry[];
 
 </script>
 
-{#each mappedEntries as entry }
+{#each entries as entry }
     <div class="mt-5"></div>
-    {#if entry.type == 'post'} 
+    {#if entry.type == 'Post'} 
         <Post post={entry} link />
     {:else}
         <Recipe recipe={entry} link />

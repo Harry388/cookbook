@@ -7,8 +7,8 @@
 
     export let data;
 
-    $: includedPosts = data.entries.posts.map(p => p.id);
-    $: includedRecipes = data.entries.recipes.map(r => r.id);
+    $: includedPosts = data.entries.filter(e => e.type == 'Post').map(p => p.id);
+    $: includedRecipes = data.entries.filter(e => e.type == 'Recipe').map(r => r.id);
     $: posts = data.posts.map(p => ({...p, type: 'post'})).filter(p => !includedPosts.includes(p.id));
     $: recipes = data.recipes.map(r => ({...r, type: 'recipe'})).filter(r => !includedRecipes.includes(r.id));
     $: entries = [...posts, ...recipes];

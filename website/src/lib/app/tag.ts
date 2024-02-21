@@ -1,6 +1,5 @@
 import { get, post, remove } from '$lib/apiFetch';
-import type { Recipe } from '$lib/app/recipe';
-import type { Post } from '$lib/app/post';
+import type { Entry } from '$lib/app/entry';
 
 export type Tag = {
     id: number,
@@ -8,17 +7,12 @@ export type Tag = {
     is_following: number
 };
 
-export type Entries = {
-    posts: Post[],
-    recipes: Recipe[]
-}
-
 export function getTag(id: number | string) {
     return get<Tag>(`tag/${id}`);
 }
 
 export function getTagEntries(id: number | string) {
-    return get<Entries>(`tag/${id}/entries`);
+    return get<Entry[]>(`tag/${id}/entries`);
 }
 
 export function getEntryTags(entry_id: number | string, type: 'post' | 'recipe') {

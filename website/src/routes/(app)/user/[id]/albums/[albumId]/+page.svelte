@@ -7,10 +7,6 @@
 
     export let data;
 
-    $: posts = data.entries.posts.map(p => ({...p, type: 'post'}));
-    $: recipes = data.entries.recipes.map(r => ({...r, type: 'recipe'}));
-    $: entries = [...posts, ...recipes];
-
     async function remove(id: number, type: 'post' | 'recipe') {
         const response = await removeAlbumEntry(data.album.id, id, type).run();
         if (response.ok) {
@@ -26,9 +22,9 @@
 {/if}
 
 <div class="w-11/12 lg:w-1/3 m-auto">
-    {#each entries as entry }
+    {#each data.entries as entry }
         <div class="mt-5"></div>
-        {#if entry.type == 'post'} 
+        {#if entry.type == 'Post'} 
             <Post post={entry} link />
             {#if data.self}
                 <button class="btn btn-outline" on:click={() => remove(entry.id, 'post')}>Remove</button>

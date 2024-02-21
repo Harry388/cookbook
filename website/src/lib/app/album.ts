@@ -1,16 +1,10 @@
 import { get, put, post, remove } from '$lib/apiFetch';
-import type { Post } from '$lib/app/post';
-import type { Recipe } from '$lib/app/recipe';
+import type { Entry } from '$lib/app/entry';
 
 export type Album = {
     id: number,
     title: string,
     user_id: number
-};
-
-export type Entries = {
-    posts: Post[],
-    recipes: Recipe[]
 };
 
 export function getAlbum(id: number | string) {
@@ -34,7 +28,7 @@ export function getUserAblums(userId: number | string) {
 }
 
 export function getAlbumEntries(id: number | string) {
-    return get<Entries>(`album/${id}/contents`);
+    return get<Entry[]>(`album/${id}/contents`);
 }
 
 export function addAlbumEntry(id: number | string, entryId: number | string, type: 'post' | 'recipe') {
