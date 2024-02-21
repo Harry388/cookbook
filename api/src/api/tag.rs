@@ -1,10 +1,11 @@
-use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, Object, ApiResponse};
+use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::model::{tag, recipe, post};
+use crate::util::entry;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -37,13 +38,7 @@ enum UpdateTagsResponse {
     BadRequest
 }
 
-#[derive(Object)]
-struct TagEntries {
-    posts: Vec<post::PostResult>,
-    recipes: Vec<recipe::RecipeResult>
-}
-
-type GetTagEntriesResponse = Result<Json<TagEntries>>;
+type GetTagEntriesResponse = Result<Json<Vec<entry::Entry>>>;
 
 pub struct TagApi;
 
@@ -66,7 +61,7 @@ impl TagApi {
         let posts_fut = post::get_tag_posts(pool.0, id.0);
         let recipes_fut = recipe::get_tag_recipes(pool.0, id.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = TagEntries { posts, recipes };
+        let entries = entry::create_entries(posts, recipes);
         Ok(Json(entries))
     }
 

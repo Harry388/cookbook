@@ -1,10 +1,11 @@
-use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse, Object};
+use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
 use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::model::{album, post, recipe};
+use crate::util::entry;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -27,16 +28,10 @@ enum GetUserAlbumsResponse {
     Ok(Json<Vec<album::AlbumResult>>)
 }
 
-#[derive(Object)]
-struct AlbumEntries {
-    posts: Vec<post::PostResult>,
-    recipes: Vec<recipe::RecipeResult>
-}
-
 #[derive(ApiResponse)]
 enum GetAlbumEntriesResponse {
     #[oai(status = 200)]
-    Ok(Json<AlbumEntries>)
+    Ok(Json<Vec<entry::Entry>>)
 }
 
 #[derive(ApiResponse)]
@@ -97,7 +92,7 @@ impl AlbumApi {
         let posts_fut = post::get_album_posts(pool.0, id.0);
         let recipes_fut = recipe::get_album_recipes(pool.0, id.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = AlbumEntries { posts, recipes };
+        let entries = entry::create_entries(posts, recipes);
         Ok(GetAlbumEntriesResponse::Ok(Json(entries)))
     }
 

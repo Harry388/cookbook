@@ -23,3 +23,7 @@ pub mod model {
 pub mod permission;
 
 pub mod storage;
+
+pub mod util {
+    pub mod entry;
+}

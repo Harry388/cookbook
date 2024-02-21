@@ -6,6 +6,7 @@ use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::storage::dufs::DufsStorage;
 use crate::model::{user, post, recipe};
+use crate::util::entry;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -42,7 +43,7 @@ struct FeedEntries {
     recipes: Vec<recipe::RecipeResult>
 }
 
-type GetFeedResponse = Json<FeedEntries>;
+type GetFeedResponse = Json<Vec<entry::Entry>>;
 
 pub struct UserApi;
 
@@ -137,7 +138,7 @@ impl UserApi {
         let posts_fut = post::get_feed_posts(pool.0, auth.0);
         let recipes_fut = recipe::get_feed_recipes(pool.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = FeedEntries { posts, recipes };
+        let entries = entry::create_entries(posts, recipes);
         Ok(Json(entries))
     }
 }
