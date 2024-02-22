@@ -83,7 +83,7 @@ impl PostApi {
             return Ok(GetPostResponse::NotFound(PlainText("Post not found".to_string())));
         }
         let post = post.unwrap();
-        permission::user::is_following_or_public(pool.0, post.user_id, auth).await?;
+        permission::post::is_visible(pool.0, id.0, auth).await?;
         Ok(GetPostResponse::Ok(Json(post)))
     }
 
@@ -94,7 +94,7 @@ impl PostApi {
             return Ok(GetPostMediaResponse::NotFound(PlainText("Media not found".to_string())));
         }
         let post_media = post_media.unwrap();
-        permission::user::is_following_or_public(pool.0, post_media.user_id, auth).await?;
+        permission::post::is_visible(pool.0, post_media.post_id, auth).await?;
         Ok(GetPostMediaResponse::Ok(post_media.attachment))
     }
 

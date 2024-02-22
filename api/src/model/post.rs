@@ -37,12 +37,12 @@ pub struct PostResult {
 }
 
 struct PartialPostMediaResult {
-    user_id: i64,
+    post_id: i64,
     uri: String
 }
 
 pub struct PostMediaResult {
-    pub user_id: i64, 
+    pub post_id: i64,
     pub attachment: Attachment<Vec<u8>>
 }
 
@@ -92,7 +92,7 @@ pub async fn get_post(pool: &MySqlPool, id: i64) -> Result<Option<PostResult>> {
 
 pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i64) -> Result<Option<PostMediaResult>> {
     let post_media = sqlx::query_as!(PartialPostMediaResult,
-        "select user_id, uri from post_media inner join post on post.id = post_media.post_id where post_media.id = ?",
+        "select uri, post_id from post_media inner join post on post.id = post_media.post_id where post_media.id = ?",
         media_id)
         .fetch_optional(pool)
         .await
@@ -106,7 +106,7 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
         Attachment::new(media)
         .attachment_type(AttachmentType::Inline)
         .filename(post_media.uri);
-    let post_media = PostMediaResult { user_id: post_media.user_id, attachment };
+    let post_media = PostMediaResult { post_id: post_media.post_id, attachment };
     Ok(Some(post_media))
 }
 
