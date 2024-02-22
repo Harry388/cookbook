@@ -39,7 +39,7 @@ function createFetchObj<T>(input: string, body?: any, init?: RequestInit): Fetch
             const response = await fetchFn(`${url}/${this.input}`, requestInit);
             if (!response.ok) {
                 const message = await response.text();
-                alert(message);
+                console.log(message);
             }
             return response;
         },

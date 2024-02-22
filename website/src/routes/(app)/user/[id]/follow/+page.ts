@@ -1,5 +1,6 @@
 import { getUserFollow, getRequests } from '$lib/app/follow';
 import { getUser } from '$lib/app/user';
+import { redirect } from '@sveltejs/kit';
 import type { Follow } from '$lib/app/follow';
 
 export const load = async ({ params, fetch, parent, depends }) => {
@@ -7,6 +8,10 @@ export const load = async ({ params, fetch, parent, depends }) => {
     const { id } = await parent();
 
     const user = await getUser(params.id).json(fetch);
+
+    if (!user.public && !user.is_following) {
+        throw redirect(301, `/user/${user.id}`);
+    }
 
     const { followers, following } = await getUserFollow(params.id).json(fetch);
 
