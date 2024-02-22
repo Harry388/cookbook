@@ -10,12 +10,16 @@
 
 <Info user={data.user} id={data.id} />
 
-<div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
-    {#each routes as route}
-        <a href="/user/{data.user.id}/{route}" role="tab" class="tab {(data.path == route) && 'tab-active'}">
-            { route.charAt(0).toUpperCase() + route.substring(1) }
-        </a>
-    {/each}
-</div>
+{#if data.user.public || data.user.is_following}
+    <div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
+        {#each routes as route}
+            <a href="/user/{data.user.id}/{route}" role="tab" class="tab {(data.path == route) && 'tab-active'}">
+                { route.charAt(0).toUpperCase() + route.substring(1) }
+            </a>
+        {/each}
+    </div>
+{:else}
+    User is private
+{/if}
 
 <slot/>

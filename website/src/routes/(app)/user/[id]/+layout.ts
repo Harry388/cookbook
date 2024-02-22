@@ -5,11 +5,14 @@ export const load = async ({ params, fetch, route, parent, depends }) => {
 
     const { id } = await parent();
 
-    if (route.id == '/(app)/user/[id]') {
+    const user = await getUser(params.id).json(fetch);
+
+    if ((user.public || user.is_following) && (route.id == '/(app)/user/[id]')) {
         throw redirect(301, `/user/${params.id}/posts`);
     }
-    
-    const user = await getUser(params.id).json(fetch);
+    if (!user.public && !user.is_following && (route.id != '/(app)/user/[id]')) {
+        throw redirect(301, `/user/${params.id}`);
+    }
 
     depends('app:user');
 
