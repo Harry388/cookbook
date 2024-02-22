@@ -64,7 +64,7 @@ pub async fn get_community(pool: &MySqlPool, id: i64, auth: i64) -> Result<Optio
         cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
         cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
         from community
-        inner join community_user on community.id = community_user.community_id
+        inner join community_user on community.id = community_user.community_id and community_user.accepted
         where community.id = ?
         group by community.id",
         auth, auth, id)
@@ -114,7 +114,7 @@ pub async fn search_communities(pool: &MySqlPool, search: String, auth: i64) -> 
             cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
             cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
             from community
-            inner join community_user on community.id = community_user.community_id
+            inner join community_user on community.id = community_user.community_id and community_user.accepted
             group by community.id
         )
         select id, title, description, created, users, is_member, is_admin, public
@@ -137,12 +137,12 @@ pub async fn get_user_communities(pool: &MySqlPool, user_id: i64, auth: i64) -> 
             cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
             cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
             from community
-            inner join community_user on community.id = community_user.community_id
+            inner join community_user on community.id = community_user.community_id and community_user.accepted
             group by community.id
         )
         select id, title, description, created, users, is_member, is_admin, public
         from community_and_users
-        inner join community_user on community_user.community_id = community_and_users.id
+        inner join community_user on community_user.community_id = community_and_users.id and community_user.accepted
         where community_user.user_id = ?
         order by title",
         auth, auth, user_id)
@@ -190,4 +190,14 @@ pub async fn has_one_admin(pool: &MySqlPool, id: i64) -> Result<bool> {
             None => true
         }
     )
+}
+
+pub async fn accept_member(pool: &MySqlPool, id: i64, user_id: i64) -> Result<()> {
+    sqlx::query!(
+        "update community_user set accepted = ? where community_id = ? and user_id = ?",
+        true, id, user_id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
 }

@@ -23,15 +23,18 @@
     <a href="/post/create?c={data.community.id}" class="btn btn-outline">Create Post</a>
 {/if}
 
-<div class="w-11/12 lg:w-1/3 m-auto">
-    {#each data.posts as post}
-        <div class="mt-5"></div>
-        <Post {post} />
-        {#if data.community.is_admin }
-            <button class="btn btn-outline" on:click={() => remove(post.id)}>Remove</button> 
-        {/if}
-    {/each}
-</div>
-
+{#if data.community.public || data.community.is_member}
+    <div class="w-11/12 lg:w-1/3 m-auto">
+        {#each data.posts as post}
+            <div class="mt-5"></div>
+            <Post {post} link />
+            {#if data.community.is_admin }
+                <button class="btn btn-outline" on:click={() => remove(post.id)}>Remove</button> 
+            {/if}
+        {/each}
+    </div>
+{:else}
+    Community is private
+{/if}
 
 

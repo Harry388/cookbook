@@ -258,7 +258,21 @@ pub async fn get_community_users(pool: &MySqlPool, id: i64) -> Result<Vec<Commun
     let users = sqlx::query_as!(CommunityUserResult,
         "select id, username, display_name, permission 
         from user inner join community_user on user.id = community_user.user_id
-        where community_user.community_id = ?
+        where community_user.community_id = ? and community_user.accepted
+        group by user.id, permission
+        order by display_name",
+        id)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(users)
+}
+
+pub async fn get_community_requests(pool: &MySqlPool, id: i64) -> Result<Vec<CommunityUserResult>> {
+    let users = sqlx::query_as!(CommunityUserResult,
+        "select id, username, display_name, permission 
+        from user inner join community_user on user.id = community_user.user_id
+        where community_user.community_id = ? and not community_user.accepted
         group by user.id, permission
         order by display_name",
         id)

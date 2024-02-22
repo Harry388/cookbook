@@ -79,7 +79,7 @@ impl CommunityApi {
 
     #[oai(path = "/:id/join", method = "post")]
     async fn join_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        let accepted = permission::community::is_public(pool.0, id.0, auth).await.is_ok();
+        let accepted = permission::community::is_public(pool.0, id.0).await.is_ok();
         community::join_community(pool.0, id.0, accepted, auth.0).await?;
         Ok(())
     }
@@ -103,6 +103,13 @@ impl CommunityApi {
         permission::community::is_in(pool.0, id.0, auth).await?;
         let members = user::get_community_users(pool.0, id.0).await?;
         Ok(GetMembersResponse::Ok(Json(members)))
+    }
+
+    #[oai(path = "/:id/requests", method = "get")]
+    async fn get_requests(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetMembersResponse> {
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        let requests = user::get_community_requests(pool.0, id.0).await?;
+        Ok(GetMembersResponse::Ok(Json(requests)))
     }
 
     #[oai(path = "/user/:user_id/", method = "get")]
@@ -149,6 +156,13 @@ impl CommunityApi {
     async fn remove_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, post_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::community::is_admin(pool.0, id.0, auth).await?;
         post::remove_community(pool.0, post_id.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/acceptmember/:user_id", method = "put")]
+    async fn accept_member(&self, pool: Data<&MySqlPool>, id: Path<i64>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::community::is_admin(pool.0, id.0, auth).await?;
+        community::accept_member(pool.0, id.0, user_id.0).await?;
         Ok(())
     }
 

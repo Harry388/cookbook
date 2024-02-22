@@ -47,3 +47,7 @@ export function createCommunity(title: string, description: string | null) {
 export function removePost(id: number | string, post_id: number | string) {
     return remove(`community/${id}/removepost/${post_id}`);
 }
+
+export function acceptMember(id: number | string, userId: number | string) {
+    return put(`community/${id}/acceptmember/${userId}`);
+}

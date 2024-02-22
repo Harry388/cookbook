@@ -3,8 +3,7 @@ use crate::api::auth::JWTAuthorization;
 use poem::{Result, error::InternalServerError};
 use sqlx::MySqlPool;
 
-pub async fn is_public(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
-    if id == auth.0 { return Ok(()) }
+pub async fn is_public(pool: &MySqlPool, id: i64) -> Result<()> {
     let public = sqlx::query!(
         "select * from community where id = ? and public = ?",
         id, true
@@ -17,7 +16,7 @@ pub async fn is_public(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Res
 
 pub async fn is_in(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
     let check_in = sqlx::query!(
-        "select * from community_user where community_id = ? and user_id = ?",
+        "select * from community_user where community_id = ? and user_id = ? and accepted",
         id, auth.0
         )
         .fetch_optional(pool)
@@ -28,7 +27,7 @@ pub async fn is_in(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<
 
 pub async fn is_admin(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
     let check_in = sqlx::query!(
-        "select * from community_user where community_id = ? and user_id = ? and permission = 'ADMIN'",
+        "select * from community_user where community_id = ? and user_id = ? and accepted and permission = 'ADMIN'",
         id, auth.0
         )
         .fetch_optional(pool)

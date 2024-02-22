@@ -11,6 +11,10 @@ export function getCommunityMembers(id: number | string) {
     return get<CommunityMember[]>(`community/${id}/members`);
 }
 
+export function getCommunityRequests(id: number | string) {
+    return get<CommunityMember[]>(`community/${id}/requests`);
+}
+
 export function updateCommunityUser(id: number | string, userId: number | string, permission: 'ADMIN' | 'USER') {
     return put(`community/${id}/user/${userId}`, { permission });
 }
