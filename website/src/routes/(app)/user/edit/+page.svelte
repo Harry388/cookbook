@@ -9,11 +9,12 @@
     let username = data.user.username;
     let displayName = data.user.display_name;
     let bio = data.user.bio;
+    let isPublic = Boolean(data.user.public);
     let files: File[];
 
     async function editProfile() {
         const pfp = files.length ? files[0] : null;
-        const response = await updateUser(data.id, username, displayName, bio, pfp).run();
+        const response = await updateUser(data.id, username, displayName, bio, pfp, isPublic).run();
         if (response.ok) {
             goto('/user');
         }
@@ -38,6 +39,11 @@
         <span class="label-text">Bio</span>
     </label>
     <textarea class="textarea textarea-bordered" placeholder="Bio" bind:value={bio}></textarea>
+    <!-- svelte-ignore a11y-label-has-associated-control -->
+    <label class="label">
+        <span class="label-text">Public</span>
+    </label>
+    <input type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Profile Picture</span>

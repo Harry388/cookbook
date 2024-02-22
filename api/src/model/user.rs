@@ -19,7 +19,8 @@ pub struct User {
 pub struct UpdateUser {
     display_name: Option<String>,
     bio: Option<String>,
-    username: Option<String>
+    username: Option<String>,
+    public: bool
 }
 
 #[derive(Multipart)]
@@ -106,8 +107,9 @@ pub async fn get_user(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<Use
 
 pub async fn update_user(pool: &MySqlPool, id: i64, user: UpdateUser) -> Result<()> { 
     sqlx::query!(
-        "update user set username = coalesce(?, username), display_name = coalesce(?, display_name), bio = coalesce(?, bio) where id = ?",
-        user.username, user.display_name, user.bio, id)
+        "update user set username = coalesce(?, username), display_name = coalesce(?, display_name), bio = coalesce(?, bio), public = coalesce(?, public)
+        where id = ?",
+        user.username, user.display_name, user.bio, user.public, id)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;

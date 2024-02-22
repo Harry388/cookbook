@@ -18,7 +18,7 @@ export function getUser(id: number | string) {
     return get<User>(`user/${id}`);
 }
 
-export function updateUser(id: number | string, username: string, displayName: string, bio: string | null, pfp: File | null) {
+export function updateUser(id: number | string, username: string, displayName: string, bio: string | null, pfp: File | null, isPublic: boolean) {
     return {
         run(fetch?: FetchFn) {
             if (pfp) {
@@ -33,7 +33,8 @@ export function updateUser(id: number | string, username: string, displayName: s
             return put(`user/${id}`, {
                 username,
                 display_name: displayName,
-                bio
+                bio,
+                public: isPublic
             }).run(fetch);
         }
     }
