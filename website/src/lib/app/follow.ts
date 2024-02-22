@@ -1,4 +1,4 @@
-import { get, remove, post } from '$lib/apiFetch';
+import { get, remove, post, put } from '$lib/apiFetch';
 import type { FetchFn } from '$lib/apiFetch';
 
 export type Follow = {
@@ -20,10 +20,18 @@ export function getUserFollow(userId: number | string) {
     }
 }
 
+export function getRequests() {
+    return get<Follow[]>(`user/requests`);
+}
+
 export function removeFollower(userId: number | string, followingId: number | string) {
     return remove(`user/${userId}/unfollow/${followingId}`);
 }
 
 export function followUser(userId: number | string, followingId: number | string) {
     return  post(`user/${userId}/follow/${followingId}`);
+}
+
+export function acceptFollow(userId: number | string) {
+    return put(`user/acceptfollow/${userId}`);
 }

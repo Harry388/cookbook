@@ -108,7 +108,14 @@ impl UserApi {
     #[oai(path = "/:id/follow/:follow_id", method = "post")]
     async fn follow(&self, pool: Data<&MySqlPool>, id: Path<i64>, follow_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(id.0, auth)?;
-        user::follow(pool.0, id.0, follow_id.0).await?;
+        let accepted = permission::user::is_public(pool.0, follow_id.0, auth).await.is_ok();
+        user::follow(pool.0, id.0, follow_id.0, accepted).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/acceptfollow/:id", method = "put")]
+    async fn accept_follow(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        user::accept_request(pool.0, id.0, auth.0).await?;
         Ok(())
     }
 
@@ -117,6 +124,12 @@ impl UserApi {
         permission::user::in_user_list(&vec![id.0, follow_id.0], auth)?;
         user::unfollow(pool.0, id.0, follow_id.0).await?;
         Ok(())
+    }
+
+    #[oai(path = "/requests", method = "get")]
+    async fn get_requests(&self, pool: Data<&MySqlPool>, auth: JWTAuthorization) -> Result<FollowResponse> {
+        let requests = user::get_requests(pool.0, auth.0).await?;
+        Ok(FollowResponse::Ok(Json(requests)))
     }
 
     #[oai(path = "/:id/followers", method = "get")]

@@ -1,7 +1,7 @@
 <script lang="ts">
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
-    import { removeFollower } from '$lib/app/follow';
+    import { acceptFollow, removeFollower } from '$lib/app/follow';
     import { invalidate } from '$app/navigation';
 
     export let data;
@@ -15,6 +15,13 @@
 
     async function unfollow(followingId: number) {
         const response = await removeFollower(data.id, followingId).run();
+        if (response.ok) {
+            invalidate('app:userFollow');
+        }
+    }
+
+    async function accept(userId: number) {
+        const response = await acceptFollow(userId).run();
         if (response.ok) {
             invalidate('app:userFollow');
         }
@@ -99,5 +106,47 @@
         {/if}
 
     </div>
+
+    {#if data.self}
+
+        <div class="divider divider-horizontal"></div>
+        
+        <div class="overflow-x-auto w-1/3">
+
+            <h3 class="font-bold text-lg">Requests</h3>
+            
+            {#if data.requests.length}
+
+                <table class="table">
+                    <tbody>
+                        {#each data.requests as request}
+                            <tr>
+                                <td>
+                                    <a class="flex items-center gap-3" href={`/user/${request.id}`}>
+                                        <ProfilePic user={request} />
+                                        <div>
+                                            <div class="font-bold">{ request.display_name }</div>
+                                            <div class="opacity-50">@{ request.username }</div>
+                                        </div>
+                                    </a>
+                                </td>
+                                <th>
+                                    <button class="btn btn-ghost" on:click={() => accept(request.id)}>Accept</button>
+                                    <button class="btn btn-ghost" on:click={() => remove(request.id)}>Remove</button>
+                                </th>
+                            </tr>
+                        {/each}
+                    </tbody>
+                </table>
+
+            {:else}
+
+                <div>No Requests</div>
+
+            {/if}
+
+        </div>
+    
+    {/if}
 
 </div>

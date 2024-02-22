@@ -89,14 +89,14 @@ pub async fn get_user(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<Use
             count(followers.following_id) as followers,
             cast(sum(case when followers.user_id = ? then 1 else 0 end) as float) as is_following
             from user
-            left join following as followers on user.id = followers.following_id
+            left join following as followers on user.id = followers.following_id and followers.accepted
             where id = ?
             group by id
         )
         select id, username, display_name, bio, public, followers, is_following, created,
         count(following.following_id) as following
         from user_and_followers
-        left join following on user_and_followers.id = following.user_id
+        left join following on user_and_followers.id = following.user_id and following.accepted
         group by id",
         auth, id)
         .fetch_optional(pool)
@@ -172,10 +172,20 @@ pub async fn delete_user(pool: &MySqlPool, storage: &dyn Storage, id: i64) -> Re
     Ok(())
 }
 
-pub async fn follow(pool: &MySqlPool, id: i64, follow_id: i64) -> Result<()> {
+pub async fn follow(pool: &MySqlPool, id: i64, follow_id: i64, accepted: bool) -> Result<()> {
     sqlx::query!(
-        "insert into following (user_id, following_id) values (?, ?)",
-        id, follow_id)
+        "insert into following (user_id, following_id, accepted) values (?, ?, ?)",
+        id, follow_id, accepted)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn accept_request(pool: &MySqlPool, id: i64, auth: i64) -> Result<()> {
+    sqlx::query!(
+        "update following set accepted = true where user_id = ? and following_id = ?",
+        id, auth)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
@@ -208,7 +218,7 @@ pub async fn search_users(pool: &MySqlPool, search: String) -> Result<Vec<Follow
 pub async fn get_followers(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult>> {
     let followers = sqlx::query_as!(FollowResult,
         "select id, username, display_name, pfp from user where id in (
-            select user_id from following where following_id = ?
+            select user_id from following where following_id = ? and accepted
         )
         order by display_name",
         id)
@@ -218,10 +228,23 @@ pub async fn get_followers(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult
     Ok(followers)
 }
 
+pub async fn get_requests(pool: &MySqlPool, auth: i64) -> Result<Vec<FollowResult>> {
+    let followers = sqlx::query_as!(FollowResult,
+        "select id, username, display_name, pfp from user where id in (
+            select user_id from following where following_id = ? and not accepted
+        )
+        order by display_name",
+        auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(followers)
+}
+
 pub async fn get_following(pool: &MySqlPool, id: i64) -> Result<Vec<FollowResult>> {
     let following = sqlx::query_as!(FollowResult,
         "select id, username, display_name, pfp from user where id in (
-            select following_id from following where user_id = ?
+            select following_id from following where user_id = ? and accepted
         )
         order by display_name",
         id)

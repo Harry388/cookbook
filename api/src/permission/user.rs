@@ -19,7 +19,7 @@ pub fn in_user_list(ids: &Vec<i64>, auth: JWTAuthorization) -> Result<()> {
 pub async fn is_following(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
     if id == auth.0 { return Ok(()) }
     let following = sqlx::query!(
-        "select * from following where user_id = ? and following_id = ?",
+        "select * from following where user_id = ? and following_id = ? and accepted",
         auth.0, id
         )
         .fetch_optional(pool)
@@ -44,7 +44,7 @@ pub async fn is_following_or_public(pool: &MySqlPool, id: i64, auth: JWTAuthoriz
     if id == auth.0 { return Ok(()) }
     let following_or_public = sqlx::query!(
         "select * from user where id = ? and ((public = ?) or (id in (
-            select following_id from following where user_id = ? and following_id = ?
+            select following_id from following where user_id = ? and following_id = ? and accepted
         )))",
         id, true, auth.0, id
         )
