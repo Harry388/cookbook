@@ -9,7 +9,9 @@ export const load = async ({ params, fetch, parent, depends }) => {
 
     const user = await getUser(params.id).json(fetch);
 
-    if (!user.public && !user.is_following) {
+    const isSelf = id == Number(params.id);
+
+    if (!isSelf && !user.public && !user.is_following) {
         throw redirect(301, `/user/${user.id}`);
     }
 
@@ -27,7 +29,7 @@ export const load = async ({ params, fetch, parent, depends }) => {
         followers,
         following,
         requests,
-        self: id == Number(params.id),
+        self: isSelf,
         userId: Number(params.id),
         title: user.display_name
     }

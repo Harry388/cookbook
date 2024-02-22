@@ -10,7 +10,7 @@
 
 <Info user={data.user} id={data.id} />
 
-{#if data.user.public || data.user.is_following}
+{#if data.self || data.user.public || data.user.is_following}
     <div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
         {#each routes as route}
             <a href="/user/{data.user.id}/{route}" role="tab" class="tab {(data.path == route) && 'tab-active'}">
