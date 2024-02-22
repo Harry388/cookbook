@@ -3,6 +3,18 @@ use crate::api::auth::JWTAuthorization;
 use poem::{Result, error::InternalServerError};
 use sqlx::MySqlPool;
 
+pub async fn is_public(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
+    if id == auth.0 { return Ok(()) }
+    let public = sqlx::query!(
+        "select * from community where id = ? and public = ?",
+        id, true
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    check_permission_option(public)
+}
+
 pub async fn is_in(pool: &MySqlPool, id: i64, auth: JWTAuthorization) -> Result<()> {
     let check_in = sqlx::query!(
         "select * from community_user where community_id = ? and user_id = ?",

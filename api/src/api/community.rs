@@ -79,7 +79,8 @@ impl CommunityApi {
 
     #[oai(path = "/:id/join", method = "post")]
     async fn join_community(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        community::join_community(pool.0, id.0, auth.0).await?;
+        let accepted = permission::community::is_public(pool.0, id.0, auth).await.is_ok();
+        community::join_community(pool.0, id.0, accepted, auth.0).await?;
         Ok(())
     }
 
@@ -98,7 +99,8 @@ impl CommunityApi {
     }
 
     #[oai(path = "/:id/members", method = "get")]
-    async fn get_members(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetMembersResponse> {
+    async fn get_members(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetMembersResponse> {
+        permission::community::is_in(pool.0, id.0, auth).await?;
         let members = user::get_community_users(pool.0, id.0).await?;
         Ok(GetMembersResponse::Ok(Json(members)))
     }
@@ -111,7 +113,8 @@ impl CommunityApi {
     }
 
     #[oai(path = "/:id/post", method = "get")]
-    async fn get_community_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> Result<GetCommunityPostsResponse> {
+    async fn get_community_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetCommunityPostsResponse> {
+        permission::community::is_in(pool.0, id.0, auth).await?;
         let posts = post::get_community_posts(pool.0, id.0).await?;
         Ok(GetCommunityPostsResponse::Ok(Json(posts)))
     }

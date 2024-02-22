@@ -7,9 +7,10 @@
 
     let title = data.community.title;
     let description = data.community.description;
+    let isPublic = Boolean(data.community.public);
 
     async function save() {
-        const response = await updateCommunity(data.community.id, title, description).run();
+        const response = await updateCommunity(data.community.id, title, description, isPublic).run();
         if (response.ok) {
             invalidate('app:community');
             history.back();
@@ -42,5 +43,10 @@
         <span class="label-text">Description</span>
     </label>
     <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
+    <!-- svelte-ignore a11y-label-has-associated-control -->
+    <label class="label">
+        <span class="label-text">Public</span>
+    </label>
+    <input type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} />
     <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
 </div>

@@ -8,7 +8,8 @@ export type Community = {
     created: string,
     users: number,
     is_member: number,
-    is_admin: number
+    is_admin: number,
+    public: number
 };
 
 export function getCommunity(id: number | string) {
@@ -31,8 +32,8 @@ export function joinCommunity(id: number | string) {
     return post(`community/${id}/join`);
 }
 
-export function updateCommunity(id: number | string, title: string | null, description: string | null) {
-    return put(`community/${id}`, { title, description });
+export function updateCommunity(id: number | string, title: string | null, description: string | null, isPublic: boolean) {
+    return put(`community/${id}`, { title, description, public: isPublic });
 }
 
 export function deleteCommunity(id: number | string) {
