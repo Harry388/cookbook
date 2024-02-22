@@ -17,7 +17,7 @@
 
 </script>
 
-<Info community={data.community} id={data.id} />
+<Info community={data.community} />
 
 {#if data.community.is_member}
     <a href="/post/create?c={data.community.id}" class="btn btn-outline">Create Post</a>
