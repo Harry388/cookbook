@@ -27,14 +27,14 @@ pub struct SearchApi;
 impl SearchApi {
 
     #[oai(path = "/post/:search", method = "get")]
-    async fn search_post(&self, pool: Data<&MySqlPool>, search: Path<String>, _auth: JWTAuthorization) -> Result<SearchPost> {
-        let posts = post::search_posts(pool.0, search.0).await?;
+    async fn search_post(&self, pool: Data<&MySqlPool>, search: Path<String>, auth: JWTAuthorization) -> Result<SearchPost> {
+        let posts = post::search_posts(pool.0, search.0, auth.0).await?;
         Ok(Json(posts))
     }
 
     #[oai(path = "/recipe/:search", method = "get")]
-    async fn search_recipe(&self, pool: Data<&MySqlPool>, search: Path<String>, _auth: JWTAuthorization) -> Result<SearchRecipe> {
-        let recipes = recipe::search_recipes(pool.0, search.0).await?;
+    async fn search_recipe(&self, pool: Data<&MySqlPool>, search: Path<String>, auth: JWTAuthorization) -> Result<SearchRecipe> {
+        let recipes = recipe::search_recipes(pool.0, search.0, auth.0).await?;
         Ok(Json(recipes))
     }
 
