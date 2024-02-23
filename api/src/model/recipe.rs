@@ -119,30 +119,32 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeRes
     Ok(recipes)
 }
 
-pub async fn get_album_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResult>> {
+pub async fn get_album_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
         from recipe
         inner join album_recipe on recipe.id = album_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where album_recipe.album_id = ?
+        left join following on following.following_id = recipe.user_id
+        where (album_recipe.album_id = ?) and (user.public or (following.user_id = ? and following.accepted))
         order by created desc",
-        id)
+        id, auth)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
     Ok(recipes)
 }
 
-pub async fn get_tag_recipes(pool: &MySqlPool, id: i64) -> Result<Vec<RecipeResult>> {
+pub async fn get_tag_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name
         from recipe
         inner join tag_recipe on recipe.id = tag_recipe.recipe_id
         inner join user on recipe.user_id = user.id
-        where tag_recipe.tag_id = ?
+        left join following on following.following_id = recipe.user_id
+        where (tag_recipe.tag_id = ?) and (user.public or (following.user_id = ? and following.accepted))
         order by created desc",
-        id)
+        id, auth)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;

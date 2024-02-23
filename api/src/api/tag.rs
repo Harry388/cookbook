@@ -57,9 +57,9 @@ impl TagApi {
     }
 
     #[oai(path = "/:id/entries", method = "get")]
-    async fn get_tag_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, _auth: JWTAuthorization) -> GetTagEntriesResponse {
-        let posts_fut = post::get_tag_posts(pool.0, id.0);
-        let recipes_fut = recipe::get_tag_recipes(pool.0, id.0);
+    async fn get_tag_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> GetTagEntriesResponse {
+        let posts_fut = post::get_tag_posts(pool.0, id.0, auth.0);
+        let recipes_fut = recipe::get_tag_recipes(pool.0, id.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
         let entries = entry::create_entries(posts, recipes);
         Ok(Json(entries))

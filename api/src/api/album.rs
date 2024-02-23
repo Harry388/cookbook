@@ -89,8 +89,8 @@ impl AlbumApi {
     #[oai(path = "/:id/contents", method = "get")]
     async fn get_album_entries(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetAlbumEntriesResponse> {
         permission::album::is_visible(pool.0, id.0, auth).await?;
-        let posts_fut = post::get_album_posts(pool.0, id.0);
-        let recipes_fut = recipe::get_album_recipes(pool.0, id.0);
+        let posts_fut = post::get_album_posts(pool.0, id.0, auth.0);
+        let recipes_fut = recipe::get_album_recipes(pool.0, id.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
         let entries = entry::create_entries(posts, recipes);
         Ok(GetAlbumEntriesResponse::Ok(Json(entries)))

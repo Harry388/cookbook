@@ -204,7 +204,7 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
     Ok(posts)
 }
 
-pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
+pub async fn get_album_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title
@@ -213,17 +213,18 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult
         inner join album_post on post.id = album_post.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
-        where album_post.album_id = ?
+        left join following on following.following_id = post.user_id
+        where (album_post.album_id = ?) and (user.public or (following.user_id = ? and following.accepted))
         group by post.id
         order by created desc",
-        id)
+        id, auth)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
     Ok(posts)
 }
 
-pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>> {
+pub async fn get_tag_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title
@@ -232,10 +233,11 @@ pub async fn get_tag_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostResult>>
         inner join tag_post on post.id = tag_post.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
-        where tag_post.tag_id = ?
+        left join following on following.following_id = post.user_id
+        where (tag_post.tag_id = ?) and (user.public or (following.user_id = ? and following.accepted))
         group by post.id
         order by created desc",
-        id)
+        id, auth)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
