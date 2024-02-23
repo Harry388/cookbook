@@ -20,7 +20,7 @@ pub struct UpdateUser {
     display_name: Option<String>,
     bio: Option<String>,
     username: Option<String>,
-    public: bool
+    public: Option<bool>
 }
 
 #[derive(Multipart)]
@@ -110,6 +110,21 @@ pub async fn update_user(pool: &MySqlPool, id: i64, user: UpdateUser) -> Result<
         "update user set username = coalesce(?, username), display_name = coalesce(?, display_name), bio = coalesce(?, bio), public = coalesce(?, public)
         where id = ?",
         user.username, user.display_name, user.bio, user.public, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let Some(public) = user.public {
+        if public {
+            accept_all_requests(pool, id).await?;
+        }
+    }
+    Ok(())
+}
+
+async fn accept_all_requests(pool: &MySqlPool, id: i64) -> Result<()> {
+    sqlx::query!(
+        "update following set accepted = ? where following_id = ?",
+        true, id)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
