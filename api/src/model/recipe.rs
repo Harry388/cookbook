@@ -83,7 +83,7 @@ pub async fn get_feed_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeR
         left join following on following.following_id = recipe.user_id
         left join tag_recipe on tag_recipe.recipe_id = recipe.id
         left join tag_user on tag_recipe.tag_id = tag_user.tag_id
-        where recipe.user_id != ? and (following.user_id = ? or tag_user.user_id = ?)
+        where recipe.user_id != ? and (following.user_id = ? or (user.public and tag_user.user_id = ?))
         order by created desc",
         auth, auth, auth)
         .fetch_all(pool)

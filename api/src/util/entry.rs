@@ -21,7 +21,7 @@ pub fn create_entries(posts: Vec<post::PostResult>, recipes: Vec<recipe::RecipeR
             Entry::Post(post) => post.created,
             Entry::Recipe(recipe) => recipe.created
         };
-        let ordering = a_created.partial_cmp(&b_created);
+        let ordering = b_created.partial_cmp(&a_created);
         match ordering {
             Some(o) => o,
             None => std::cmp::Ordering::Equal

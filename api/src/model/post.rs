@@ -139,7 +139,7 @@ pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResul
         left join community_user on community_user.community_id = post.community_id
         left join tag_post on tag_post.post_id = post.id
         left join tag_user on tag_post.tag_id = tag_user.tag_id
-        where post.user_id != ? and (following.user_id = ? or community_user.user_id = ? or tag_user.user_id = ?)
+        where post.user_id != ? and (following.user_id = ? or community_user.user_id = ? or (user.public and tag_user.user_id = ?))
         group by post.id
         order by created desc",
         auth, auth, auth, auth)
