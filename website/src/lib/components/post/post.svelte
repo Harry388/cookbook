@@ -1,28 +1,21 @@
 <script lang="ts">
 
+    import Entry from '$lib/components/entries/entry.svelte';
     import Media from '$lib/components/post/media.svelte';
     import type { Post } from '$lib/app/post';
 
     export let post: Post;
     export let link = false;
 
-    $: created = new Date(post.created);
-
     $: media = post.media ? post.media.filter(m => m != null) : [];
 
 </script>
 
-<div class="card bg-base-100 shadow-xl">
-    {#if media.length}
-        <Media media={media} />
+<Entry entry={post} {link} type="post">
+    <svelte:fragment slot="media">
+    {#if media.length }
+        <Media {media} />
+        <div class="pb-1"></div>
     {/if}
-    <svelte:element this={link ? 'a' : 'div'} href="/post/{post.id}" class="card-body">
-        <h2 class="card-title">{ post.title }</h2>
-        <a class="w-fit" href="/user/{post.user_id}">Posted by: { post.user_display_name }</a>
-        {#if post.community_id != null }
-            <a class="w-fit" href="/community/{post.community_id}">In Community: { post.community_title }</a>
-        {/if}
-        <p class="w-fit">On: { created.toDateString() }</p>
-        <p>{ post.content || '' }</p>
-    </svelte:element>
-</div>
+    </svelte:fragment>
+</Entry>

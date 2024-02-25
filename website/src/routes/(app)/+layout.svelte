@@ -55,6 +55,7 @@
             <li><a href="/community" class={pageName == 'community' ? 'active' : ''}>Communities</a></li>
             <li><a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}>Profile</a></li>
             <li><a href="/search" class={pageName == 'search' ? 'active' : ''}>Search</a></li>
+            <li><a href="/post/create">Create Post</a></li>
             <li class="flex-grow bg-base-300"></li>
             <li><a href="/settings" class={pageName == 'settings' ? 'active' : ''}>Settings</a></li>
             <li class="place-self-start" ><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>

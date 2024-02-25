@@ -4,7 +4,6 @@
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import CommentBlock from '$lib/components/comment/commentBlock.svelte';
     import Tags from '$lib/components/tag/tags.svelte';
-    import Share from '$lib/components/util/share.svelte';
     import { deleteRecipe } from '$lib/app/recipe';
     import { addAlbumEntry } from '$lib/app/album';
     import { goto } from '$app/navigation';
@@ -44,8 +43,6 @@
     </select>
     <button class="btn btn-primary w-fit my-5" on:click={addAlbum}>Save to Album</button>
 </label>
-
-<Share />
 
 <Tags tags={data.tags} />
 
