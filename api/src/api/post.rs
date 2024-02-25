@@ -129,6 +129,7 @@ impl PostApi {
     #[oai(path = "/:id/addrecipe/:recipe_id", method = "post")]
     async fn add_post_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::post::owns_post(pool.0, id.0, auth).await?;
+        permission::recipe::is_visible(pool.0, recipe_id.0, auth).await?;
         post::add_post_recipe(pool.0, id.0, recipe_id.0).await?;
         Ok(())
     }
