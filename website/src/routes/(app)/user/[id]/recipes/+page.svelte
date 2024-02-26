@@ -6,11 +6,9 @@
 
 </script>
 
-
-{#if data.self}
-    <a class="btn btn-outline" href="/recipe/create">Create Recipe</a>
-{/if}
-
-<div class="w-11/12 lg:w-1/3 m-auto">
+<div class="lg:w-1/3 lg:m-auto flex flex-col">
+    {#if data.self}
+        <a href="/recipe/create" class="btn btn-outline"><i class="fa-solid fa-plus"></i>Create Recipe</a>
+    {/if}
     <Recipes recipes={data.recipes} />
 </div>
