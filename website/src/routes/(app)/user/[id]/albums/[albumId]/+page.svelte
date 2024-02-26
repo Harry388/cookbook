@@ -21,7 +21,7 @@
     <a href="/user/{data.user.id}/albums/{data.album.id}/add" class="btn btn-outline">Add to Album</a>
 {/if}
 
-<div class="w-11/12 lg:w-1/3 m-auto">
+<div class="lg:w-1/3 lg:m-auto flex flex-col">
     {#each data.entries as entry }
         <div class="mt-5"></div>
         {#if entry.type == 'Post'} 

@@ -19,12 +19,11 @@
 
 <Info community={data.community} />
 
-{#if data.community.is_member}
-    <a href="/post/create?c={data.community.id}" class="btn btn-outline">Create Post</a>
-{/if}
-
 {#if data.community.public || data.community.is_member}
-    <div class="w-11/12 lg:w-1/3 m-auto">
+    <div class="lg:w-1/3 lg:m-auto flex flex-col">
+        {#if data.community.is_member}
+            <a href="/post/create?c={data.community.id}" class="mt-5 btn btn-outline">Create Post</a>
+        {/if}
         {#each data.posts as post}
             <div class="mt-5"></div>
             <Post {post} link />

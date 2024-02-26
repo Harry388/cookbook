@@ -40,11 +40,11 @@
         </div>
         <div class="h-16"></div>
         <div class="btm-nav lg:hidden bg-base-200">
-            <a href="/" class={pageName == undefined ? 'active' : ''}>Home</a>
-            <a href="/community" class={pageName == 'community' ? 'active' : ''}>Communities</a>
-            <a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}>Profile</a>
-            <a href="/settings" class={pageName == 'settings' ? 'active' : ''}>Settings</a>
-            <a href="/search" class={pageName == 'search' ? 'active' : ''}>Search</a>
+            <a href="/" class={pageName == undefined ? 'active' : ''}><i class="fa-solid fa-house"></i></a>
+            <a href="/community" class={pageName == 'community' ? 'active' : ''}><i class="fa-solid fa-user-group"></i></a>
+            <a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}><i class="fa-solid fa-user"></i></a>
+            <a href="/search" class={pageName == 'search' ? 'active' : ''}><i class="fa-solid fa-magnifying-glass"></i></a>
+            <a href="/settings" class={pageName == 'settings' ? 'active' : ''}><i class="fa-solid fa-gear"></i></a>
         </div>
     </div> 
     <div class="drawer-side">
