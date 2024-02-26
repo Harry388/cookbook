@@ -26,7 +26,7 @@
         <!-- Page content here -->
         <div class="navbar pt-3">
             <div class="navbar-start">
-                <button class="btn btn-outline" on:click={() => history.back()}>Back</button>
+                <button class="ml-3 text-lg fa-solid fa-arrow-left-long" on:click={() => history.back()}></button>
             </div>
             <div class="navbar-center">
                 <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
@@ -51,14 +51,14 @@
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
             <!-- Sidebar content here -->
-            <li><a href="/" class={pageName == undefined ? 'active' : ''}>Home</a></li>
-            <li><a href="/community" class={pageName == 'community' ? 'active' : ''}>Communities</a></li>
-            <li><a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}>Profile</a></li>
-            <li><a href="/search" class={pageName == 'search' ? 'active' : ''}>Search</a></li>
-            <li><a href="/post/create">Create Post</a></li>
+            <li><a href="/" class={pageName == undefined ? 'active' : ''}><i class="fa-solid fa-house"></i>Home</a></li>
+            <li><a href="/community" class={pageName == 'community' ? 'active' : ''}><i class="fa-solid fa-user-group"></i>Communities</a></li>
+            <li><a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}><i class="fa-solid fa-user"></i>Profile</a></li>
+            <li><a href="/search" class={pageName == 'search' ? 'active' : ''}><i class="fa-solid fa-magnifying-glass"></i>Search</a></li>
+            <li><a href="/post/create"><i class="fa-solid fa-plus"></i>Create Post</a></li>
             <li class="flex-grow bg-base-300"></li>
-            <li><a href="/settings" class={pageName == 'settings' ? 'active' : ''}>Settings</a></li>
-            <li class="place-self-start" ><button class="btn btn-ghost" on:click={onLogOut}>Log Out</button></li>
+            <li><a href="/settings" class={pageName == 'settings' ? 'active' : ''}><i class="fa-solid fa-gear"></i>Settings</a></li>
+            <li class="place-self-start" ><button class="btn btn-ghost" on:click={onLogOut}><i class="fa-solid fa-right-from-bracket"></i>Log Out</button></li>
         </ul>
     </div>
 </div>

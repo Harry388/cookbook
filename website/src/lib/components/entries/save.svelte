@@ -18,9 +18,16 @@
         document.getElementById('modal').showModal();
     }
 
-    function addToAlbum() {
+    function cancel() {
+        selectAlbum = -1;
+    }
+
+    async function addToAlbum() {
         if (selectAlbum == -1) return;
-        addAlbumEntry(selectAlbum, entryId, type).run();
+        const response = await addAlbumEntry(selectAlbum, entryId, type).run();
+        if (response.ok) {
+            selectAlbum = -1;
+        }
     }
 
     onMount(async () => {
@@ -41,12 +48,12 @@
         </select>
         <div class="modal-action">
             <form method="dialog">
-                <button class="btn btn-ghost mr-5">Cancel</button>
+                <button class="btn btn-ghost mr-5" on:click={cancel}>Cancel</button>
                 <button class="btn" on:click={addToAlbum}>Save</button>
             </form>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">
-        <button>close</button>
+        <button on:click={cancel}>close</button>
     </form>
 </dialog>
