@@ -25,4 +25,4 @@
 
 </script>
 
-<button class="fa-regular fa-share-from-square text-3xl" on:click={share}></button>
+<button class="fa-regular fa-share-from-square text-2xl" on:click={share}></button>

@@ -2,6 +2,7 @@
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import Share from '$lib/components/util/share.svelte';
+    import Save from '$lib/components/entries/save.svelte';
 
     export let entry: {
         id: number,
@@ -43,9 +44,9 @@
         <p class="text-lg">{ entry.content || entry.description || '' }</p>
         <slot />
         <div class="flex justify-end gap-x-5">
-            <button class="fa-{liked ? 'solid' : 'regular'} fa-heart text-3xl" on:click={() => liked = !liked}></button>
+            <button class="fa-{liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={() => liked = !liked}></button>
             <Share path="/{type}/{entry.id}" />
-            <button class="fa-regular fa-bookmark text-3xl"></button>
+            <Save entryId={entry.id} {type} />
             {#if link }
                 <a href="/{type}/{entry.id}" class="btn">More</a>
             {/if}
