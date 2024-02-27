@@ -144,7 +144,7 @@ impl PostApi {
     #[oai(path = "/:id/comment", method = "get")]
     async fn get_post_comments(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostCommentsResponse> {
         permission::post::is_visible(pool.0, id.0, auth).await?;
-        let comments = comment::get_post_comments(pool.0, id.0).await?;
+        let comments = comment::get_post_comments(pool.0, id.0, auth.0).await?;
         Ok(GetPostCommentsResponse::Ok(Json(comments)))
     }
 

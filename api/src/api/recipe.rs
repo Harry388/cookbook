@@ -103,7 +103,7 @@ impl RecipeApi {
     #[oai(path = "/:id/comment", method = "get")]
     async fn get_recipe_comments(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipeCommentsResponse> {
         permission::recipe::is_visible(pool.0, id.0, auth).await?;
-        let comments = comment::get_recipe_comments(pool.0, id.0).await?;
+        let comments = comment::get_recipe_comments(pool.0, id.0, auth.0).await?;
         Ok(GetRecipeCommentsResponse::Ok(Json(comments)))
     }
 

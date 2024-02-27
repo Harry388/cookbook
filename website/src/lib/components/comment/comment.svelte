@@ -2,7 +2,7 @@
 
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { getContext } from 'svelte';
-    import { deleteComment, updateComment } from '$lib/app/comment';
+    import { deleteComment, likeComment, unlikeComment, updateComment } from '$lib/app/comment';
     import { invalidate } from '$app/navigation';
     import type { Comment } from '$lib/app/comment';
 
@@ -35,6 +35,16 @@
         }
     }
 
+    async function toggleLike() {
+        if (comment.is_liked) {
+            await unlikeComment(comment.id).run();
+        }
+        else {
+            await likeComment(comment.id).run();
+        }
+        invalidate(depends);
+    }
+
 </script>
 
 <div class="chat chat-start">
@@ -60,4 +70,8 @@
             <button class="btn btn-warning" on:click={() => editing = true}>Edit</button>
         {/if}
     {/if}
+    <div class="flex gap-x-2 items-center">
+        <button class="fa-{comment.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
+        <div class="text-xl">{ comment.likes }</div>
+    </div>
 </div>

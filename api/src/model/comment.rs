@@ -24,7 +24,9 @@ pub struct CommentResult {
     user_id: i64,
     user_display_name: String,
     reply_id: Option<i32>,
-    created: DateTime<Utc>
+    created: DateTime<Utc>,
+    is_liked: i64,
+    likes: Option<i64>
 }
 
 async fn create_comment(pool: &MySqlPool, comment: Comment, auth: i64) -> Result<u64> {
@@ -60,28 +62,34 @@ pub async fn create_recipe_comment(pool: &MySqlPool, comment: Comment, recipe_id
     Ok(())
 }
 
-pub async fn get_post_comments(pool: &MySqlPool, post_id: i64) -> Result<Vec<CommentResult>> {
+pub async fn get_post_comments(pool: &MySqlPool, post_id: i64, auth: i64) -> Result<Vec<CommentResult>> {
     let comments = sqlx::query_as!(CommentResult,
-        "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created
+        "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created,
+        exists (select * from comment_like where comment_id = comment.id and user_id = ?) as is_liked,
+        (select count(*) from comment_like where comment_id = comment.id) as likes
         from comment inner join post_comment on comment.id = post_comment.comment_id
         inner join user on comment.user_id = user.id
         where post_comment.post_id = ?
+        group by comment.id
         order by comment.created desc",
-        post_id)
+        auth, post_id)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
     Ok(comments)
 }
 
-pub async fn get_recipe_comments(pool: &MySqlPool, recipe_id: i64) -> Result<Vec<CommentResult>> {
+pub async fn get_recipe_comments(pool: &MySqlPool, recipe_id: i64, auth: i64) -> Result<Vec<CommentResult>> {
     let comments = sqlx::query_as!(CommentResult,
-        "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created
+        "select comment.id, content, user_id, reply_id, user.display_name as user_display_name, comment.created,
+        exists (select * from comment_like where comment_id = comment.id and user_id = ?) as is_liked,
+        (select count(*) from comment_like where comment_id = comment.id) as likes
         from comment inner join recipe_comment on comment.id = recipe_comment.comment_id
         inner join user on comment.user_id = user.id
         where recipe_comment.recipe_id = ?
+        group by comment.id
         order by comment.created desc",
-        recipe_id)
+        auth, recipe_id)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
