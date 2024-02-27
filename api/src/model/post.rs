@@ -207,7 +207,7 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64) -> Result<Vec<PostRe
 
 pub async fn get_album_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title
         from post
         left join post_media on post.id = post_media.post_id
