@@ -3,9 +3,11 @@
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import Share from '$lib/components/util/share.svelte';
     import Save from '$lib/components/entries/save.svelte';
-    import { likePost, unlikePost } from '$lib/app/post';
-    import { likeRecipe, unlikeRecipe } from '$lib/app/recipe';
+    import { deletePost, likePost, unlikePost } from '$lib/app/post';
+    import { deleteRecipe, likeRecipe, unlikeRecipe } from '$lib/app/recipe';
     import { invalidateAll } from '$app/navigation';
+    import { getContext } from 'svelte';
+    import { page } from '$app/stores';
 
     export let entry: {
         id: number,
@@ -24,6 +26,8 @@
     export let type: 'post' | 'recipe';
 
     $: created = new Date(entry.created).toDateString();
+
+    const id: number = getContext('id');
 
     async function toggleLike() {
         if (entry.is_liked) {
@@ -45,6 +49,20 @@
         invalidateAll();
     }
 
+    async function remove() {
+        if (!confirm('Are you sure?')) return;
+        if (type == 'post') {
+            await deletePost(entry.id).run();
+        }
+        else {
+            await deleteRecipe(entry.id).run();
+        }
+        if ($page.url.pathname == `/${type}/${entry.id}`) {
+            history.back();
+        }
+        await invalidateAll();
+    }
+
 </script>
 
 <div class="card card-compact bg-base-100 shadow-xl">
@@ -59,6 +77,15 @@
             </div>
             <div class="flex-grow"></div>
             <div>{ created }</div>
+            {#if id == entry.user_id }
+                <div class="dropdown">
+                    <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                        <li><a href="/{type}/{entry.id}/edit">Edit</a></li>
+                        <li><button on:click={remove}>Delete</button></li>
+                    </ul>
+                </div>
+            {/if}
         </div>
         <h1 class="text-3xl card-title mt-2">{ entry.title }</h1>
     </div>
