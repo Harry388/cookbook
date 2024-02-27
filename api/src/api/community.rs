@@ -35,7 +35,9 @@ enum GetUserCommunitiesResponse {
 #[derive(ApiResponse)]
 enum GetCommunityPostsResponse {
     #[oai(status = 200)]
-    Ok(Json<Vec<post::PostResult>>)
+    Ok(Json<Vec<post::PostResult>>),
+    #[oai(status = 401)]
+    Unauthorized
 }
 
 #[derive(ApiResponse)]
@@ -121,7 +123,11 @@ impl CommunityApi {
 
     #[oai(path = "/:id/post", method = "get")]
     async fn get_community_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetCommunityPostsResponse> {
-        permission::community::is_in(pool.0, id.0, auth).await?;
+        let is_public = permission::community::is_public(pool.0, id.0).await.is_ok();
+        let is_in = permission::community::is_in(pool.0, id.0, auth).await.is_ok();
+        if !(is_public || is_in) {
+            return Ok(GetCommunityPostsResponse::Unauthorized)
+        }
         let posts = post::get_community_posts(pool.0, id.0).await?;
         Ok(GetCommunityPostsResponse::Ok(Json(posts)))
     }
