@@ -63,7 +63,7 @@ impl RecipeApi {
 
     #[oai(path = "/:id", method = "get")]
     async fn get_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipeResponse> {
-        let recipe = recipe::get_recipe(pool.0, id.0).await?;
+        let recipe = recipe::get_recipe(pool.0, id.0, auth.0).await?;
         if let None = recipe {
             return Ok(GetRecipeResponse::NotFound(PlainText("Recipe not found".to_string())));
         }
@@ -75,7 +75,7 @@ impl RecipeApi {
     #[oai(path = "/user/:user_id", method = "get")]
     async fn get_user_recipes(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserRecipesResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
-        let recipes = recipe::get_user_recipes(pool.0, user_id.0).await?;
+        let recipes = recipe::get_user_recipes(pool.0, user_id.0, auth.0).await?;
         Ok(GetUserRecipesResponse::Ok(Json(recipes)))
     }
 
@@ -96,7 +96,7 @@ impl RecipeApi {
     #[oai(path = "/:id/post", method = "get")]
     async fn get_recipe_posts(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipePostsResponse> {
         permission::recipe::is_visible(pool.0, id.0, auth).await?;
-        let posts = post::get_recipe_posts(pool.0, id.0).await?;
+        let posts = post::get_recipe_posts(pool.0, id.0, auth.0).await?;
         Ok(GetRecipePostsResponse::Ok(Json(posts)))
     }
 

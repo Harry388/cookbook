@@ -128,7 +128,7 @@ impl CommunityApi {
         if !(is_public || is_in) {
             return Ok(GetCommunityPostsResponse::Unauthorized)
         }
-        let posts = post::get_community_posts(pool.0, id.0).await?;
+        let posts = post::get_community_posts(pool.0, id.0, auth.0).await?;
         Ok(GetCommunityPostsResponse::Ok(Json(posts)))
     }
 

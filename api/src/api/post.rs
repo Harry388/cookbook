@@ -78,7 +78,7 @@ impl PostApi {
 
     #[oai(path = "/:id", method = "get")]
     async fn get_post(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostResponse> {
-        let post = post::get_post(pool.0, id.0).await?;
+        let post = post::get_post(pool.0, id.0, auth.0).await?;
         if let None = post {
             return Ok(GetPostResponse::NotFound(PlainText("Post not found".to_string())));
         }
@@ -101,7 +101,7 @@ impl PostApi {
     #[oai(path = "/user/:user_id", method = "get")]
     async fn get_user_posts(&self, pool: Data<&MySqlPool>, user_id: Path<i64>, auth: JWTAuthorization) -> Result<GetUserPostsResponse> {
         permission::user::is_following_or_public(pool.0, user_id.0, auth).await?;
-        let posts = post::get_user_posts(pool.0, user_id.0).await?;
+        let posts = post::get_user_posts(pool.0, user_id.0, auth.0).await?;
         Ok(GetUserPostsResponse::Ok(Json(posts)))
     }
 
@@ -122,7 +122,7 @@ impl PostApi {
     #[oai(path = "/:id/recipe", method = "get")]
     async fn get_post_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetPostRecipesResponse> {
         permission::post::is_visible(pool.0, id.0, auth).await?;
-        let recipes = recipe::get_post_recipes(pool.0, id.0).await?;
+        let recipes = recipe::get_post_recipes(pool.0, id.0, auth.0).await?;
         Ok(GetPostRecipesResponse::Ok(Json(recipes)))
     }
 

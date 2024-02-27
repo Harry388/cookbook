@@ -52,3 +52,11 @@ export function getRecipeComments(id: number | string) {
 export function createRecipeComment(id: number | string, content: string, replyId: number | null) {
     return post(`recipe/${id}/comment`, { content, reply_id: replyId });
 }
+
+export function likeRecipe(id: number | string) {
+    return post(`recipe/${id}/like`);
+}
+
+export function unlikeRecipe(id: number | string) {
+    return remove(`recipe/${id}/like`);
+}

@@ -11,7 +11,8 @@ export type Post = {
     community_id: number | null,
     community_title: string | null,
     media: number[],
-    created: string
+    created: string,
+    is_liked: number
 }
 
 export function getPost(id: number | string) {
@@ -69,4 +70,12 @@ export function getPostComments(id: number | string) {
 
 export function createPostComment(id: number | string, content: string, replyId: number | null) {
     return post(`post/${id}/comment`, { content, reply_id: replyId });
+}
+
+export function likePost(id: number | string) {
+    return post(`post/${id}/like`);
+}
+
+export function unlikePost(id: number | string) {
+    return remove(`post/${id}/like`);
 }

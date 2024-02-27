@@ -3,6 +3,9 @@
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import Share from '$lib/components/util/share.svelte';
     import Save from '$lib/components/entries/save.svelte';
+    import { likePost, unlikePost } from '$lib/app/post';
+    import { likeRecipe, unlikeRecipe } from '$lib/app/recipe';
+    import { invalidateAll } from '$app/navigation';
 
     export let entry: {
         id: number,
@@ -13,14 +16,33 @@
         user_display_name: string,
         community_id?: number | null,
         community_title?: string,
-        created: string
+        created: string,
+        is_liked: number
     };
     export let link = false;
     export let type: 'post' | 'recipe';
 
-    let liked = false;
-
     $: created = new Date(entry.created).toDateString();
+
+    async function toggleLike() {
+        if (entry.is_liked) {
+            if (type == 'post') {
+                await unlikePost(entry.id).run();
+            }
+            else {
+                await unlikeRecipe(entry.id).run();
+            }
+        }
+        else {
+            if (type == 'post') {
+                await likePost(entry.id).run();
+            }
+            else {
+                await likeRecipe(entry.id).run();
+            }
+        }
+        invalidateAll();
+    }
 
 </script>
 
@@ -44,9 +66,9 @@
         <p class="text-lg">{ entry.content || entry.description || '' }</p>
         <slot />
         <div class="flex justify-end gap-x-5">
-            <button class="fa-{liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={() => liked = !liked}></button>
-            <Share path="/{type}/{entry.id}" />
+            <button class="fa-{entry.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
             <Save entryId={entry.id} {type} />
+            <Share path="/{type}/{entry.id}" />
             {#if link }
                 <a href="/{type}/{entry.id}" class="btn">More</a>
             {/if}
