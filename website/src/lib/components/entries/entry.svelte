@@ -17,7 +17,8 @@
         community_id?: number | null,
         community_title?: string,
         created: string,
-        is_liked: number
+        is_liked: number,
+        likes: number
     };
     export let link = false;
     export let type: 'post' | 'recipe';
@@ -65,8 +66,9 @@
     <div class="card-body !pt-0">
         <p class="text-lg">{ entry.content || entry.description || '' }</p>
         <slot />
-        <div class="flex justify-end gap-x-5">
+        <div class="flex justify-end gap-x-5 items-center">
             <button class="fa-{entry.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
+            <div class="-ml-2 text-xl">{ entry.likes }</div>
             <Save entryId={entry.id} {type} />
             <Share path="/{type}/{entry.id}" />
             {#if link }

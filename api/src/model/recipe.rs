@@ -32,7 +32,8 @@ pub struct RecipeResult {
     pub user_id: i64,
     user_display_name: String,
     pub created: DateTime<Utc>,
-    is_liked: i64
+    is_liked: i64,
+    likes: Option<i64>
 }
 
 pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Result<u64> {
@@ -50,9 +51,11 @@ pub async fn create_recipe(pool: &MySqlPool, recipe: Recipe, auth: i64) -> Resul
 pub async fn get_recipe(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<RecipeResult>> {
     let recipe: Option<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe inner join user on recipe.user_id = user.id
-        where recipe.id = ?",
+        where recipe.id = ?
+        group by recipe.id",
         auth, id)
         .fetch_optional(pool)
         .await
@@ -64,7 +67,8 @@ pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Resu
     let search = format!("%{search}%");
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
         where (user.public or (following.user_id = ? and following.accepted)) and ((title like ?) or (description like ?))
@@ -80,7 +84,8 @@ pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Resu
 pub async fn get_feed_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
         left join tag_recipe on tag_recipe.recipe_id = recipe.id
@@ -98,9 +103,11 @@ pub async fn get_feed_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeR
 pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe inner join user on recipe.user_id = user.id
         where user_id = ?
+        group by recipe.id
         order by created desc",
         auth, user_id)
         .fetch_all(pool)
@@ -112,11 +119,13 @@ pub async fn get_user_recipes(pool: &MySqlPool, user_id: i64, auth: i64) -> Resu
 pub async fn get_post_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe
         inner join recipe_post on recipe.id = recipe_post.recipe_id
         inner join user on recipe.user_id = user.id
         where recipe_post.post_id = ?
+        group by recipe.id
         order by created desc",
         auth, id)
         .fetch_all(pool)
@@ -128,12 +137,14 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Ve
 pub async fn get_album_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe
         inner join album_recipe on recipe.id = album_recipe.recipe_id
         inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
         where (album_recipe.album_id = ?) and (user.public or (following.user_id = ? and following.accepted))
+        group by recipe.id
         order by created desc",
         auth, id, auth)
         .fetch_all(pool)
@@ -145,12 +156,14 @@ pub async fn get_album_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<V
 pub async fn get_tag_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name,
-        exists (select * from recipe_like where recipe_id = recipe.id and user.id = ?) as is_liked
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
         from recipe
         inner join tag_recipe on recipe.id = tag_recipe.recipe_id
         inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
         where (tag_recipe.tag_id = ?) and (user.public or (following.user_id = ? and following.accepted))
+        group by recipe.id
         order by created desc",
         auth, id, auth)
         .fetch_all(pool)

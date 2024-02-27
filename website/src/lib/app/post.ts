@@ -12,7 +12,8 @@ export type Post = {
     community_title: string | null,
     media: number[],
     created: string,
-    is_liked: number
+    is_liked: number,
+    likes: number
 }
 
 export function getPost(id: number | string) {

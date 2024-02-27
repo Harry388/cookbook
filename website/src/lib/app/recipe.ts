@@ -14,7 +14,9 @@ export type Recipe = {
     user_display_name: string,
     ingredients: Ingredients,
     method: Method,
-    created: string
+    created: string,
+    is_liked: number,
+    likes: number
 }
 
 export function getRecipe(id: number | string) {
