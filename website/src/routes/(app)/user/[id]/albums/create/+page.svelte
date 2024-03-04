@@ -4,7 +4,7 @@
     import { invalidate } from '$app/navigation';
 
     let title = '';
-    
+
     async function create() {
         const response = await createAlbum(title).run();
         if (response.ok) {
@@ -14,6 +14,8 @@
     }
 
 </script>
+
+<button on:click={() => history.back()} class="text-lg fa-solid fa-arrow-left-long"></button>
 
 <h3 class="font-bold text-lg py-5">Create Album</h3>
 <div class="form-control">

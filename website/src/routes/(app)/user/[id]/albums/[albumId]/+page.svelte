@@ -21,19 +21,21 @@
     <a href="/user/{data.user.id}/albums/{data.album.id}/add" class="btn btn-outline">Add to Album</a>
 {/if}
 
-<div class="lg:w-1/3 lg:m-auto flex flex-col">
+<div class="lg:w-5/12 lg:m-auto flex flex-col">
     {#each data.entries as entry }
         <div class="mt-5"></div>
-        {#if entry.type == 'Post'} 
-            <Post post={entry} link />
-            {#if data.self}
-                <button class="btn btn-outline" on:click={() => remove(entry.id, 'post')}>Remove</button>
+        <div class="flex gap-x-5">
+            {#if entry.type == 'Post'} 
+                <Post post={entry} link />
+                {#if data.self}
+                    <button class="fa-regular fa-trash-can text-2xl btn" on:click={() => remove(entry.id, 'post')}></button>
+                {/if}
+            {:else}
+                <Recipe recipe={entry} link />
+                {#if data.self}
+                    <button class="fa-regular fa-trash-can text-2xl btn" on:click={() => remove(entry.id, 'recipe')}></button>
+                {/if}
             {/if}
-        {:else}
-            <Recipe recipe={entry} link />
-            {#if data.self}
-                <button class="btn btn-outline" on:click={() => remove(entry.id, 'recipe')}>Remove</button>
-            {/if}
-        {/if}
+        </div>
     {/each}
 </div>

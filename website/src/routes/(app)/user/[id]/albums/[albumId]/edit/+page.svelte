@@ -26,6 +26,10 @@
 
 </script>
 
+<a href="/user/{data.user.id}/albums/{data.album.id}"><i class="text-lg fa-solid fa-arrow-left-long"></i></a>
+
+<div class="my-5"></div>
+
 <button class="btn btn-error" on:click={remove}>Delete Album</button>
 
 <h3 class="font-bold text-lg py-5">Edit Album</h3>

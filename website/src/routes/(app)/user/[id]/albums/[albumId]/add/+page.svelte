@@ -24,15 +24,17 @@
 
 <a href="/user/{data.user.id}/albums/{data.album.id}"><i class="text-lg fa-solid fa-arrow-left-long"></i></a>
 
-<div class="lg:w-1/3 lg:m-auto flex flex-col">
+<div class="lg:w-5/12 lg:m-auto flex flex-col">
     {#each entries as entry }
         <div class="mt-5"></div>
-        {#if entry.type == 'post'} 
-            <Post post={entry} link />
-            <button class="btn btn-outline" on:click={() => add(entry.id, 'post')}>Add</button>
-        {:else}
-            <Recipe recipe={entry} link />
-            <button class="btn btn-outline" on:click={() => add(entry.id, 'recipe')}>Add</button>
-        {/if}
+        <div class="flex gap-x-5">
+            {#if entry.type == 'post'} 
+                <Post post={entry} link />
+                <button class="fa-regular fa-plus text-2xl btn" on:click={() => add(entry.id, 'post')}></button>
+            {:else}
+                <Recipe recipe={entry} link />
+                <button class="fa-regular fa-plus text-2xl btn" on:click={() => add(entry.id, 'recipe')}></button>
+            {/if}
+        </div>
     {/each}
 </div>
