@@ -65,7 +65,7 @@
 
 </script>
 
-<div class="card card-compact bg-base-100 shadow-xl">
+<div class="flex-grow card card-compact bg-base-100 shadow-xl">
     <div class="card-body">
         <div class="flex gap-x-5 items-start">
             <ProfilePic user={{ id: entry.user_id, display_name: entry.user_display_name }} small />
