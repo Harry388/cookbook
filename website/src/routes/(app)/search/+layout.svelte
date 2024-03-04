@@ -18,13 +18,15 @@
 
 </script>
 
-<form class="form-control" on:submit|preventDefault={search}>
+<form class="form-control lg:w-1/2 lg:m-auto" on:submit|preventDefault={search}>
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Search</span>
     </label>
-    <input type="text" min="1" bind:value={text} placeholder="Search" class="input input-bordered" />
-    <a class="btn btn-primary w-fit mt-5" href={passText}>Search</a>
+    <div class="flex gap-x-5 items-center ">
+        <input type="text" min="1" bind:value={text} placeholder="Search" class="flex-grow input input-bordered" />
+        <button class="fa-solid fa-magnifying-glass btn btn-ghost text-2xl"><input type="submit" value="" /></button>
+    </div>
 </form>
 
 <div role="tablist" class="my-5 tabs tabs-bordered tabs-lg">
