@@ -116,14 +116,14 @@ impl RecipeApi {
 
     #[oai(path = "/:id/like", method = "post")]
     async fn like_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        permission::post::is_visible(pool.0, id.0, auth).await?;
+        permission::recipe::is_visible(pool.0, id.0, auth).await?;
         like::like_recipe(pool.0, id.0, auth.0).await?;
         Ok(())
     }
 
     #[oai(path = "/:id/like", method = "delete")]
     async fn unlike_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        permission::post::is_visible(pool.0, id.0, auth).await?;
+        permission::recipe::is_visible(pool.0, id.0, auth).await?;
         like::unlike_recipe(pool.0, id.0, auth.0).await?;
         Ok(())
     }
