@@ -45,6 +45,11 @@
         invalidate(depends);
     }
 
+    function cancel() {
+        editingContent = comment.content;
+        editing = false;
+    }
+
 </script>
 
 <div class="chat chat-start">
@@ -55,23 +60,26 @@
         { comment.user_display_name }
         <time class="text-xs opacity-50">{ date }</time>
     </div>
-    <div class="chat-bubble">
-        {#if editing }
-            <input type="text" bind:value={editingContent}>
-        {:else}
-            { comment.content }
+    <div class="flex gap-x-5">
+        <div class="chat-bubble">
+            {#if editing }
+                <input type="text" class="input input-ghost w-fit" bind:value={editingContent}>
+            {:else}
+                { comment.content }
+            {/if}
+        </div>
+        {#if comment.user_id == id }
+            <button class="fa-regular fa-trash-can text-2xl" on:click={remove}></button>
+            {#if editing }
+                <button class="fa-regular fa-floppy-disk text-2xl" on:click={update}></button>
+                <button class="fa-solid fa-xmark text-2xl" on:click={cancel}></button>
+            {:else}
+                <button class="fa-solid fa-pencil text-2xl" on:click={() => editing = true}></button>
+            {/if}
         {/if}
-    </div>
-    {#if comment.user_id == id }
-        <button class="btn btn-error" on:click={remove}>Delete</button>
-        {#if editing }
-            <button class="btn btn-warning" on:click={update}>Save</button>
-        {:else}
-            <button class="btn btn-warning" on:click={() => editing = true}>Edit</button>
-        {/if}
-    {/if}
-    <div class="flex gap-x-2 items-center">
-        <button class="fa-{comment.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
-        <div class="text-xl">{ comment.likes }</div>
+        <div class="flex gap-x-2 items-center">
+            <button class="fa-{comment.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
+            <div class="text-xl">{ comment.likes }</div>
+        </div>
     </div>
 </div>

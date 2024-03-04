@@ -8,6 +8,6 @@
 
 </script>
 
-{#each comments as comment}
+{#each comments as comment (comment.id)}
    <CommentComponent {comment} {type} /> 
 {/each}
