@@ -10,7 +10,7 @@ pub struct Cookbook {
 
 #[derive(Object)]
 pub struct CookbookResult {
-    id: i64, 
+    id: i64,
     title: String,
     description: Option<String>,
     user_id: i64

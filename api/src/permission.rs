@@ -4,6 +4,7 @@ pub mod post;
 pub mod community;
 pub mod comment;
 pub mod album;
+pub mod cookbook;
 
 use poem::{Result, http::StatusCode, error::Error};
 

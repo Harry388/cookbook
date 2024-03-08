@@ -19,7 +19,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let apis = (
         api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi,
-        api::community::CommunityApi, api::comment::CommentApi, api::album::AlbumApi, api::tag::TagApi, api::search::SearchApi
+        api::community::CommunityApi, api::comment::CommentApi, api::album::AlbumApi, api::tag::TagApi, api::search::SearchApi,
+        api::cookbook::CookbookApi
     );
 
     let api_service = 

@@ -8,6 +8,7 @@ pub mod api {
     pub mod album;
     pub mod tag;
     pub mod search;
+    pub mod cookbook;
 }
 
 pub mod model {
