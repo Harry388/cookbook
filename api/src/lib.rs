@@ -19,6 +19,7 @@ pub mod model {
     pub mod album;
     pub mod tag;
     pub mod like;
+    pub mod cookbook;
 }
 
 pub mod permission;
