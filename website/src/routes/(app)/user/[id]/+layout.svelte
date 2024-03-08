@@ -4,7 +4,7 @@
 
     export let data;
 
-    const routes = ['posts', 'recipes', 'albums'];
+    const routes = ['posts', 'recipes', 'albums', 'cookbooks'];
 
 </script>
 
