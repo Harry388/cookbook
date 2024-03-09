@@ -8,5 +8,6 @@
 </script>
 
 {#each cookbooks as cookbook}
+    <div class="mt-5"></div>
     <CookbookLink {cookbook} />
 {/each}
