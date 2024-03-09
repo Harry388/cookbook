@@ -1,4 +1,5 @@
 import { get, post, put, remove } from '$lib/apiFetch';
+import type { Recipe } from '$lib/app/recipe';
 
 export type Cookbook = {
     id: number,
@@ -25,4 +26,8 @@ export function updateCookbook(id: number | string, title: string, description?:
 
 export function deleteCookbook(id: number | string) {
     return remove(`cookbook/${id}`);
+}
+
+export function getCookbookRecipes(id: number | string) {
+    return get<Recipe[]>(`cookbook/${id}/recipe`);
 }

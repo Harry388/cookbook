@@ -16,6 +16,10 @@ pub struct CookbookResult {
     user_id: i64
 }
 
+struct PositionResult {
+    position: i64
+}
+
 pub async fn create_cookbook(pool: &MySqlPool, cookbook: Cookbook, auth: i64) -> Result<()> {
     sqlx::query!(
         "insert into cookbook (title, description, user_id) values (?,?,?)",
@@ -64,4 +68,40 @@ pub async fn delete_cookbook(pool: &MySqlPool, id: i64) -> Result<()> {
         .await
         .map_err(InternalServerError)?;
     Ok(())
+}
+
+pub async fn add_recipe(pool: &MySqlPool, id: i64, recipe_id: i64, position: i64) -> Result<()> {
+    sqlx::query!(
+        "insert into cookbook_recipe (cookbook_id, recipe_id, position) values (?,?,?)",
+        id, recipe_id, position)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn remove_recipe(pool: &MySqlPool, id: i64, recipe_id: i64) -> Result<Option<()>> {
+    let position: Option<PositionResult> = sqlx::query_as!(PositionResult,
+        "select position from cookbook_recipe where cookbook_id = ? and recipe_id = ?",
+        id, recipe_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let None = position {
+        return Ok(None)
+    }
+    let position = position.unwrap().position;
+    sqlx::query!(
+        "delete from cookbook_recipe where cookbook_id = ? and recipe_id = ?",
+        id, recipe_id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    sqlx::query!(
+        "update cookbook_recipe set position = position - 1 where position > ?",
+        position)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(Some(()))
 }

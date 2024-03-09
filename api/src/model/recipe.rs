@@ -172,6 +172,25 @@ pub async fn get_tag_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec
     Ok(recipes)
 }
 
+pub async fn get_cookbook_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<RecipeResult>> {
+    let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+        "select recipe.id, recipe.title, recipe.description, recipe.ingredients, recipe.method, recipe.user_id, recipe.created, user.display_name as user_display_name,
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes
+        from recipe
+        inner join cookbook_recipe on recipe.id = cookbook_recipe.recipe_id
+        inner join user on recipe.user_id = user.id
+        left join following on following.following_id = recipe.user_id
+        where (cookbook_recipe.cookbook_id = ?) and (user.public or (recipe.user_id = ?) or (following.user_id = ? and following.accepted))
+        group by recipe.id, cookbook_recipe.position
+        order by cookbook_recipe.position asc",
+        auth, id, auth, auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(recipes)
+}
+
 pub async fn update_recipe(pool: &MySqlPool, id: i64, update_recipe: UpdateRecipe) -> Result<()> {
     sqlx::query!(
         "update recipe set title = coalesce(?, title), description = coalesce(?, description),
