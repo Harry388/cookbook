@@ -4,6 +4,8 @@
 
     export let data;
 
+    $: allowed = data.page % 2 ? [data.page - 1, data.page] : [data.page, data.page + 1];
+
 </script>
 
 <svelte:head>
@@ -15,17 +17,17 @@
         <a href="/cookbook/{data.cookbook.id}/edit" class="btn btn-outline">Edit</a>
     {/if}
     {#if data.page > 0}
-        <a href="?p={data.page - 1}" class="btn btn-circle">❮</a> 
+        <a href="?p={data.page - 2}" class="btn btn-circle">❮</a> 
     {/if}
     <div class="flex-grow"></div>
     {#if data.page < (data.recipes.length - 1)}
-        <a href="?p={data.page + 1}" class="btn btn-circle">❯</a>
+        <a href="?p={data.page + 2}" class="btn btn-circle">❯</a>
     {/if}
 </div>
 
 <div class="flex">
     {#each data.recipes as recipe, i}
-        {#if [data.page, data.page + 1].includes(i)}
+        {#if allowed.includes(i)}
             <div class="w-1/2">
                 <Recipe {recipe} />
             </div>
