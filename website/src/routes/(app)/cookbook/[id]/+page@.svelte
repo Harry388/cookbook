@@ -12,7 +12,7 @@
     <title>{ data.cookbook.title } - Cookbook</title>
 </svelte:head>
 
-<div class="flex">
+<div class="flex print:hidden">
     {#if data.id == data.cookbook.user_id}
         <a href="/cookbook/{data.cookbook.id}/edit" class="btn btn-outline">Edit</a>
     {/if}
@@ -25,13 +25,16 @@
     {/if}
 </div>
 
-<div class="flex">
+<div class="flex print:flex-col">
     {#each data.recipes as recipe, i}
-        {#if allowed.includes(i)}
+        <!-- {#if allowed.includes(i)}
             <div class="w-1/2">
                 <Recipe {recipe} />
             </div>
-        {/if}
+        {/if} -->
+        <div class="{!allowed.includes(i) && 'hidden'} print:block w-1/2 print:w-full print:h-screen">
+            <Recipe {recipe} />
+        </div>
     {/each}
 </div>
 
