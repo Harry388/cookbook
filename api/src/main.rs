@@ -20,12 +20,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let apis = (
         api::user::UserApi, api::auth::AuthApi, api::post::PostApi, api::recipe::RecipeApi,
         api::community::CommunityApi, api::comment::CommentApi, api::album::AlbumApi, api::tag::TagApi, api::search::SearchApi,
-        api::cookbook::CookbookApi
+        api::cookbook::CookbookApi, api::spec::SpecApi
     );
 
     let api_service = 
         OpenApiService::new(apis, "CookBook API", "1.0").server("http://localhost:8000/api");
-   
+
+    let spec = api::spec::Spec(api_service.spec());
+
     let app = 
         if production {
             Route::new()
@@ -38,7 +40,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with(Cors::new().allow_credentials(true))
         .data(pool)
         .data(storage)
-        .data(jwt_secret);
+        .data(jwt_secret)
+        .data(spec);
 
     Ok(poem::Server::new(TcpListener::bind("0.0.0.0:8000"))
         .run(app)

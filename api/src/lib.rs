@@ -9,6 +9,7 @@ pub mod api {
     pub mod tag;
     pub mod search;
     pub mod cookbook;
+    pub mod spec;
 }
 
 pub mod model {
