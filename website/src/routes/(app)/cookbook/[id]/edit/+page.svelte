@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import RecipeComponent from '$lib/components/recipe/recipe.svelte';
+    import Recipe from '$lib/components/recipe/recipe.svelte';
     import { invalidate } from '$app/navigation';
     import { updateCookbook } from '$lib/app/cookbook';
 
@@ -19,9 +19,9 @@
 
 </script>
 
-<div class="flex flex-col lg:flex-row">
+<div class="flex flex-col">
 
-    <div class="flex-1 form-control">
+    <div class="form-control">
         <h3 class="font-bold text-lg py-5">Edit Cookbook</h3>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="label">
@@ -36,31 +36,14 @@
         <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
     </div>
 
-    <!--
-    <div class="flex-1">
-        <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-        <div class="flex gap-5 flex-col items-center">
-            {#each recipes as recipe}
-                <div class="flex indicator">
-                    <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
-                    <RecipeComponent {recipe} link />
-                </div>
-            {/each}
-        </div>
-        <label class="form-control w-full max-w-xs">
-            <div class="label">
-                <span class="label-text">Pick Recipe</span>
-            </div>
-            <select bind:value={newRecipe} class="select select-bordered">
-                <option value={-1} selected>Pick one</option>
-                {#each newRecipes as recipe}
-                    <option value={recipe.id}>{ recipe.title }</option>
-                {/each}
-            </select>
-            <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
-            <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
-        </label>
+    <div class="w-1/3 flex flex-col gap-y-5">
+        <h3 class="font-bold text-lg py-5">Edit Pages</h3>
+        {#each data.pages as page}
+            {#if page.type == 'Recipe'}
+                <Recipe recipe={page} link />
+            {:else if page.type == 'Section'}
+                <h2 class="font-bold text-2xl">{ page.title }</h2>
+            {/if}
+        {/each}
     </div>
-    -->
-
 </div>
