@@ -5,6 +5,7 @@ use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::model::{cookbook, recipe};
+use crate::util::page;
 
 #[derive(Tags)]
 enum ApiTags {
@@ -27,7 +28,7 @@ enum GetUserCookbookResponse {
     Ok(Json<Vec<cookbook::CookbookResult>>)
 }
 
-type GetCookBookRecipesResponse = Json<Vec<recipe::RecipeResult>>;
+type GetCookbookPagesResponse = Json<Vec<page::Page>>;
 
 pub struct CookbookApi;
 
@@ -73,30 +74,55 @@ impl CookbookApi {
         Ok(())
     }
 
-    #[oai(path = "/:id/recipe", method = "get")]
-    async fn get_recipes(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetCookBookRecipesResponse> {
+    #[oai(path = "/:id/section/:section_id/recipe/:recipe_id", method = "post")]
+    async fn add_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        let owns_cookbook = permission::cookbook::owns_cookbook(pool.0, id.0, auth);
+        let owns_recipe = permission::recipe::owns_recipe(pool.0, recipe_id.0, auth);
+        try_join!(owns_cookbook, owns_recipe)?;
+        let recipes = recipe::get_cookbook_section_recipes(pool.0, section_id.0, auth.0).await?;
+        cookbook::add_recipe(pool.0, section_id.0, recipe_id.0, recipes.len().try_into().unwrap()).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/section/:section_id/recipe/:recipe_id", method = "delete")]
+    async fn remove_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        let owns_cookbook = permission::cookbook::owns_cookbook(pool.0, id.0, auth);
+        let owns_recipe = permission::recipe::owns_recipe(pool.0, recipe_id.0, auth);
+        try_join!(owns_cookbook, owns_recipe)?;
+        cookbook::remove_recipe(pool.0, section_id.0, recipe_id.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/section", method = "post")]
+    async fn add_section(&self, pool: Data<&MySqlPool>, id: Path<i64>, section: Json<cookbook::Section>, auth: JWTAuthorization) -> Result<()> {
+        permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
+        let sections = cookbook::get_sections(pool.0, id.0).await?;
+        cookbook::add_section(pool.0, id.0, section.0, sections.len().try_into().unwrap()).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/section/:section_id", method = "delete")]
+    async fn remove_section(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
+        cookbook::remove_section(pool.0, section_id.0).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/pages", method = "get")]
+    async fn get_pages(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<GetCookbookPagesResponse> {
         permission::cookbook::is_visible(pool.0, id.0, auth).await?;
-        let recipes = recipe::get_cookbook_recipes(pool.0, id.0, auth.0).await?;
-        Ok(Json(recipes))
-    }
-
-    #[oai(path = "/:id/recipe/:recipe_id", method = "post")]
-    async fn add_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        let owns_cookbook = permission::cookbook::owns_cookbook(pool.0, id.0, auth);
-        let owns_recipe = permission::recipe::owns_recipe(pool.0, recipe_id.0, auth);
-        try_join!(owns_cookbook, owns_recipe)?;
-        let recipes = recipe::get_cookbook_recipes(pool.0, id.0, auth.0).await?;
-        cookbook::add_recipe(pool.0, id.0, recipe_id.0, recipes.len().try_into().unwrap()).await?;
-        Ok(())
-    }
-
-    #[oai(path = "/:id/recipe/:recipe_id", method = "delete")]
-    async fn remove_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
-        let owns_cookbook = permission::cookbook::owns_cookbook(pool.0, id.0, auth);
-        let owns_recipe = permission::recipe::owns_recipe(pool.0, recipe_id.0, auth);
-        try_join!(owns_cookbook, owns_recipe)?;
-        cookbook::remove_recipe(pool.0, id.0, recipe_id.0).await?;
-        Ok(())
+        let mut pages = Vec::new();
+        let sections = cookbook::get_sections(pool.0, id.0).await?;
+        for section in sections {
+            let recipes = recipe::get_cookbook_section_recipes(pool.0, section.id, auth.0).await?;
+            let section_page = page::Page::Section(section);
+            pages.push(section_page);
+            for recipe in recipes {
+                let recipe_page = page::Page::Recipe(recipe);
+                pages.push(recipe_page);
+            }
+        }
+        Ok(Json(pages))
     }
 
 }

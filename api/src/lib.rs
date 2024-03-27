@@ -30,4 +30,5 @@ pub mod storage;
 
 pub mod util {
     pub mod entry;
+    pub mod page;
 }
