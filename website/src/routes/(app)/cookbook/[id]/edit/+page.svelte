@@ -42,7 +42,7 @@
 <div class="flex flex-col lg:flex-row">
 
     <div class="flex-1 form-control">
-        <h3 class="font-bold text-lg py-5">Edit Cook Book</h3>
+        <h3 class="font-bold text-lg py-5">Edit Cookbook</h3>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="label">
             <span class="label-text">Title</span>

@@ -14,7 +14,7 @@
 
 </script>
 
-<h3 class="font-bold text-lg py-5">Create a Cook Book</h3>
+<h3 class="font-bold text-lg py-5">Create a Cookbook</h3>
 <div class="form-control">
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
