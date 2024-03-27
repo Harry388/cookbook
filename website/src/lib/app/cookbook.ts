@@ -31,3 +31,11 @@ export function deleteCookbook(id: number | string) {
 export function getCookbookRecipes(id: number | string) {
     return get<Recipe[]>(`cookbook/${id}/recipe`);
 }
+
+export function addCookbookRecipe(id: number | string, recipeId: number | string) {
+    return post(`cookbook/${id}/recipe/${recipeId}`);
+}
+
+export function removeCookbookRecipe(id: number | string, recipeId: number | string) {
+    return remove(`cookbook/${id}/recipe/${recipeId}`);
+}
