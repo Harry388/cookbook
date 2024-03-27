@@ -4,5 +4,5 @@ create table cookbook (
     description text,
     user_id int not null,
     primary key(id),
-    foreign key (user_id) references user(id)
+    foreign key (user_id) references user(id) on delete cascade
 )
