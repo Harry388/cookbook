@@ -33,11 +33,6 @@
             <span class="label-text">Description</span>
         </label>
         <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <!-- <label class="label">
-            <span class="label-text">Media</span>
-        </label>
-        <ImageInput bind:files={files} multiple /> -->
         <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
     </div>
 

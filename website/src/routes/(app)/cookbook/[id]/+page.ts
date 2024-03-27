@@ -1,4 +1,4 @@
-import { getCookbook, getCookbookRecipes } from '$lib/app/cookbook';
+import { getCookbook, getCookbookPages } from '$lib/app/cookbook';
 import { test } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
 
@@ -14,10 +14,10 @@ export const load = async ({ fetch, params, url }) => {
 
     const [
         cookbook,
-        recipes
+        pages
     ] = await Promise.all([
         getCookbook(params.id).json(fetch),
-        getCookbookRecipes(params.id).json(fetch)
+        getCookbookPages(params.id).json(fetch)
     ]);
 
     let page = Number(url.searchParams.get('p'));
@@ -25,13 +25,13 @@ export const load = async ({ fetch, params, url }) => {
     if (isNaN(page) || (page < 0)) {
         page = 0;
     }
-    else if (page >= recipes.length) {
-        page = recipes.length - 1;
+    else if (page >= pages.length) {
+        page = pages.length - 1;
     }
 
     return {
         cookbook,
-        recipes,
+        pages,
         page,
         id
     }
