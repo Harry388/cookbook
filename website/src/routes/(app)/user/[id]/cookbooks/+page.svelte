@@ -7,5 +7,6 @@
 </script>
 
 <div class="lg:w-1/3 lg:m-auto flex flex-col">
+    <a href="/cookbook/create" class="btn btn-outline"><i class="fa-solid fa-plus"></i>Create Cookbook</a>
     <Cookbooks cookbooks={data.cookbooks} />
 </div>
