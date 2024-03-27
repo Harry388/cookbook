@@ -2,38 +2,18 @@
 
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import { invalidate } from '$app/navigation';
-    import { updateCookbook, getCookbookRecipes, addCookbookRecipe, removeCookbookRecipe } from '$lib/app/cookbook';
+    import { updateCookbook } from '$lib/app/cookbook';
 
     export let data;
 
     let title = data.cookbook.title;
     let description = data.cookbook.description;
-    let newRecipe: number;
-    let recipes = data.recipes;
-
-    $: newRecipes = data.userRecipes.filter(ur => !recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
         const response = await updateCookbook(data.cookbook.id, title, description).run();
         if (response.ok) {
             invalidate('app:cookbook');
             history.back();
-        }
-    }
-
-    async function deleteRecipe(id: number) {
-        const response = await removeCookbookRecipe(data.cookbook.id, id).run();
-        if (response.ok) {
-            invalidate('app:cookbook');
-            recipes = await getCookbookRecipes(data.cookbook.id).json();
-        }
-    }
-
-    async function addRecipe() {
-        const response = await addCookbookRecipe(data.cookbook.id, newRecipe).run();
-        if (response.ok) {
-            invalidate('app:cookbook');
-            recipes = await getCookbookRecipes(data.cookbook.id).json();
         }
     }
 
@@ -61,6 +41,7 @@
         <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
     </div>
 
+    <!--
     <div class="flex-1">
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
         <div class="flex gap-5 flex-col items-center">
@@ -85,5 +66,6 @@
             <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
         </label>
     </div>
+    -->
 
 </div>

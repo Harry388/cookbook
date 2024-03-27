@@ -1,4 +1,4 @@
-import { getCookbook, getCookbookRecipes } from '$lib/app/cookbook';
+import { getCookbook, getCookbookPages } from '$lib/app/cookbook';
 import { getUserRecipes } from '$lib/app/recipe';
 
 export const load = async ({ fetch, parent, params, depends }) => {
@@ -7,11 +7,11 @@ export const load = async ({ fetch, parent, params, depends }) => {
 
     const [
         cookbook,
-        recipes,
+        pages,
         userRecipes 
     ] = await Promise.all([
         getCookbook(params.id).json(fetch),
-        getCookbookRecipes(params.id).json(fetch),
+        getCookbookPages(params.id).json(fetch),
         getUserRecipes(id).json(fetch)
     ]);
 
@@ -19,7 +19,7 @@ export const load = async ({ fetch, parent, params, depends }) => {
 
     return {
         cookbook,
-        recipes,
+        pages,
         userRecipes,
         title: cookbook.title
     }
