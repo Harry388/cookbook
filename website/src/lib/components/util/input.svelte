@@ -25,6 +25,12 @@
         value = oldValue;
     }
 
+    function onKey(event: KeyboardEvent) {
+        if (event.key == 'Escape') {
+            cancelEdit();
+        }
+    }
+
 </script>
 
 {#if title}
@@ -36,7 +42,7 @@
     {#if long}
         <textarea id="input" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
     {:else}
-        <input id="input" type="text" min="1" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
+        <input id="input" type="text" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
     {/if}
     {#if editing}
         <div class="flex gap-x-5">
