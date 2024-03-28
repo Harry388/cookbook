@@ -42,15 +42,19 @@
 
 </script>
 
-<div class="flex">
-    <form on:submit={add}>
-        <label class="label" for="#input">
-            <span class="label-text">Tags</span>
-        </label>
-        <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered" />
-        <input type="submit" class="btn btn-primary w-fit mt-5" value="Add" />
-    </form>
-    {#each tags as tag}
-        <TagComponent {tag} on:remove={remove} edit />
-    {/each}
-</div>
+<form on:submit={add} class="form-control">
+    <label class="label" for="#input">
+        <span class="label-text">Tags</span>
+    </label>
+    <div class="flex">
+        <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered mr-2" />
+        <input type="submit" class="btn btn-outline w-fit" value="Add" />
+    </div>
+    {#if tags.length}
+        <div class="flex gap-x-2 my-5">
+            {#each tags as tag (tag.id)}
+                <TagComponent {tag} on:remove={remove} edit />
+            {/each}
+        </div>
+    {/if}
+</form>

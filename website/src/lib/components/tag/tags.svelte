@@ -7,7 +7,7 @@
 
 </script>
 
-<div class="flex">
+<div class="flex gap-x-2">
     {#each tags as tag}
         <TagComponent {tag} />
     {/each}
