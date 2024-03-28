@@ -34,12 +34,12 @@ export function deleteCookbook(id: number | string) {
     return remove(`cookbook/${id}`);
 }
 
-export function addCookbookRecipe(id: number | string, recipeId: number | string) {
-    return post(`cookbook/${id}/recipe/${recipeId}`);
+export function addCookbookRecipe(id: number | string, sectionId: number | string, recipeId: number | string) {
+    return post(`cookbook/${id}/section/${sectionId}/recipe/${recipeId}`);
 }
 
-export function removeCookbookRecipe(id: number | string, recipeId: number | string) {
-    return remove(`cookbook/${id}/recipe/${recipeId}`);
+export function removeCookbookRecipe(id: number | string, sectionId: number | string, recipeId: number | string) {
+    return remove(`cookbook/${id}/section/${sectionId}/recipe/${recipeId}`);
 }
 
 export function addCookbookSection(id: number | string, title: string) {

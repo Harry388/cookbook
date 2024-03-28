@@ -1,19 +1,35 @@
 <script lang="ts">
 
-    import Recipe from '$lib/components/recipe/recipe.svelte';
+    import EditSection from '$lib/components/cookbook/editSection.svelte';
+    import { formatPageArray } from '$lib/app/page';
     import { invalidate } from '$app/navigation';
-    import { updateCookbook } from '$lib/app/cookbook';
+    import { updateCookbook, addCookbookSection, getCookbookPages } from '$lib/app/cookbook';
 
     export let data;
 
     let title = data.cookbook.title;
     let description = data.cookbook.description;
+    let book = formatPageArray(data.pages);
+    let newSection = '';
+
+    async function resetPages() {
+        const pages = await getCookbookPages(data.cookbook.id).json();
+        book = formatPageArray(pages);
+    }
 
     async function save() {
         const response = await updateCookbook(data.cookbook.id, title, description).run();
         if (response.ok) {
             invalidate('app:cookbook');
             history.back();
+        }
+    }
+
+    async function addSection() {
+        const response = await addCookbookSection(data.cookbook.id, newSection).run();
+        if (response.ok) {
+            newSection = '';
+            await resetPages();
         }
     }
 
@@ -38,12 +54,16 @@
 
     <div class="w-1/3 flex flex-col gap-y-5">
         <h3 class="font-bold text-lg py-5">Edit Pages</h3>
-        {#each data.pages as page}
-            {#if page.type == 'Recipe'}
-                <Recipe recipe={page} link />
-            {:else if page.type == 'Section'}
-                <h2 class="font-bold text-2xl">{ page.title }</h2>
-            {/if}
+        {#each book as section}
+            <EditSection {section} cookbookId={data.cookbook.id} on:change={resetPages} userRecipes={data.userRecipes} />
         {/each}
+        <div class="form-control">
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="label">
+                <span class="label-text">New Section</span>
+            </label>
+            <input type="text" min="1" bind:value={newSection} placeholder="New Section" class="input input-bordered" />
+            <button class="btn btn-primary w-fit mt-5" on:click={addSection}>Add</button>
+        </div>
     </div>
 </div>
