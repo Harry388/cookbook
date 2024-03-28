@@ -27,16 +27,18 @@
 
 </script>
 
-<h3 class="font-bold text-lg py-5">Create a Post</h3>
-<div class="form-control">
-    <SelectInput bind:value={community} options={data.communities} title="Pick Community" />
-    <Input bind:value={title} title="Title" />
-    <Input bind:value={content} title="Content" long />
-    <TagInput bind:tags={tags} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Media</span>
-    </label>
-    <ImageInput bind:files={files} multiple />
-    <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
+<div class="lg:w-1/2 m-auto">
+    <h3 class="font-bold text-lg py-5">Create a Post</h3>
+    <div class="form-control">
+        <SelectInput bind:value={community} options={data.communities} title="Pick Community" />
+        <Input bind:value={title} title="Title" />
+        <Input bind:value={content} title="Content" long />
+        <TagInput bind:tags={tags} />
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">
+            <span class="label-text">Media</span>
+        </label>
+        <ImageInput bind:files={files} multiple />
+        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
+    </div>
 </div>

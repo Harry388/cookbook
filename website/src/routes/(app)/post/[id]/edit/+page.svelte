@@ -55,30 +55,26 @@
 
 </script>
 
-<div class="flex flex-col lg:flex-row">
+<div class="lg:w-1/2 m-auto">
 
-    <div class="flex-1 form-control">
-        <h3 class="font-bold text-lg py-5">Edit Post</h3>
-        <Input bind:value={title} title="Title" edit on:save={save} />
-        <Input bind:value={content} title="Content" edit on:save={save} long />
-        <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
-    </div>
+    <h3 class="font-bold text-lg py-5">Edit Post</h3>
+    <Input bind:value={title} title="Title" edit on:save={save} />
+    <Input bind:value={content} title="Content" edit on:save={save} long />
+    <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
 
-    <div class="flex-1">
-        <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-        <div class="flex gap-5 flex-col items-center">
-            {#each data.recipes as recipe}
-                <div class="flex indicator">
-                    <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
-                    <RecipeComponent {recipe} link />
-                </div>
-            {/each}
-        </div>
-        <label class="form-control w-full max-w-xs">
-            <SelectInput bind:value={newRecipe} options={newRecipes} title="Pick Recipe" />
-            <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
-            <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
-        </label>
+    <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
+    <div class="flex gap-5 flex-col items-center">
+        {#each data.recipes as recipe}
+            <div class="flex indicator">
+                <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
+                <RecipeComponent {recipe} link />
+            </div>
+        {/each}
     </div>
+    <label class="form-control w-full max-w-xs">
+        <SelectInput bind:value={newRecipe} options={newRecipes} title="Pick Recipe" />
+        <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
+        <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
+    </label>
 
 </div>

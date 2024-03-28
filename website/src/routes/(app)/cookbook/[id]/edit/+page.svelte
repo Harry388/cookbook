@@ -35,7 +35,7 @@
 
 </script>
 
-<div class="flex flex-col">
+<div class="lg:w-1/2 m-auto">
 
     <div class="form-control">
         <h3 class="font-bold text-lg py-5">Edit Cookbook</h3>
@@ -43,7 +43,7 @@
         <Input bind:value={description} title="Description" edit on:save={save} />
     </div>
 
-    <div class="w-1/3 flex flex-col gap-y-5">
+    <div class="flex flex-col gap-y-5">
         <h3 class="font-bold text-lg py-5">Edit Pages</h3>
         {#each book as section}
             <EditSection {section} cookbookId={data.cookbook.id} on:change={resetPages} userRecipes={data.userRecipes} />

@@ -28,9 +28,11 @@
 
 <a href="/user/{data.user.id}/albums/{data.album.id}"><i class="text-lg fa-solid fa-arrow-left-long"></i></a>
 
-<h3 class="font-bold text-lg py-5">Edit Album</h3>
-<div class="form-control">
-    <Input bind:value={title} title="Title" edit on:save={save} />
-</div>
+<div class="lg:w-1/2 m-auto">
+    <h3 class="font-bold text-lg py-5">Edit Album</h3>
+    <div class="form-control">
+        <Input bind:value={title} title="Title" edit on:save={save} />
+    </div>
 
-<button class="btn btn-error my-5" on:click={remove}>Delete Album</button>
+    <button class="btn btn-error my-5" on:click={remove}>Delete Album</button>
+</div>

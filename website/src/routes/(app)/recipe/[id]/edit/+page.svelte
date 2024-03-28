@@ -38,11 +38,13 @@
 
 </script>
 
-<h3 class="font-bold text-lg py-5">Edit Recipe</h3>
-<div class="form-control">
-    <Input bind:value={title} title="Title" edit on:save={save} />
-    <Input bind:value={description} title="Description" edit on:save={save} />
-    <ListInput bind:list={ingredients} title="Ingredients" edit on:change={save} />
-    <ListInput bind:list={method} title="Method" edit on:change={save} />
-    <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
+<div class="lg:w-1/2 m-auto">
+    <h3 class="font-bold text-lg py-5">Edit Recipe</h3>
+    <div class="form-control">
+        <Input bind:value={title} title="Title" edit on:save={save} />
+        <Input bind:value={description} title="Description" edit on:save={save} />
+        <ListInput bind:list={ingredients} title="Ingredients" edit on:change={save} />
+        <ListInput bind:list={method} title="Method" edit on:change={save} />
+        <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
+    </div>
 </div>

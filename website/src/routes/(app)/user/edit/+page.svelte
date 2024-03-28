@@ -27,19 +27,21 @@
 
 </script>
 
-<h3 class="font-bold text-lg py-5">Edit Profile</h3>
-<div class="form-control">
-    <Input bind:value={username} title="User Name" edit on:save={save} />
-    <Input bind:value={displayName} title="Display Name" edit on:save={save} />
-    <Input bind:value={bio} title="Bio" edit on:save={save} long />
-    <label class="label" for="#public">
-        <span class="label-text">Public</span>
-    </label>
-    <input id="public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Profile Picture</span>
-    </label>
-    <ImageInput bind:files={files} />
-    <button class="btn btn-primary w-fit mt-5" on:click={savePfp}>Update Profile Picture</button>
+<div class="lg:w-1/2 m-auto">
+    <h3 class="font-bold text-lg py-5">Edit Profile</h3>
+    <div class="form-control">
+        <Input bind:value={username} title="User Name" edit on:save={save} />
+        <Input bind:value={displayName} title="Display Name" edit on:save={save} />
+        <Input bind:value={bio} title="Bio" edit on:save={save} long />
+        <label class="label" for="#public">
+            <span class="label-text">Public</span>
+        </label>
+        <input id="public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">
+            <span class="label-text">Profile Picture</span>
+        </label>
+        <ImageInput bind:files={files} />
+        <button class="btn btn-primary w-fit mt-5" on:click={savePfp}>Update Profile Picture</button>
+    </div>
 </div>

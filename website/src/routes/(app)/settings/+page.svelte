@@ -25,10 +25,12 @@
 
 </script>
 
-<h3 class="font-bold text-lg">Settings</h3>
-<div class="py-5">
-    <div class="form-control">
-        <button class="btn btn-primary w-fit" on:click={onLogOut}>Log Out</button>
-        <button class="btn btn-error w-fit mt-5" on:click={deleteAccount}>Delete Account</button>
+<div class="lg:w-1/2 m-auto">
+    <h3 class="font-bold text-lg">Settings</h3>
+    <div class="py-5">
+        <div class="form-control">
+            <button class="btn btn-primary w-fit" on:click={onLogOut}>Log Out</button>
+            <button class="btn btn-error w-fit mt-5" on:click={deleteAccount}>Delete Account</button>
+        </div>
     </div>
 </div>
