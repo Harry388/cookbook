@@ -1,9 +1,10 @@
 <script lang="ts">
 
     import { updatePost, addPostRecipe, deletePostRecipe } from '$lib/app/post';
-    import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import { invalidate } from '$app/navigation';
+    import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import Input from '$lib/components/util/input.svelte';
+    import SelectInput from '$lib/components/util/selectInput.svelte';
 
     export let data;
 
@@ -56,15 +57,7 @@
             {/each}
         </div>
         <label class="form-control w-full max-w-xs">
-            <div class="label">
-                <span class="label-text">Pick Recipe</span>
-            </div>
-            <select bind:value={newRecipe} class="select select-bordered">
-                <option value={-1} selected>Pick one</option>
-                {#each newRecipes as recipe}
-                    <option value={recipe.id}>{ recipe.title }</option>
-                {/each}
-            </select>
+            <SelectInput bind:value={newRecipe} options={newRecipes} title="Pick Recipe" />
             <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
             <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
         </label>

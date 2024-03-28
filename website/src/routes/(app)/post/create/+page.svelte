@@ -4,18 +4,20 @@
     import ImageInput from '$lib/components/util/imageInput.svelte';
     import TagInput from '$lib/components/tag/tagInput.svelte';
     import Input from '$lib/components/util/input.svelte';
+    import SelectInput from '$lib/components/util/selectInput.svelte';
 
     export let data;
 
     let title = '';
     let content = '';
     let files: File[];
-    let community: number | null = data.community;
+    let community: number = data.community || -1;
     let tags: string[];
 
     async function create() {
         if (!title) return;
-        const response = await createPost(title, content, community, files, tags).run();
+        const c = community == -1 ? null : community;
+        const response = await createPost(title, content, c, files, tags).run();
         if (response.ok) {
             history.back();
         }
@@ -25,15 +27,7 @@
 
 <h3 class="font-bold text-lg py-5">Create a Post</h3>
 <div class="form-control">
-    <label class="label" for="#community">
-        <span class="label-text">Community</span>
-    </label>
-    <select id="community" bind:value={community} class="select select-bordered">
-        <option value={null} selected>Pick one</option>
-        {#each data.communities as community}
-            <option value={community.id}>{ community.title }</option>
-        {/each}
-    </select>
+    <SelectInput bind:value={community} options={data.communities} title="Pick Community" />
     <Input bind:value={title} title="Title" />
     <Input bind:value={content} title="Content" long />
     <!-- svelte-ignore a11y-label-has-associated-control -->

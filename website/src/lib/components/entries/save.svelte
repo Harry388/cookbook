@@ -1,5 +1,6 @@
 <script lang="ts">
 
+    import SelectInput from '$lib/components/util/selectInput.svelte';
     import { getContext } from 'svelte';
     import { getUserAblums, addAlbumEntry } from '$lib/app/album';
     import { onMount } from 'svelte';
@@ -40,12 +41,7 @@
 <dialog id="modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box">
         <h3 class="font-bold text-lg">Save to Album</h3>
-        <select bind:value={selectAlbum} class="my-10 w-full select select-bordered">
-            <option value={-1} selected>Pick Album</option>
-            {#each albums as album}
-                <option value={album.id}>{ album.title }</option>
-            {/each}
-        </select>
+        <SelectInput bind:value={selectAlbum} options={albums} title="Pick Album" />
         <div class="modal-action">
             <form method="dialog">
                 <button class="btn btn-ghost mr-5" on:click={cancel}>Cancel</button>

@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
+    import SelectInput from '$lib/components/util/selectInput.svelte';
     import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
@@ -49,14 +50,6 @@
 {/each}
 
 <label class="form-control w-full max-w-xs">
-    <div class="label">
-        <span class="label-text">Pick Recipe</span>
-    </div>
-    <select bind:value={newRecipe} class="select select-bordered">
-        <option value={-1} selected>Pick one</option>
-        {#each newRecipes as recipe}
-            <option value={recipe.id}>{ recipe.title }</option>
-        {/each}
-    </select>
+    <SelectInput bind:value={newRecipe} options={newRecipes} title="Pick Recipe" />
     <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
 </label>
