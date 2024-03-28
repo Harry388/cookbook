@@ -1,22 +1,27 @@
 <script lang="ts">
 
     import { updateUser } from '$lib/app/user';
-    import { goto } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
     import ImageInput from '$lib/components/util/imageInput.svelte';
+    import Input from '$lib/components/util/input.svelte';
 
     export let data;
 
     let username = data.user.username;
     let displayName = data.user.display_name;
-    let bio = data.user.bio;
+    let bio = data.user.bio || '';
     let isPublic = Boolean(data.user.public);
     let files: File[];
 
-    async function editProfile() {
+    async function savePfp() {
         const pfp = files.length ? files[0] : null;
-        const response = await updateUser(data.id, username, displayName, bio, pfp, isPublic).run();
+        updateUser(data.id, username, displayName, bio, pfp, isPublic).run();
+    }
+
+    async function save() {
+        const response = await updateUser(data.id, username, displayName, bio, null, isPublic).run();
         if (response.ok) {
-            goto('/user');
+            invalidate('app:user');
         }
     }
 
@@ -24,30 +29,17 @@
 
 <h3 class="font-bold text-lg py-5">Edit Profile</h3>
 <div class="form-control">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">User Name</span>
-    </label>
-    <input type="text" min="1" bind:value={username} placeholder="User Name" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Display Name</span>
-    </label>
-    <input type="text" min="1" bind:value={displayName} placeholder="Display Name" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Bio</span>
-    </label>
-    <textarea class="textarea textarea-bordered" placeholder="Bio" bind:value={bio}></textarea>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
+    <Input bind:value={username} title="User Name" edit on:save={save} />
+    <Input bind:value={displayName} title="Display Name" edit on:save={save} />
+    <Input bind:value={bio} title="Bio" edit on:save={save} long />
+    <label class="label" for="#public">
         <span class="label-text">Public</span>
     </label>
-    <input type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} />
+    <input id="public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Profile Picture</span>
     </label>
     <ImageInput bind:files={files} />
-    <button class="btn btn-primary w-fit mt-5" on:click={editProfile}>Save</button>
+    <button class="btn btn-primary w-fit mt-5" on:click={savePfp}>Update Profile Picture</button>
 </div>

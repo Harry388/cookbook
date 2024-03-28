@@ -1,32 +1,30 @@
 <script lang="ts">
 
-    import { updatePost, addPostRecipe, getPostRecipes, deletePostRecipe } from '$lib/app/post';
+    import { updatePost, addPostRecipe, deletePostRecipe } from '$lib/app/post';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import { invalidate } from '$app/navigation';
+    import Input from '$lib/components/util/input.svelte';
 
     export let data;
 
     let title = data.post.title;
-    let content = data.post.content;
+    let content = data.post.content || '';
     let newRecipe: number;
-    let recipes = data.recipes;
 
-    $: newRecipes = data.userRecipes.filter(ur => !recipes.map(r => r.id).includes(ur.id));
+    $: newRecipes = data.userRecipes.filter(ur => !data.recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
         const response = await updatePost(data.post.id, title, content).run();
         if (response.ok) {
             invalidate('app:post');
-            history.back();
         }
     }
 
     async function addRecipe() {
         const response = await addPostRecipe(data.post.id, newRecipe).run();
-        newRecipe = -1;
         if (response.ok) {
+            newRecipe = -1;
             invalidate('app:post');
-            recipes = await getPostRecipes(data.post.id).json();
         }
     }
 
@@ -34,7 +32,6 @@
         const response = await deletePostRecipe(data.post.id, recipeId).run();
         if (response.ok) {
             invalidate('app:post');
-            recipes = await getPostRecipes(data.post.id).json();
         }
     }
 
@@ -44,28 +41,14 @@
 
     <div class="flex-1 form-control">
         <h3 class="font-bold text-lg py-5">Edit Post</h3>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Title</span>
-        </label>
-        <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Content</span>
-        </label>
-        <textarea class="textarea textarea-bordered" placeholder="Content" bind:value={content}></textarea>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <!-- <label class="label">
-            <span class="label-text">Media</span>
-        </label>
-        <ImageInput bind:files={files} multiple /> -->
-        <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
+        <Input bind:value={title} title="Title" edit on:save={save} />
+        <Input bind:value={content} title="Content" edit on:save={save} long />
     </div>
 
     <div class="flex-1">
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
         <div class="flex gap-5 flex-col items-center">
-            {#each recipes as recipe}
+            {#each data.recipes as recipe}
                 <div class="flex indicator">
                     <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
                     <RecipeComponent {recipe} link />

@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import EditSection from '$lib/components/cookbook/editSection.svelte';
+    import Input from '$lib/components/util/input.svelte';
     import { formatPageArray } from '$lib/app/page';
     import { invalidate } from '$app/navigation';
     import { updateCookbook, addCookbookSection, getCookbookPages } from '$lib/app/cookbook';
@@ -21,7 +22,6 @@
         const response = await updateCookbook(data.cookbook.id, title, description).run();
         if (response.ok) {
             invalidate('app:cookbook');
-            history.back();
         }
     }
 
@@ -39,17 +39,8 @@
 
     <div class="form-control">
         <h3 class="font-bold text-lg py-5">Edit Cookbook</h3>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Title</span>
-        </label>
-        <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Description</span>
-        </label>
-        <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
-        <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
+        <Input bind:value={title} title="Title" edit on:save={save} />
+        <Input bind:value={description} title="Description" edit on:save={save} />
     </div>
 
     <div class="w-1/3 flex flex-col gap-y-5">
@@ -58,11 +49,7 @@
             <EditSection {section} cookbookId={data.cookbook.id} on:change={resetPages} userRecipes={data.userRecipes} />
         {/each}
         <div class="form-control">
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label class="label">
-                <span class="label-text">New Section</span>
-            </label>
-            <input type="text" min="1" bind:value={newSection} placeholder="New Section" class="input input-bordered" />
+            <Input bind:value={newSection} title="New Section" />
             <button class="btn btn-primary w-fit mt-5" on:click={addSection}>Add</button>
         </div>
     </div>

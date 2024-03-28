@@ -2,18 +2,18 @@
 
     import { updateCommunity, deleteCommunity } from '$lib/app/community.js';
     import { invalidate, goto } from '$app/navigation';
+    import Input from '$lib/components/util/input.svelte';
 
     export let data;
 
     let title = data.community.title;
-    let description = data.community.description;
+    let description = data.community.description || '';
     let isPublic = Boolean(data.community.public);
 
     async function save() {
         const response = await updateCommunity(data.community.id, title, description, isPublic).run();
         if (response.ok) {
             invalidate('app:community');
-            history.back();
         }
     }
 
@@ -29,24 +29,14 @@
 
 </script>
 
-<button class="btn btn-error" on:click={remove}>Delete Community</button>
-
 <h3 class="font-bold text-lg py-5">Edit Community</h3>
 <div class="form-control">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Title</span>
-    </label>
-    <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Description</span>
-    </label>
-    <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
+    <Input bind:value={title} title="Title" edit on:save={save} />
+    <Input bind:value={description} title="Description" edit on:save={save} long />
+    <label class="label" for="#public">
         <span class="label-text">Public</span>
     </label>
-    <input type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} />
-    <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
+    <input id="#public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
 </div>
+
+<button class="btn btn-error my-5" on:click={remove}>Delete Community</button>

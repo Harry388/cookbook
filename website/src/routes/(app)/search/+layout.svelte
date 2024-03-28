@@ -19,11 +19,10 @@
 </script>
 
 <form class="form-control lg:w-1/2 lg:m-auto" on:submit|preventDefault={search}>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
+    <label for="#search" class="label">
         <span class="label-text">Search</span>
     </label>
-    <div class="flex gap-x-5 items-center ">
+    <div id="search" class="flex gap-x-5 items-center ">
         <input type="text" min="1" bind:value={text} placeholder="Search" class="flex-grow input input-bordered" />
         <button class="fa-solid fa-magnifying-glass btn btn-ghost text-2xl"><input type="submit" value="" /></button>
     </div>

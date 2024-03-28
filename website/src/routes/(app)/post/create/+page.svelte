@@ -3,6 +3,7 @@
     import { createPost } from '$lib/app/post';
     import ImageInput from '$lib/components/util/imageInput.svelte';
     import TagInput from '$lib/components/tag/tagInput.svelte';
+    import Input from '$lib/components/util/input.svelte';
 
     export let data;
 
@@ -24,25 +25,17 @@
 
 <h3 class="font-bold text-lg py-5">Create a Post</h3>
 <div class="form-control">
-    <div class="label">
+    <label class="label" for="#community">
         <span class="label-text">Community</span>
-    </div>
-    <select bind:value={community} class="select select-bordered">
+    </label>
+    <select id="community" bind:value={community} class="select select-bordered">
         <option value={null} selected>Pick one</option>
         {#each data.communities as community}
             <option value={community.id}>{ community.title }</option>
         {/each}
     </select>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Title</span>
-    </label>
-    <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Content</span>
-    </label>
-    <textarea class="textarea textarea-bordered" placeholder="Content" bind:value={content}></textarea>
+    <Input bind:value={title} title="Title" />
+    <Input bind:value={content} title="Content" long />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Tags</span>

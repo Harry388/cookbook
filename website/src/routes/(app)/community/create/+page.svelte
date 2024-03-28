@@ -2,6 +2,7 @@
 
     import { createCommunity } from '$lib/app/community';
     import { invalidate, goto } from '$app/navigation';
+    import Input from '$lib/components/util/input.svelte';
 
     let title = '';
     let description = '';
@@ -18,15 +19,7 @@
 
 <h3 class="font-bold text-lg py-5">Create Community</h3>
 <div class="form-control">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Title</span>
-    </label>
-    <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Description</span>
-    </label>
-    <textarea class="textarea textarea-bordered" placeholder="Content" bind:value={description}></textarea>
+    <Input bind:value={title} title="Title" />
+    <Input bind:value={description} title="Description" long />
     <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
 </div>

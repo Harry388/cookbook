@@ -2,6 +2,7 @@
 
     import ListInput from '$lib/components/util/listInput.svelte';
     import TagInput from '$lib/components/tag/tagInput.svelte';
+    import Input from '$lib/components/util/input.svelte';
     import { createRecipe } from '$lib/app/recipe';
 
     let title = '';
@@ -21,16 +22,8 @@
 
 <h3 class="font-bold text-lg py-5">Create a Recipe</h3>
 <div class="form-control">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Title</span>
-    </label>
-    <input type="text" min="1" bind:value={title} placeholder="Title" class="input input-bordered" />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Description</span>
-    </label>
-    <textarea class="textarea textarea-bordered" placeholder="Description" bind:value={description}></textarea>
+    <Input bind:value={title} title="Title" />
+    <Input bind:value={description} title="Description" long />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
         <span class="label-text">Ingredients</span>

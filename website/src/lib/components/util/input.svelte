@@ -31,7 +31,7 @@
         <span class="label-text">{ title }</span>
     </label>
 {/if}
-<form on:submit={saveEdit}>
+<form on:submit|preventDefault={saveEdit} class="form-control">
     {#if long}
         <textarea id="input" bind:value={value} placeholder={title} class="input input-bordered" />
     {:else}
