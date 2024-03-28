@@ -1,41 +1,56 @@
 <script lang="ts">
 
+    import { createEventDispatcher } from 'svelte';
     import TagComponent from '$lib/components/tag/tag.svelte';
     import type { Tag } from '$lib/app/tag';
 
-    export let tags: string[] = [];
+    const dispatch = createEventDispatcher();
+
+    export let tags: Tag[] = [];
+    export let edit = false;
 
     let newTag = '';
-    let internalTags: Tag[] = [];
     let count = 0;
 
-    $: tags = internalTags.map(t => t.tag);
-
     function add() {
-        if (tags.includes(newTag)) {
+        if (tags.map(t => t.tag).includes(newTag)) {
             newTag = '';
             return;
         }
-        internalTags = [...internalTags, {
-            tag: newTag,
-            id: count
-        }];
+        if (!edit) {
+            tags = [...tags, {
+                tag: newTag,
+                id: count,
+                is_following: 0
+            }];
+        }
+        else {
+            dispatch('add', newTag);
+        }
         newTag = '';
         count++;
     }
 
     function remove(event: CustomEvent<Tag>) {
-        internalTags = internalTags.filter(t => t.id != event.detail.id);
+        if (!edit) {
+            tags = tags.filter(t => t.id != event.detail.id);
+        }
+        else {
+            dispatch('remove', event.detail);
+        }
     }
 
 </script>
 
 <div class="flex">
     <form on:submit={add}>
-        <input type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered" />
+        <label class="label" for="#input">
+            <span class="label-text">Tags</span>
+        </label>
+        <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered" />
         <input type="submit" class="btn btn-primary w-fit mt-5" value="Add" />
     </form>
-    {#each internalTags as tag}
+    {#each tags as tag}
         <TagComponent {tag} on:remove={remove} edit />
     {/each}
 </div>

@@ -5,6 +5,8 @@
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import Input from '$lib/components/util/input.svelte';
     import SelectInput from '$lib/components/util/selectInput.svelte';
+    import TagInput from '$lib/components/tag/tagInput.svelte';
+    import type { Tag } from '$lib/app/tag';
 
     export let data;
 
@@ -36,6 +38,14 @@
         }
     }
 
+    async function addTag(event: CustomEvent<string>) {
+        alert(event.detail);
+    }
+
+    async function removeTag(event: CustomEvent<Tag>) {
+        alert(event.detail.tag);
+    }
+
 </script>
 
 <div class="flex flex-col lg:flex-row">
@@ -44,6 +54,7 @@
         <h3 class="font-bold text-lg py-5">Edit Post</h3>
         <Input bind:value={title} title="Title" edit on:save={save} />
         <Input bind:value={content} title="Content" edit on:save={save} long />
+        <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
     </div>
 
     <div class="flex-1">

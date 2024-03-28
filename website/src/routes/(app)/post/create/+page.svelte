@@ -5,6 +5,7 @@
     import TagInput from '$lib/components/tag/tagInput.svelte';
     import Input from '$lib/components/util/input.svelte';
     import SelectInput from '$lib/components/util/selectInput.svelte';
+    import type { Tag } from '$lib/app/tag';
 
     export let data;
 
@@ -12,12 +13,13 @@
     let content = '';
     let files: File[];
     let community: number = data.community || -1;
-    let tags: string[];
+    let tags: Tag[];
 
     async function create() {
         if (!title) return;
         const c = community == -1 ? null : community;
-        const response = await createPost(title, content, c, files, tags).run();
+        const t = tags.map(t => t.tag);
+        const response = await createPost(title, content, c, files, t).run();
         if (response.ok) {
             history.back();
         }
@@ -30,10 +32,6 @@
     <SelectInput bind:value={community} options={data.communities} title="Pick Community" />
     <Input bind:value={title} title="Title" />
     <Input bind:value={content} title="Content" long />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Tags</span>
-    </label>
     <TagInput bind:tags={tags} />
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
