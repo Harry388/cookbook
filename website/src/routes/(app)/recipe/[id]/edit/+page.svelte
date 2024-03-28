@@ -42,16 +42,7 @@
 <div class="form-control">
     <Input bind:value={title} title="Title" edit on:save={save} />
     <Input bind:value={description} title="Description" edit on:save={save} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Ingredients</span>
-    </label>
-    <ListInput bind:list={ingredients} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Method</span>
-    </label>
-    <ListInput bind:list={method} />
-    <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
+    <ListInput bind:list={ingredients} title="Ingredients" edit on:change={save} />
+    <ListInput bind:list={method} title="Method" edit on:change={save} />
     <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
 </div>

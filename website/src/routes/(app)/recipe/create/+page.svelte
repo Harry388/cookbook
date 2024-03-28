@@ -26,16 +26,8 @@
 <div class="form-control">
     <Input bind:value={title} title="Title" />
     <Input bind:value={description} title="Description" long />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Ingredients</span>
-    </label>
-    <ListInput bind:list={ingredients} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Method</span>
-    </label>
-    <ListInput bind:list={method} />
+    <ListInput bind:list={ingredients} title="Ingredients" />
+    <ListInput bind:list={method} title="Method" />
     <TagInput bind:tags={tags} />
     <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
 </div>
