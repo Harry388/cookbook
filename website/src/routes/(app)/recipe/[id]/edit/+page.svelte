@@ -2,8 +2,11 @@
 
     import ListInput from '$lib/components/util/listInput.svelte';
     import Input from '$lib/components/util/input.svelte';
+    import TagInput from '$lib/components/tag/tagInput.svelte';
     import { updateRecipe } from '$lib/app/recipe';
     import { invalidate } from '$app/navigation';
+    import { addEntryTags, removeEntryTags } from '$lib/app/tag';
+    import type { Tag } from '$lib/app/tag';
 
     export let data;
 
@@ -14,6 +17,20 @@
 
     async function save() {
         const response = await updateRecipe(data.recipe.id, title, description, ingredients, method).run();
+        if (response.ok) {
+            invalidate('app:recipe');
+        }
+    }
+
+    async function addTag(event: CustomEvent<string>) {
+        const response = await addEntryTags(data.recipe.id, [event.detail], 'recipe').run();
+        if (response.ok) {
+            invalidate('app:recipe');
+        }
+    }
+
+    async function removeTag(event: CustomEvent<Tag>) {
+        const response = await removeEntryTags(data.recipe.id, [event.detail.id], 'recipe').run();
         if (response.ok) {
             invalidate('app:recipe');
         }
@@ -36,4 +53,5 @@
     </label>
     <ListInput bind:list={method} />
     <button class="btn btn-primary w-fit mt-5" on:click={save}>Save</button>
+    <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
 </div>

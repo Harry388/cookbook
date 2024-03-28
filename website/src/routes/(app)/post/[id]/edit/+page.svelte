@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import { updatePost, addPostRecipe, deletePostRecipe } from '$lib/app/post';
+    import { addEntryTags, removeEntryTags } from '$lib/app/tag';
     import { invalidate } from '$app/navigation';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import Input from '$lib/components/util/input.svelte';
@@ -39,11 +40,17 @@
     }
 
     async function addTag(event: CustomEvent<string>) {
-        alert(event.detail);
+        const response = await addEntryTags(data.post.id, [event.detail], 'post').run();
+        if (response.ok) {
+            invalidate('app:post');
+        }
     }
 
     async function removeTag(event: CustomEvent<Tag>) {
-        alert(event.detail.tag);
+        const response = await removeEntryTags(data.post.id, [event.detail.id], 'post').run();
+        if (response.ok) {
+            invalidate('app:post');
+        }
     }
 
 </script>
