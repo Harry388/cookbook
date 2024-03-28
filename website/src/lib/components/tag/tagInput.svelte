@@ -13,6 +13,7 @@
     let count = 0;
 
     function add() {
+        if (newTag == '') return;
         if (tags.map(t => t.tag).includes(newTag)) {
             newTag = '';
             return;
@@ -42,13 +43,13 @@
 
 </script>
 
-<form on:submit={add} class="form-control">
+<form on:submit|preventDefault={add} class="form-control">
     <label class="label" for="#input">
         <span class="label-text">Tags</span>
     </label>
     <div class="flex">
         <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered mr-2" />
-        <input type="submit" class="btn btn-outline w-fit" value="Add" />
+        <button on:click={add} class="btn btn-outline"><i class="fa-solid fa-plus"></i></button>
     </div>
     {#if tags.length}
         <div class="flex gap-x-2 my-5">
