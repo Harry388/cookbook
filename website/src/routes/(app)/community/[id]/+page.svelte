@@ -22,7 +22,7 @@
 {#if data.community.public || data.community.is_member}
     <div class="lg:w-5/12 lg:m-auto flex flex-col">
         {#if data.community.is_member}
-            <a href="/post/create?c={data.community.id}" class="mt-5 btn btn-outline">Create Post</a>
+            <a href="/post/create?c={data.community.id}" class="mt-5 btn btn-outline"><i class="fa-solid fa-plus"></i>Create Post</a>
         {/if}
         {#each data.posts as post}
             <div class="mt-5"></div>
