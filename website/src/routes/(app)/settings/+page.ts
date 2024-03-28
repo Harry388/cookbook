@@ -1,7 +1,15 @@
+import { getUser } from '$lib/app/user'
 
+export const load = async ({ parent, fetch, depends }) => {
 
-export const load = async () => {
+    const { id } = await parent();
+
+    const user = await getUser(id).json(fetch);
+
+    depends('app:settings');
+
     return {
-        title: 'Settings'
+        user,
+        title: 'Settings',
     }
 }

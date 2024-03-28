@@ -41,7 +41,7 @@
             </div>
             <div class="flex-1">
                 {#if thisUser}
-                    <a class="btn btn-outline w-full" href="/user/edit">Edit Profile</a>
+                    <a class="btn btn-outline w-full" href="/settings">Edit Profile</a>
                 {:else}
                     <button class="btn btn-outline w-full" on:click={toggleFollow}>{ user.is_following ? 'Unfollow' : 'Follow' }</button>
                 {/if}
