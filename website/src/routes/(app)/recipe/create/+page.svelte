@@ -27,8 +27,8 @@
     <div class="form-control">
         <Input bind:value={title} title="Title" />
         <Input bind:value={description} title="Description" long />
-        <ListInput bind:list={ingredients} title="Ingredients" />
-        <ListInput bind:list={method} title="Method" />
+        <ListInput bind:list={ingredients} title="Ingredients" placeholder="Next Ingredient" />
+        <ListInput bind:list={method} title="Method" placeholder="Next Step" />
         <TagInput bind:tags={tags} />
         <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
     </div>

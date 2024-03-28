@@ -8,6 +8,7 @@
     export let title = '';
     export let edit = false;
     export let long = false;
+    export let placeholder = title;
 
     let oldValue = value;
 
@@ -33,9 +34,9 @@
 {/if}
 <form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center">
     {#if long}
-        <textarea id="input" bind:value={value} placeholder={title} class="flex-1 input input-bordered" />
+        <textarea id="input" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
     {:else}
-        <input id="input" type="text" min="1" bind:value={value} placeholder={title} class="flex-1 input input-bordered" />
+        <input id="input" type="text" min="1" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
     {/if}
     {#if editing}
         <div class="flex gap-x-5">

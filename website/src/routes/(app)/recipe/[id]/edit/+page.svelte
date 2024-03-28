@@ -43,8 +43,8 @@
     <div class="form-control">
         <Input bind:value={title} title="Title" edit on:save={save} />
         <Input bind:value={description} title="Description" edit on:save={save} />
-        <ListInput bind:list={ingredients} title="Ingredients" edit on:change={save} />
-        <ListInput bind:list={method} title="Method" edit on:change={save} />
+        <ListInput bind:list={ingredients} title="Ingredients" placeholder="Next Ingredient" edit on:change={save} />
+        <ListInput bind:list={method} title="Method" placeholder="Next Step" edit on:change={save} />
         <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
     </div>
 </div>
