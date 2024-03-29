@@ -3,13 +3,10 @@
     import Posts from '$lib/components/post/posts.svelte';
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import CommentBlock from '$lib/components/comment/commentBlock.svelte';
-    import Tags from '$lib/components/tag/tags.svelte';
 
     export let data;
 
 </script>
-
-<Tags tags={data.tags} />
 
 <div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
 

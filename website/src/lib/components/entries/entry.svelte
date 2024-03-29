@@ -3,11 +3,14 @@
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import Share from '$lib/components/util/share.svelte';
     import Save from '$lib/components/entries/save.svelte';
+    import Tags from '$lib/components/tag/tags.svelte';
     import { deletePost, likePost, unlikePost } from '$lib/app/post';
     import { deleteRecipe, likeRecipe, unlikeRecipe } from '$lib/app/recipe';
+    import { getEntryTags } from '$lib/app/tag';
     import { invalidateAll } from '$app/navigation';
-    import { getContext } from 'svelte';
+    import { getContext, onMount } from 'svelte';
     import { page } from '$app/stores';
+    import type { Tag } from '$lib/app/tag';
 
     export let entry: {
         id: number,
@@ -30,6 +33,8 @@
     $: created = new Date(entry.created).toDateString();
 
     const id: number = getContext('id');
+
+    let tags: Tag[] = [];
 
     async function toggleLike() {
         if (entry.is_liked) {
@@ -65,6 +70,10 @@
         await invalidateAll();
     }
 
+    onMount(async () => {
+        tags = await getEntryTags(entry.id, type).json();
+    });
+
 </script>
 
 <div class="flex-grow card card-compact bg-base-100 shadow-xl">
@@ -91,6 +100,7 @@
             {/if}
         </div>
         <h1 class="text-3xl card-title mt-2">{ entry.title }</h1>
+        <Tags {tags} />
     </div>
     <slot name="media" />
     <div class="card-body !pt-0">
