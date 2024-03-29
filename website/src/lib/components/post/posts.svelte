@@ -7,7 +7,7 @@
 
 </script>
 
-{#each posts as post}
+{#each posts as post (post.id)}
     <div class="mt-5"></div>
     <PostComponent {post} link />
 {/each}

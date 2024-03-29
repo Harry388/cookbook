@@ -22,7 +22,7 @@
 {/if}
 
 <div class="lg:w-5/12 lg:m-auto flex flex-col">
-    {#each data.entries as entry }
+    {#each data.entries as entry (`${entry.type}${entry.id}`)}
         <div class="mt-5"></div>
         <div class="flex gap-x-5">
             {#if entry.type == 'Post'} 

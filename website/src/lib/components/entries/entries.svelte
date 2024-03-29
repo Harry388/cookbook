@@ -8,7 +8,7 @@
 
 </script>
 
-{#each entries as entry }
+{#each entries as entry (`${entry.type}${entry.id}`)}
     <div class="mt-5"></div>
     {#if entry.type == 'Post'} 
         <Post post={entry} link />

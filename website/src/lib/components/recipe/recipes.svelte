@@ -7,7 +7,7 @@
 
 </script>
 
-{#each recipes as recipe}
+{#each recipes as recipe (recipe.id)}
     <div class="mt-5"></div>
     <RecipeComponent {recipe} link />
 {/each}
