@@ -10,7 +10,8 @@ use crate::storage::Storage;
 pub struct Post {
     title: Option<String>,
     content: Option<String>,
-    pub community_id: Option<i64>
+    pub community_id: Option<i64>,
+    recipes: Vec<i64>
 }
 
 pub type Media = Vec<Upload>;
@@ -57,6 +58,9 @@ pub async fn create_post(pool: &MySqlPool, post: Post, auth: i64) -> Result<u64>
         .await
         .map_err(InternalServerError)?
         .last_insert_id();
+    for recipe_id in post.recipes {
+        add_post_recipe(pool, post_id as i64, recipe_id).await?;
+    }
     Ok(post_id)
 }
 

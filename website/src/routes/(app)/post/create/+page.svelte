@@ -30,12 +30,13 @@
     }
 
     let maxSteps = 2;
-
+    
     async function create() {
         if (!state.title) return;
         const c = state.community == -1 ? null : state.community;
         const t = state.tags.map(t => t.tag);
-        const response = await createPost(state.title, state.content, c, state.files, t).run();
+        const r = state.recipes.map(r => r.id);
+        const response = await createPost(state.title, state.content, c, state.files, t, r).run();
         if (response.ok) {
             history.back();
         }

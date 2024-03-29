@@ -24,9 +24,9 @@ export function getUserPosts(userId: number | string) {
     return get<Post[]>(`post/user/${userId}`);
 }
 
-export function createPost(title: string, content: string, communityId: number | null, files: File[], tags: string[]) {
+export function createPost(title: string, content: string, communityId: number | null, files: File[], tags: string[], recipes: number[]) {
     const formData = new FormData();
-    const postStr = JSON.stringify({ title, content, community_id: communityId });
+    const postStr = JSON.stringify({ title, content, community_id: communityId, recipes });
     formData.append('post', postStr);
     if (files) {
         for (const file of files) {
