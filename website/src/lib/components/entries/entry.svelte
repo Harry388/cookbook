@@ -78,8 +78,9 @@
             <div class="flex-grow"></div>
             <div>{ created }</div>
             {#if id == entry.user_id }
-                <div class="dropdown">
+                <div class="dropdown dropdown-end">
                     <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
+                    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                     <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                         <li><a href="/{type}/{entry.id}/edit">Edit</a></li>
                         <li><button on:click={remove}>Delete</button></li>
