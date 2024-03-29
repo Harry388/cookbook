@@ -10,6 +10,7 @@
     export let recipes: Recipe[] = [];
     export let options: Recipe[];
     export let edit = false;
+    export let create = false;
 
     let newRecipeId: number;
 
@@ -21,9 +22,9 @@
             const newRecipe = options.find(r => r.id == newRecipeId);
             if (newRecipe != undefined) {
                 recipes = [...recipes, newRecipe];
-                newRecipeId = -1;
             }
         }
+        newRecipeId = -1;
     }
 
     function deleteRecipe(id: number) {
@@ -46,5 +47,7 @@
 <label class="form-control w-full max-w-xs">
     <SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
     <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
-    <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
+    {#if create}
+        <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
+    {/if}
 </label>

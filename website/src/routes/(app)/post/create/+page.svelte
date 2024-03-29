@@ -54,7 +54,7 @@
         <CreatePost bind:title={state.title} bind:content={state.content} bind:files={state.files} bind:community={state.community} bind:communities={data.communities} bind:tags={state.tags} />
     {:else if state.step == 2}
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-        <AttachRecipe bind:recipes={state.recipes} options={data.userRecipes} />
+        <AttachRecipe bind:recipes={state.recipes} options={data.userRecipes} create />
     {/if}
     {#if state.step > 1}
         <button class="btn btn-warning w-fit mt-5" on:click={() => state.step--}>Back</button>

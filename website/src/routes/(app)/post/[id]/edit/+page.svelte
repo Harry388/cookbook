@@ -3,19 +3,15 @@
     import { updatePost, addPostRecipe, deletePostRecipe } from '$lib/app/post';
     import { addEntryTags, removeEntryTags } from '$lib/app/tag';
     import { invalidate } from '$app/navigation';
-    import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import Input from '$lib/components/util/input.svelte';
-    import SelectInput from '$lib/components/util/selectInput.svelte';
     import TagInput from '$lib/components/tag/tagInput.svelte';
+    import AttachRecipe from '$lib/components/recipe/attachRecipe.svelte';
     import type { Tag } from '$lib/app/tag';
 
     export let data;
 
     let title = data.post.title;
     let content = data.post.content || '';
-    let newRecipe: number;
-
-    $: newRecipes = data.userRecipes.filter(ur => !data.recipes.map(r => r.id).includes(ur.id));
 
     async function save() {
         const response = await updatePost(data.post.id, title, content).run();
@@ -24,16 +20,15 @@
         }
     }
 
-    async function addRecipe() {
-        const response = await addPostRecipe(data.post.id, newRecipe).run();
+    async function addRecipe(event: CustomEvent<number>) {
+        const response = await addPostRecipe(data.post.id, event.detail).run();
         if (response.ok) {
-            newRecipe = -1;
             invalidate('app:post');
         }
     }
 
-    async function deleteRecipe(recipeId: number) {
-        const response = await deletePostRecipe(data.post.id, recipeId).run();
+    async function deleteRecipe(event: CustomEvent<number>) {
+        const response = await deletePostRecipe(data.post.id, event.detail).run();
         if (response.ok) {
             invalidate('app:post');
         }
@@ -63,18 +58,6 @@
     <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
 
     <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-    <div class="flex gap-5 flex-col items-center">
-        {#each data.recipes as recipe}
-            <div class="flex indicator">
-                <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
-                <RecipeComponent {recipe} link />
-            </div>
-        {/each}
-    </div>
-    <label class="form-control w-full max-w-xs">
-        <SelectInput bind:value={newRecipe} options={newRecipes} title="Pick Recipe" />
-        <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
-        <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
-    </label>
+    <AttachRecipe recipes={data.recipes} options={data.userRecipes} edit on:add={addRecipe} on:remove={deleteRecipe} create />
 
 </div>
