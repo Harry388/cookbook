@@ -36,7 +36,9 @@ pub struct PostResult {
     community_title: Option<String>,
     pub created: DateTime<Utc>,
     is_liked: i64,
-    likes: Option<i64>
+    likes: Option<i64>,
+    comments: Option<i64>,
+    links: Option<i64>
 }
 
 struct PartialPostMediaResult {
@@ -85,7 +87,9 @@ pub async fn get_post(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<Pos
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post left join post_media on post.id = post_media.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
@@ -124,7 +128,9 @@ pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post left join post_media on post.id = post_media.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
@@ -145,7 +151,9 @@ pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResul
         "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post left join post_media on post.id = post_media.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
@@ -168,7 +176,9 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64, auth: i64) -> Result
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post left join post_media on post.id = post_media.post_id
         inner join user on user.id = post.user_id
         left join community on community.id = post.community_id
@@ -187,7 +197,9 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Ve
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post
         left join post_media on post.id = post_media.post_id
         inner join recipe_post on post.id = recipe_post.post_id
@@ -208,7 +220,9 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post
         left join post_media on post.id = post_media.post_id
         inner join user on user.id = post.user_id
@@ -228,7 +242,9 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec
         "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post
         left join post_media on post.id = post_media.post_id
         inner join album_post on post.id = album_post.post_id
@@ -251,7 +267,9 @@ pub async fn get_tag_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<P
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
-        (select count(*) from post_like where post_id = post.id) as likes
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
         from post
         left join post_media on post.id = post_media.post_id
         inner join tag_post on post.id = tag_post.post_id

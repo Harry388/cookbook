@@ -13,7 +13,9 @@ export type Post = {
     media: number[],
     created: string,
     is_liked: number,
-    likes: number
+    likes: number,
+    comments: number,
+    recipes: number
 }
 
 export function getPost(id: number | string) {

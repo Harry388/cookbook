@@ -20,7 +20,9 @@
         community_title?: string,
         created: string,
         is_liked: number,
-        likes: number
+        likes: number,
+        comments: number,
+        links: number
     };
     export let link = false;
     export let type: 'post' | 'recipe';
@@ -97,11 +99,14 @@
         <div class="flex justify-end gap-x-5 items-center">
             <button class="fa-{entry.is_liked ? 'solid' : 'regular'} fa-heart text-2xl" on:click={toggleLike}></button>
             <div class="-ml-2 text-xl">{ entry.likes }</div>
+            <svelte:element this={link ? 'a' : 'div'} href="/{type}/{entry.id}" class="flex justify-end gap-x-5 items-center">
+                <i class="fa-regular fa-comment text-2xl"></i>
+                <div class="-ml-2 text-xl">{ entry.comments }</div>
+                <i class="fa-solid fa-{type == 'post' ? 'list-ul' : 'image'} text-2xl"></i>
+                <div class="-ml-2 text-xl">{ entry.links }</div>
+            </svelte:element>
             <Save entryId={entry.id} {type} />
             <Share path="/{type}/{entry.id}" />
-            {#if link }
-                <a href="/{type}/{entry.id}" class="btn">More</a>
-            {/if}
         </div>
     </div>
 </div>
