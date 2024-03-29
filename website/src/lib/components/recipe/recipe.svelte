@@ -11,10 +11,10 @@
 <Entry entry={recipe} {link} type="recipe">
     <h3 class="font-bold text-lg">Ingredients</h3>
     {#each recipe.ingredients as ingredient, i}
-        <p>{i + 1}. {ingredient}</p>
+        <p class="text-lg">{i + 1}. {ingredient}</p>
     {/each}
     <h3 class="font-bold text-lg">Method</h3>
     {#each recipe.method as step, i}
-        <p>{i + 1}. {step}</p>
+        <p class="text-lg">{i + 1}. {step}</p>
     {/each}
 </Entry>

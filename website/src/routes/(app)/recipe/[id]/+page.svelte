@@ -15,11 +15,11 @@
     </div>
 
     <div class="basis-1/3">
-        <CommentBlock comments={data.comments} type="RECIPE" id={data.recipe.id} />
-    </div>
-    
-    <div class="basis-1/3">
         <Posts posts={data.posts} />
+    </div>
+
+    <div class="basis-1/3">
+        <CommentBlock comments={data.comments} type="RECIPE" id={data.recipe.id} />
     </div>
 
 </div>

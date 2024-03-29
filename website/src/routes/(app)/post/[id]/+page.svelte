@@ -8,18 +8,18 @@
 
 </script>
 
-<div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 justify-center gap-4">
+<div class="flex flex-col items-center lg:items-start lg:flex-row  mt-5 lg:justify-start justify-center gap-4">
 
     <div class="basis-1/3">
         <Post post={data.post} />
     </div>
 
     <div class="basis-1/3">
-        <CommentBlock comments={data.comments} type="POST" id={data.post.id} />
-    </div>
-    
-    <div class="basis-1/3">
         <Recipes recipes={data.recipes} />
+    </div>
+
+    <div class="basis-1/3">
+        <CommentBlock comments={data.comments} type="POST" id={data.post.id} />
     </div>
 
 </div>

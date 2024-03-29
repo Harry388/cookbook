@@ -26,7 +26,7 @@
 
 </script>
 
-<form on:submit={save} class="flex items-center mt-5">
+<form on:submit={save} class="flex items-center">
     <input type="text" min="1" bind:value={content} placeholder="New Comment" class="input input-bordered" />
     <button class="fa-regular fa-paper-plane w-fit text-2xl btn btn-ghost"><input type="submit" value="" /></button>
 </form>
