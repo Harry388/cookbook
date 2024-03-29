@@ -1,9 +1,13 @@
-<script lang="ts">
+<script context="module" lang="ts">
 
-    type Option = {
+    export type Option = {
         id: number,
         title: string
     };
+
+</script>
+
+<script lang="ts">
     
     export let title = '';
     export let options: Option[];

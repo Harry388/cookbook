@@ -1,44 +1,67 @@
 <script lang="ts">
 
     import { createPost } from '$lib/app/post';
-    import ImageInput from '$lib/components/util/imageInput.svelte';
-    import TagInput from '$lib/components/tag/tagInput.svelte';
-    import Input from '$lib/components/util/input.svelte';
-    import SelectInput from '$lib/components/util/selectInput.svelte';
+    import CreatePost from '$lib/components/post/createPost.svelte';
+    import AttachRecipe from '$lib/components/recipe/attachRecipe.svelte';
     import type { Tag } from '$lib/app/tag';
+    import type { Recipe } from '$lib/app/recipe';
+    import type { Snapshot } from './$types.js';
+
+    type State = {
+        title: string,
+        content: string,
+        files: File[],
+        community: number,
+        tags: Tag[],
+        recipes: Recipe[],
+        step: number
+    };
 
     export let data;
 
-    let title = '';
-    let content = '';
-    let files: File[];
-    let community: number = data.community || -1;
-    let tags: Tag[];
+    let state: State = {
+        title: '',
+        content: '',
+        files: [],
+        community: data.community || -1,
+        tags: [],
+        recipes: [],
+        step: 1
+    }
+
+    let maxSteps = 2;
 
     async function create() {
-        if (!title) return;
-        const c = community == -1 ? null : community;
-        const t = tags.map(t => t.tag);
-        const response = await createPost(title, content, c, files, t).run();
+        if (!state.title) return;
+        const c = state.community == -1 ? null : state.community;
+        const t = state.tags.map(t => t.tag);
+        const response = await createPost(state.title, state.content, c, state.files, t).run();
         if (response.ok) {
             history.back();
         }
     }
 
+    export const snapshot: Snapshot<State> = {
+        capture: () => state,
+        restore: value => (state = value)
+    };
+
 </script>
 
 <div class="lg:w-1/2 m-auto">
-    <h3 class="font-bold text-lg py-5">Create a Post</h3>
-    <div class="form-control">
-        <SelectInput bind:value={community} options={data.communities} title="Pick Community" />
-        <Input bind:value={title} title="Title" />
-        <Input bind:value={content} title="Content" long />
-        <TagInput bind:tags={tags} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Media</span>
-        </label>
-        <ImageInput bind:files={files} multiple />
+    {#if state.step == 1}
+        <h3 class="font-bold text-lg py-5">Create a Post</h3>
+        <CreatePost bind:title={state.title} bind:content={state.content} bind:files={state.files} bind:community={state.community} bind:communities={data.communities} bind:tags={state.tags} />
+    {:else if state.step == 2}
+        <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
+        <AttachRecipe bind:recipes={state.recipes} options={data.userRecipes} />
+    {/if}
+    {#if state.step > 1}
+        <button class="btn btn-warning w-fit mt-5" on:click={() => state.step--}>Back</button>
+    {/if}
+    {#if state.step < maxSteps}
+        <button class="btn btn-warning w-fit mt-5" on:click={() => state.step++}>Next</button>
+    {:else}
         <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
-    </div>
+    {/if}
 </div>
