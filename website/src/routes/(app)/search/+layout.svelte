@@ -2,7 +2,7 @@
 
     import { goto } from '$app/navigation';
 
-    const routes = ['posts', 'recipes', 'communities', 'tags', 'users'];
+    const routes = ['posts', 'recipes', 'communities', 'users'];
 
     export let data;
 
