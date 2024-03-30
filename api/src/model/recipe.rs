@@ -68,7 +68,6 @@ pub async fn get_recipe(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<R
 }
 
 pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<RecipeResult>> {
-    let search = format!("%{search}%");
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name,
         exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
@@ -78,11 +77,11 @@ pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Resu
         from recipe inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
         where (user.public or (following.user_id = ? and following.accepted)) and 
-        ((title like ?) or (description like ?) or (ingredients like ?))
-        or exists (select * from tag inner join tag_recipe on tag.id = tag_recipe.tag_id where tag_recipe.recipe_id = recipe.id and tag.tag like ?)
+        (match (title, description) against (?) or 
+        exists (select * from tag inner join tag_recipe on tag.id = tag_recipe.tag_id where tag_recipe.recipe_id = recipe.id and match(tag.tag) against (?)))
         group by recipe.id
         order by created desc",
-        auth, auth, search, search, search, search)
+        auth, auth, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;

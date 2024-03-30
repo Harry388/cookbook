@@ -123,7 +123,6 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
 }
 
 pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<PostResult>> {
-    let search = format!("%{search}%");
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
         "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
@@ -137,11 +136,11 @@ pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result
         left join following on following.following_id = post.user_id
         left join community_user on community_user.community_id = post.community_id
         where ((user.public or (following.user_id = ? and following.accepted)) or (community.public or (community_user.user_id = ? and community_user.accepted))) and 
-        ((post.title like ?) or (post.content like ?))
-        or exists (select * from tag inner join tag_post on tag.id = tag_post.tag_id where tag_post.post_id = post.id and tag.tag like ?)
+        (match (post.title, content) against (?) or 
+        exists (select * from tag inner join tag_post on tag.id = tag_post.tag_id where tag_post.post_id = post.id and match(tag.tag) against (?)))
         group by post.id
         order by created desc",
-        auth, auth, auth, search, search, search)
+        auth, auth, auth, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
