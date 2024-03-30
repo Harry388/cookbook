@@ -9,8 +9,10 @@
 
     const id: number = getContext('id');
 
+    $: followMessage = community.is_member ? 'Leave' : community.is_requested ? 'Requested' : 'Join';
+
     async function toggleJoin() {
-        if (community.is_member) {
+        if (community.is_member || community.is_requested) {
             await leaveCommunity(community.id, id).run();
         }
         else {
@@ -38,7 +40,7 @@
                 {#if community.is_admin}
                     <a class="btn btn-outline w-full mb-5" href="/community/{community.id}/edit">Edit Community</a>
                 {/if}
-                <button class="btn btn-outline w-full" on:click={toggleJoin}>{ community.is_member ? 'Leave' : 'Join' }</button>
+                <button class="btn btn-outline w-full" on:click={toggleJoin}>{ followMessage }</button>
             </div>
         </div>
         {#if community.description }

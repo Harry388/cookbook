@@ -8,6 +8,7 @@ export type Community = {
     created: string,
     users: number,
     is_member: number,
+    is_requested: number,
     is_admin: number,
     public: number
 };

@@ -32,6 +32,7 @@ pub struct CommunityResult {
     created: DateTime<Utc>,
     users: i64,
     is_member: Option<f32>,
+    is_requested: i64,
     is_admin: Option<f32>,
     public: i8
 }
@@ -62,12 +63,13 @@ pub async fn get_community(pool: &MySqlPool, id: i64, auth: i64) -> Result<Optio
     let community = sqlx::query_as!(CommunityResult,
         "select id, title, description, created, count(*) as users, public,
         cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
-        cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
+        cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin,
+        exists (select * from community_user where user_id = ? and community_id = ? and not accepted) as is_requested
         from community
         inner join community_user on community.id = community_user.community_id and community_user.accepted
         where community.id = ?
         group by community.id",
-        auth, auth, id)
+        auth, auth, auth, id, id)
         .fetch_optional(pool)
         .await
         .map_err(InternalServerError)?;
@@ -112,18 +114,19 @@ pub async fn search_communities(pool: &MySqlPool, search: String, auth: i64) -> 
         "with community_and_users as (
             select id, title, description, created, count(*) as users, public,
             cast(sum(case when community_user.user_id = ? then 1 else 0 end) as float) as is_member,
-            cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin
+            cast(sum(case when community_user.user_id = ? and community_user.permission = 'ADMIN' then 1 else 0 end) as float) as is_admin,
+            exists (select * from community_user where user_id = ? and community_id = id and not accepted) as is_requested
             from community
             inner join community_user on community.id = community_user.community_id and community_user.accepted
             group by community.id
         )
-        select id, title, description, created, users, is_member, is_admin, public
+        select id, title, description, created, users, is_member, is_admin, public, is_requested
         from community_and_users
         inner join community_user on community_user.community_id = community_and_users.id
         where (title like ?) or (description like ?)
         group by id
         order by title",
-        auth, auth, search, search)
+        auth, auth, auth, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
@@ -140,7 +143,7 @@ pub async fn get_user_communities(pool: &MySqlPool, user_id: i64, auth: i64) -> 
             inner join community_user on community.id = community_user.community_id and community_user.accepted
             group by community.id
         )
-        select id, title, description, created, users, is_member, is_admin, public
+        select id, title, description, created, users, is_member, is_admin, public, 0 as is_requested
         from community_and_users
         inner join community_user on community_user.community_id = community_and_users.id and community_user.accepted
         where community_user.user_id = ?
