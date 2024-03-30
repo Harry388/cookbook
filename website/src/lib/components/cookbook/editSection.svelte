@@ -4,13 +4,11 @@
     import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
-    import type { Recipe } from '$lib/app/recipe';
 
     const dispatch = createEventDispatcher();
 
     export let cookbookId: number;
     export let section: BookSection;
-    export let userRecipes: Recipe[];
 
     async function removeSection() {
         if (!confirm('Are you sure?')) return;
@@ -38,4 +36,4 @@
 
 <h2 class="font-bold text-2xl">{ section.section.title }</h2>
 <button on:click={removeSection} class="btn btn-error">Delete Section</button>
-<AttachRecipe recipes={section.recipes} options={userRecipes} edit on:add={addRecipe} on:remove={removeRecipe} />
+<AttachRecipe recipes={section.recipes} edit on:add={addRecipe} on:remove={removeRecipe} />

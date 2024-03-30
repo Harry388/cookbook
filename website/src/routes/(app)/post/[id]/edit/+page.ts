@@ -1,18 +1,11 @@
 import { redirect } from '@sveltejs/kit';
-import { getUserRecipes } from '$lib/app/recipe.js';
 
-export const load = async ({ parent, fetch }) => {
+export const load = async ({ parent }) => {
 
-    const { ownsPost, post, id } = await parent();
-
-    const userRecipes = await getUserRecipes(id).json(fetch);
+    const { ownsPost, post } = await parent();
 
     if (!ownsPost) {
         throw redirect(301, `/post/${post.id}`);
     }
-
-    return{
-        userRecipes
-    };
 
 }

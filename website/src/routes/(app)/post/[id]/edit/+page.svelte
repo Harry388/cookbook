@@ -58,6 +58,6 @@
     <TagInput tags={data.tags} edit on:add={addTag} on:remove={removeTag} />
 
     <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
-    <AttachRecipe recipes={data.recipes} options={data.userRecipes} edit on:add={addRecipe} on:remove={deleteRecipe} create />
+    <AttachRecipe recipes={data.recipes} edit on:add={addRecipe} on:remove={deleteRecipe} create />
 
 </div>

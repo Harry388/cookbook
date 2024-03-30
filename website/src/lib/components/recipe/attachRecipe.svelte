@@ -2,17 +2,20 @@
 
     import SelectInput from '$lib/components/util/selectInput.svelte';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
-    import { createEventDispatcher } from 'svelte';
+    import { getUserRecipes } from '$lib/app/recipe';
+    import { createEventDispatcher, onMount, getContext } from 'svelte';
     import type { Recipe } from '$lib/app/recipe';
 
     const dispatch = createEventDispatcher();
 
+    const id: number = getContext('id');
+
     export let recipes: Recipe[] = [];
-    export let options: Recipe[];
     export let edit = false;
     export let create = false;
 
     let newRecipeId: number;
+    let options: Recipe[] = [];
 
     $: newRecipes = options.filter(r => !recipes.map(rr => rr.id).includes(r.id));
 
@@ -33,6 +36,10 @@
             recipes = recipes.filter(r => r.id != id);
         }
     }
+
+    onMount(async () => {
+        options = await getUserRecipes(id).json();
+    });
 
 </script>
 

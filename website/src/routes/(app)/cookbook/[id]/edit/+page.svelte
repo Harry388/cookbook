@@ -46,7 +46,7 @@
     <div class="flex flex-col gap-y-5">
         <h3 class="font-bold text-lg py-5">Edit Pages</h3>
         {#each book as section}
-            <EditSection {section} cookbookId={data.cookbook.id} on:change={resetPages} userRecipes={data.userRecipes} />
+            <EditSection {section} cookbookId={data.cookbook.id} on:change={resetPages} />
         {/each}
         <div class="form-control">
             <Input bind:value={newSection} title="New Section" />
