@@ -18,11 +18,16 @@
 </svelte:head>
 
 <div class="flex print:hidden">
-    {#if data.id == data.cookbook.user_id}
-        <a href="/cookbook/{data.cookbook.id}/edit" class="btn btn-outline">Edit</a>
-    {/if}
     <a href="?p={data.page - 1}" class="btn btn-circle">❮</a> 
     <div class="flex-grow"></div>
+    <div class="dropdown">
+        <div tabindex="0" role="button" class="fa-solid fa-list-ul text-2xl mt-2"></div>
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <div tabindex="0" class="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52">
+            <Contents small pages={data.pages} />
+        </div>
+    </div>
+    <div class="flex-grow"> </div>
     <a href="?p={data.page + 1}" class="btn btn-circle">❯</a>
 </div>
 
