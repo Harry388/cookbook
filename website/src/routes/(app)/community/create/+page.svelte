@@ -22,6 +22,6 @@
     <div class="form-control">
         <Input bind:value={title} title="Title" />
         <Input bind:value={description} title="Description" long />
-        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
+        <button class="btn btn-success btn-outline mt-5" on:click={create}>Create</button>
     </div>
 </div>

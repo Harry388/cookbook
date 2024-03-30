@@ -22,6 +22,6 @@
     <h3 class="font-bold text-lg py-5">Create Album</h3>
     <div class="form-control">
         <Input bind:value={title} title="Title" />
-        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
+        <button class="btn btn-success btn-outline mt-5" on:click={create}>Create</button>
     </div>
 </div>
