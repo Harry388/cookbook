@@ -43,5 +43,5 @@
     {/each}
 </div>
 
-<label for="files" class="btn btn-success w-fit">{ multiple ? 'Add Images' : 'Select Image' }</label>
+<label for="files" class="btn btn-outline">{ multiple ? 'Add Images' : 'Select Image' }</label>
 <input bind:this={input} on:change={onChange} {multiple} id="files" type="file" accept="image/*" class="hidden">

@@ -40,12 +40,15 @@
         <h3 class="font-bold text-lg py-5">Attach Recipes</h3>
         <AttachRecipe bind:recipes={recipes} create />
     {/if}
-    {#if step > 1}
-        <button class="btn btn-warning w-fit mt-5" on:click={() => step--}>Back</button>
-    {/if}
-    {#if step < maxSteps}
-        <button class="btn btn-warning w-fit mt-5" on:click={() => step++}>Next</button>
-    {:else}
-        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
-    {/if}
+    <div class="flex mt-5">
+        {#if step > 1}
+            <button class="text-lg fa-solid fa-arrow-left-long" on:click={() => step--}></button>
+        {/if}
+        <div class="flex-grow"></div>
+        {#if step < maxSteps}
+            <button class="text-lg fa-solid fa-arrow-right-long" on:click={() => step++}></button>
+        {:else}
+            <button class="btn btn-success btn-outline w-fit mt-5" on:click={create}>Create Post</button>
+        {/if}
+    </div>
 </div>

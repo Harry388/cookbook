@@ -58,9 +58,9 @@
         </div>
     {/each}
 </div>
-<label class="form-control w-full max-w-xs">
+<label class="max-w-xs">
     <SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
-    <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
+    <button class="btn btn-primary my-5 w-full" on:click={addRecipe}>Add Recipe</button>
     {#if create}
         <div class="divider">OR</div>
         <CreateRecipeModal on:save={newRecipe} />

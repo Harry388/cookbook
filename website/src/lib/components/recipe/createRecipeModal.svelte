@@ -33,7 +33,7 @@
 
 </script>
 
-<button class="btn btn-outline" on:click={show}>Create New Recipe</button>
+<button class="btn btn-outline w-full" on:click={show}>Create New Recipe</button>
 <dialog id="createRecipeModal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box">
         <h3 class="font-bold text-lg">Create New Recipe</h3>

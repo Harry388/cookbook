@@ -42,7 +42,9 @@
         <div id="input" class="flex items-center mb-3">
             <p class="mr-5">{i + 1}.</p>
             <Input bind:value={item} {edit} {placeholder} on:save={() => dispatch('change')} />
-            <button class="fa-regular fa-trash-can text-2xl ml-5" on:click={() => remove(i)}></button>
+            {#if i != (internalList.length - 1)}
+                <button class="fa-regular fa-trash-can text-2xl ml-5" on:click={() => remove(i)}></button>
+            {/if}
         </div>
     {/each}
 {/key}
