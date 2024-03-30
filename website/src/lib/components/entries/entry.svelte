@@ -4,6 +4,7 @@
     import Share from '$lib/components/util/share.svelte';
     import Save from '$lib/components/entries/save.svelte';
     import Tags from '$lib/components/tag/tags.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
     import { deletePost, likePost, unlikePost } from '$lib/app/post';
     import { deleteRecipe, likeRecipe, unlikeRecipe } from '$lib/app/recipe';
     import { getEntryTags } from '$lib/app/tag';
@@ -57,7 +58,6 @@
     }
 
     async function remove() {
-        if (!confirm('Are you sure?')) return;
         if (type == 'post') {
             await deletePost(entry.id).run();
         }
@@ -89,14 +89,16 @@
             <div class="flex-grow"></div>
             <div>{ created }</div>
             {#if id == entry.user_id }
-                <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
-                    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a href="/{type}/{entry.id}/edit">Edit</a></li>
-                        <li><button on:click={remove}>Delete</button></li>
-                    </ul>
-                </div>
+                <Confirm let:show on:confirm={remove}>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
+                        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            <li><a href="/{type}/{entry.id}/edit">Edit</a></li>
+                            <li><button on:click={show}>Delete</button></li>
+                        </ul>
+                    </div>
+                </Confirm>
             {/if}
         </div>
         <h1 class="text-3xl card-title mt-2">{ entry.title }</h1>

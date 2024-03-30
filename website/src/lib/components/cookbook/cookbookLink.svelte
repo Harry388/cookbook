@@ -2,6 +2,7 @@
 
     import { getContext } from 'svelte';
     import Share from '$lib/components/util/share.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
     import { deleteCookbook } from '$lib/app/cookbook';
     import { invalidate } from '$app/navigation';
     import type { Cookbook } from '$lib/app/cookbook';
@@ -11,7 +12,6 @@
     const id: number = getContext('id');
 
     async function remove() {
-        if (!confirm('Are you sure?')) return;
         const response = await deleteCookbook(cookbook.id).run();
         if (response.ok) {
             invalidate('app:cookbooks');
@@ -25,13 +25,15 @@
         <div class="flex gap-x-5 items-start">
             {#if id == cookbook.user_id }
                 <div class="flex-grow"></div>
-                <div class="dropdown">
-                    <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a href="/cookbook/{cookbook.id}/edit">Edit</a></li>
-                        <li><button on:click={remove}>Delete</button></li>
-                    </ul>
-                </div>
+                <Confirm let:show on:confirm={remove}>
+                    <div class="dropdown">
+                        <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            <li><a href="/cookbook/{cookbook.id}/edit">Edit</a></li>
+                            <li><button on:click={show}>Delete</button></li>
+                        </ul>
+                    </div>
+                </Confirm>
             {/if}
         </div>
         <h1 class="text-3xl card-title mt-2">{ cookbook.title }</h1>

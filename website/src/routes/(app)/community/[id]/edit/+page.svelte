@@ -3,6 +3,7 @@
     import { updateCommunity, deleteCommunity } from '$lib/app/community.js';
     import { invalidate, goto } from '$app/navigation';
     import Input from '$lib/components/util/input.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
 
     export let data;
 
@@ -18,7 +19,6 @@
     }
 
     async function remove() {
-        if (!confirm('Are you sure?')) return;
         const response = await deleteCommunity(data.community.id).run();
         if (response.ok) {
             goto('/community').then(() => {
@@ -40,5 +40,7 @@
         <input id="#public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
     </div>
 
-    <button class="btn btn-error my-5" on:click={remove}>Delete Community</button>
+    <Confirm let:show on:confirm={remove}>
+        <button class="btn btn-error my-5" on:click={show}>Delete Community</button>
+    </Confirm>
 </div>

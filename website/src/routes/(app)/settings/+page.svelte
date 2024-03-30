@@ -5,6 +5,7 @@
     import { goto, invalidate } from '$app/navigation';
     import ImageInput from '$lib/components/util/imageInput.svelte';
     import Input from '$lib/components/util/input.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
 
     export let data;
 
@@ -34,12 +35,10 @@
     }
 
     async function deleteAccount() {
-        if (confirm('Are you sure?')) {
-            const response = await deleteUser(data.id).run();
-            if (response.ok) {
-                await logout().run();
-                goto('/login');
-            }
+        const response = await deleteUser(data.id).run();
+        if (response.ok) {
+            await logout().run();
+            goto('/login');
         }
     }
 
@@ -65,6 +64,8 @@
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
         <button class="btn btn-primary w-fit" on:click={onLogOut}>Log Out</button>
-        <button class="btn btn-error w-fit mt-5" on:click={deleteAccount}>Delete Account</button>
+        <Confirm let:show on:confirm={deleteAccount}>
+            <button class="btn btn-error w-fit mt-5" on:click={show}>Delete Account</button>
+        </Confirm>
     </div>
 </div>

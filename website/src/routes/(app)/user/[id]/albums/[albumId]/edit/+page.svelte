@@ -3,6 +3,7 @@
     import { updateAlbum, deleteAlbum } from '$lib/app/album';
     import { invalidate, goto } from '$app/navigation';
     import Input from '$lib/components/util/input.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
 
     export let data;
 
@@ -16,7 +17,6 @@
     }
 
     async function remove() {
-        if (!confirm('Are you sure?')) return;
         const response = await deleteAlbum(data.album.id).run();
         if (response.ok) {
             await invalidate('app:albums');
@@ -34,5 +34,7 @@
         <Input bind:value={title} title="Title" edit on:save={save} />
     </div>
 
-    <button class="btn btn-error my-5" on:click={remove}>Delete Album</button>
+    <Confirm let:show on:confirm={remove}>
+        <button class="btn btn-error my-5" on:click={show}>Delete Album</button>
+    </Confirm>
 </div>

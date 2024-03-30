@@ -2,13 +2,13 @@
 
     import Info from '$lib/components/community/info.svelte';
     import Post from '$lib/components/post/post.svelte';
+    import Confirm from '$lib/components/util/confirm.svelte';
     import { removePost } from '$lib/app/community';
     import { invalidate } from '$app/navigation';
 
     export let data;
 
     async function remove(id: number) {
-        if (!confirm('Are you sure?')) return;
         const response = await removePost(data.community.id, id).run();
         if (response.ok) {
             invalidate('app:community');
@@ -29,7 +29,9 @@
             <div class="flex gap-x-5">
                 <Post {post} link />
                 {#if data.community.is_admin }
-                    <button class="fa-regular fa-trash-can text-2xl btn" on:click={() => remove(post.id)}></button> 
+                    <Confirm let:show on:confirm={() => remove(post.id)}>
+                        <button class="fa-regular fa-trash-can text-2xl btn" on:click={show}></button> 
+                    </Confirm>
                 {/if}
             </div>
         {/each}
