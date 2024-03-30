@@ -25,8 +25,8 @@ export const load = async ({ fetch, params, url }) => {
     if (isNaN(page) || (page < 0)) {
         page = 0;
     }
-    else if (page >= (pages.length + 3)) {
-        page = pages.length + 2;
+    else if (page >= (pages.length + 4)) {
+        page = pages.length + 3;
     }
 
     return {

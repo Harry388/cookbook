@@ -20,11 +20,12 @@ export type BookSection = {
     recipes: PageRecipe[]
 }
 
-export type Book = BookSection[];
+type Book = BookSection[];
 
 export function formatPageArray(pages: Page[]): Book {
     const book: Book = [];
     let section = null;
+    let n = 0;
     for (const page of pages) {
         if (page.type == 'Section') {
             if (section != null) {
@@ -35,6 +36,7 @@ export function formatPageArray(pages: Page[]): Book {
         else if (section != null) {
             section.recipes.push(page);
         }
+        n++;
     }
     if (section != null) {
         book.push(section);
