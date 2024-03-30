@@ -6,11 +6,14 @@
 
     export let value = '';
     export let title = '';
+    export let type: 'text' | 'email' | 'password' = 'text';
     export let edit = false;
     export let long = false;
     export let placeholder = title;
 
     let oldValue = value;
+
+    let showPassword = false;
 
     $: editing = edit && (oldValue != value);
 
@@ -22,7 +25,9 @@
     }
 
     function cancelEdit() {
-        value = oldValue;
+        if (edit) {
+            value = oldValue;
+        }
     }
 
     function onKey(event: KeyboardEvent) {
@@ -42,7 +47,13 @@
     {#if long}
         <textarea id="input" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
     {:else}
-        <input id="input" type="text" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+        {#if (type == 'text') || showPassword}
+            <input id="input" type="text" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+        {:else if type == 'email'}
+            <input id="input" type="email" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+        {:else}
+            <input id="input" type="password" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+        {/if}
     {/if}
     {#if editing}
         <div class="flex gap-x-5">
@@ -51,3 +62,9 @@
         </div>
     {/if}
 </form>
+{#if type == 'password'}
+    <label class="label cursor-pointer">
+        <span class="label-text">Show Password</span> 
+        <input type="checkbox" bind:checked={showPassword} class="checkbox checkbox-primary" />
+    </label>
+{/if}

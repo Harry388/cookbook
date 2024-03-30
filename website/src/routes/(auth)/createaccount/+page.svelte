@@ -2,6 +2,7 @@
 
     import { goto } from '$app/navigation';
     import { create, login } from '$lib/auth/auth';
+    import Input from '$lib/components/util/input.svelte';
 
     export let data;
 
@@ -9,7 +10,6 @@
     let displayName = '';
     let email = '';
     let password = '';
-    let showPassword = false;
 
     let toLogIn = data.redirect ? `/login?redirect=${data.redirect}` : '/login';
 
@@ -29,34 +29,10 @@
 <h1 class="text-2xl font-bold">Create Account</h1>
 <form on:submit|preventDefault={onCreate}>
     <div class="form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Username</span>
-        </label>
-        <input type="text" min="1" bind:value={username} placeholder="Username" class="input input-bordered" />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Display Name</span>
-        </label>
-        <input type="text" min="1" bind:value={displayName} placeholder="Display Name" class="input input-bordered" />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Email</span>
-        </label>
-        <input type="text" min="1" bind:value={email} placeholder="Email" class="input input-bordered" />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
-            <span class="label-text">Password</span>
-        </label>
-        {#if showPassword}
-        <input type="text" min="1" bind:value={password} placeholder="Password" class="input input-bordered" />
-        {:else}
-        <input type="password" min="1" bind:value={password} placeholder="Password" class="input input-bordered" />
-        {/if}
-        <label class="label cursor-pointer">
-            <span class="label-text">Show Password</span> 
-            <input type="checkbox" bind:checked={showPassword} class="checkbox checkbox-primary" />
-        </label>
+        <Input bind:value={username} title="Username" />
+        <Input bind:value={displayName} title="Display Name" />
+        <Input bind:value={email} title="Email" type="email" />
+        <Input bind:value={password} title="Password" type="password" />
         <div class="label-text">Already have an account? <a href={toLogIn}>Log In</a></div>
     </div>
     <div class="form-control mt-6">
