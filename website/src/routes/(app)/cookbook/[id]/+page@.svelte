@@ -1,11 +1,17 @@
 <script lang="ts">
 
+    import Cover from '$lib/components/cookbook/cover.svelte';
+    import Title from '$lib/components/cookbook/title.svelte';
+    import Contents from '$lib/components/cookbook/contents.svelte';
     import Section from '$lib/components/cookbook/section.svelte';
     import Recipe from '$lib/components/cookbook/recipe.svelte';
     import Book from '$lib/components/cookbook/book.svelte';
     import Page from '$lib/components/cookbook/page.svelte';
+    import { formatPageArray } from '$lib/app/page';
 
     export let data;
+
+    $: book = formatPageArray(data.pages);
 
 </script>
 
@@ -23,6 +29,15 @@
 </div>
 
 <Book page={data.page}>
+    <Page>
+        <Cover cookbook={data.cookbook} />
+    </Page>
+    <Page>
+        <Title cookbook={data.cookbook} />
+    </Page>
+    <Page>
+        <Contents {book} />
+    </Page>
     {#each data.pages as page}
         <Page>
             {#if page.type == 'Recipe'}

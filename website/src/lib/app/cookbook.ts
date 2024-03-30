@@ -5,7 +5,8 @@ export type Cookbook = {
     id: number,
     title: string,
     description?: string,
-    user_id: number
+    user_id: number,
+    user_display_name: string
 }
 
 export type Section = {

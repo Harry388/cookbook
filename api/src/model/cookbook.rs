@@ -13,7 +13,8 @@ pub struct CookbookResult {
     id: i64,
     title: String,
     description: Option<String>,
-    user_id: i64
+    user_id: i64,
+    user_display_name: String
 }
 
 #[derive(Object)]
@@ -44,7 +45,10 @@ pub async fn create_cookbook(pool: &MySqlPool, cookbook: Cookbook, auth: i64) ->
 
 pub async fn get_cookbook(pool: &MySqlPool, id: i64) -> Result<Option<CookbookResult>> {
     let cookbook = sqlx::query_as!(CookbookResult,
-        "select id, title, description, user_id from cookbook where id = ?",
+        "select cookbook.id, title, description, user_id, user.display_name as user_display_name 
+        from cookbook
+        inner join user on cookbook.user_id = user.id
+        where cookbook.id = ?",
         id)
         .fetch_optional(pool)
         .await
@@ -54,7 +58,10 @@ pub async fn get_cookbook(pool: &MySqlPool, id: i64) -> Result<Option<CookbookRe
 
 pub async fn get_user_cookbooks(pool: &MySqlPool, user_id: i64) -> Result<Vec<CookbookResult>> {
     let cookbooks = sqlx::query_as!(CookbookResult,
-        "select id, title, description, user_id from cookbook where user_id = ?",
+        "select cookbook.id, title, description, user_id, user.display_name as user_display_name
+        from cookbook
+        inner join user on cookbook.user_id = user.id
+        where user_id = ?",
         user_id)
         .fetch_all(pool)
         .await

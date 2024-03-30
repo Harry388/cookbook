@@ -58,11 +58,9 @@
         </div>
     {/each}
 </div>
-<label class="max-w-xs">
-    <SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
-    <button class="btn btn-primary my-5 w-full" on:click={addRecipe}>Add Recipe</button>
-    {#if create}
-        <div class="divider">OR</div>
-        <CreateRecipeModal on:save={newRecipe} />
-    {/if}
-</label>
+<SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
+<button class="btn btn-primary my-5 w-full" on:click={addRecipe}>Add Recipe</button>
+{#if create}
+    <div class="divider">OR</div>
+    <CreateRecipeModal on:save={newRecipe} />
+{/if}

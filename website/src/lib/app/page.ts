@@ -20,7 +20,7 @@ export type BookSection = {
     recipes: PageRecipe[]
 }
 
-type Book = BookSection[];
+export type Book = BookSection[];
 
 export function formatPageArray(pages: Page[]): Book {
     const book: Book = [];
