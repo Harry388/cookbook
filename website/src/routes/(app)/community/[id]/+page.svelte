@@ -35,7 +35,7 @@
         {/each}
     </div>
 {:else}
-    Community is private
+    <div class="w-fit py-24 m-auto">Community is private. Request to join this community to see its contents.</div>
 {/if}
 
 

@@ -19,7 +19,7 @@
         {/each}
     </div>
 {:else}
-    User is private
+    <div class="w-fit py-24 m-auto">User is private. Request to follow this user to see their posts.</div>
 {/if}
 
 <slot/>
