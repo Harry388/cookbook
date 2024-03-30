@@ -53,12 +53,12 @@ pub struct RecipeApi;
 impl RecipeApi {
     
     #[oai(path = "/", method = "post")]
-    async fn create_recipe(&self, pool: Data<&MySqlPool>, recipe: Json<RecipeWithTags>, auth: JWTAuthorization) -> Result<()> {
+    async fn create_recipe(&self, pool: Data<&MySqlPool>, recipe: Json<RecipeWithTags>, auth: JWTAuthorization) -> Result<Json<u64>> {
         let recipe_fut = recipe::create_recipe(pool.0, recipe.0.recipe, auth.0);
         let tags_fut = tag::create_tags(pool.0, recipe.0.tags);
         let (recipe_id, tag_ids) = try_join!(recipe_fut, tags_fut)?;
         recipe::add_recipe_tags(pool.0, recipe_id as i64, tag_ids).await?;
-        Ok(())
+        Ok(Json(recipe_id))
     }
 
     #[oai(path = "/:id", method = "get")]

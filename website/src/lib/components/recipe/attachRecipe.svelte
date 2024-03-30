@@ -2,6 +2,7 @@
 
     import SelectInput from '$lib/components/util/selectInput.svelte';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
+    import CreateRecipeModal from '$lib/components/recipe/createRecipeModal.svelte';
     import { getUserRecipes } from '$lib/app/recipe';
     import { createEventDispatcher, onMount, getContext } from 'svelte';
     import type { Recipe } from '$lib/app/recipe';
@@ -18,6 +19,12 @@
     let options: Recipe[] = [];
 
     $: newRecipes = options.filter(r => !recipes.map(rr => rr.id).includes(r.id));
+
+    async function newRecipe(event: CustomEvent<number>) {
+        options = await getUserRecipes(id).json();
+        newRecipeId = event.detail;
+        addRecipe();
+    }
 
     function addRecipe() {
         dispatch('add', newRecipeId);
@@ -55,6 +62,7 @@
     <SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
     <button class="btn btn-primary w-fit my-5" on:click={addRecipe}>Add Recipe</button>
     {#if create}
-        <a class="btn btn-outline w-fit" href="/recipe/create">Create New Recipe</a>
+        <div class="divider">OR</div>
+        <CreateRecipeModal on:save={newRecipe} />
     {/if}
 </label>

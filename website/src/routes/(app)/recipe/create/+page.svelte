@@ -1,8 +1,6 @@
 <script lang="ts">
 
-    import ListInput from '$lib/components/util/listInput.svelte';
-    import TagInput from '$lib/components/tag/tagInput.svelte';
-    import Input from '$lib/components/util/input.svelte';
+    import CreateRecipe from '$lib/components/recipe/createRecipe.svelte';
     import { createRecipe } from '$lib/app/recipe';
     import type { Tag } from '$lib/app/tag';
 
@@ -24,12 +22,6 @@
 
 <div class="lg:w-1/2 m-auto">
     <h3 class="font-bold text-lg py-5">Create a Recipe</h3>
-    <div class="form-control">
-        <Input bind:value={title} title="Title" />
-        <Input bind:value={description} title="Description" long />
-        <ListInput bind:list={ingredients} title="Ingredients" placeholder="Next Ingredient" />
-        <ListInput bind:list={method} title="Method" placeholder="Next Step" />
-        <TagInput bind:tags={tags} />
-        <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
-    </div>
+    <CreateRecipe bind:title={title} bind:description={description} bind:ingredients={ingredients} bind:method={method} bind:tags={tags} />
+    <button class="btn btn-primary w-fit mt-5" on:click={create}>Create</button>
 </div>
