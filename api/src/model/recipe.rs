@@ -77,10 +77,12 @@ pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Resu
         (select count(*) from recipe_post where recipe_id = recipe.id) as links
         from recipe inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
-        where (user.public or (following.user_id = ? and following.accepted)) and ((title like ?) or (description like ?))
+        where (user.public or (following.user_id = ? and following.accepted)) and 
+        ((title like ?) or (description like ?) or (ingredients like ?))
+        or exists (select * from tag inner join tag_recipe on tag.id = tag_recipe.tag_id where tag_recipe.recipe_id = recipe.id and tag.tag like ?)
         group by recipe.id
         order by created desc",
-        auth, auth, search, search)
+        auth, auth, search, search, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
