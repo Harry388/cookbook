@@ -32,7 +32,11 @@
     {#each Object.entries(indexedPages) as [start, pages]}
         <h2 class="text-4xl font-bold my-5">{ start }</h2>
         {#each pages as page}
-            <a href="?p={3 + page.n}"><h3 class="text-2xl">{ page.title }</h3></a>
+            <a href="?p={3 + page.n}" class="flex">
+                <h3 class="text-2xl">{ page.title }</h3>
+                <div class="flex-grow mr-5"></div>
+                <div class="text-2xl">{ page.n }</div>
+            </a>
         {/each}
     {/each}
 </div>

@@ -27,17 +27,17 @@
 </div>
 
 <Book page={data.page}>
-    <Page>
+    <Page hideNumber>
         <Cover cookbook={data.cookbook} />
     </Page>
-    <Page>
+    <Page hideNumber>
         <Title cookbook={data.cookbook} />
     </Page>
-    <Page>
+    <Page hideNumber>
         <Contents pages={data.pages} />
     </Page>
     {#each data.pages as page}
-        <Page>
+        <Page hideNumber={page.type == 'Section'}>
             {#if page.type == 'Recipe'}
                 <Recipe recipe={page} />
             {:else if page.type == 'Section'}
@@ -45,7 +45,7 @@
             {/if}
         </Page>
     {/each}
-    <Page>
+    <Page hideNumber>
         <Index pages={data.pages} />
     </Page>
 </Book>
