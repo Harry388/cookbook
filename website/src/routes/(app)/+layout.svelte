@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import { setContext } from 'svelte';
+    import { error } from '$lib/app/error';
 
     export let data;
 
@@ -24,15 +25,21 @@
     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content flex flex-col items-center bg-base-200 h-full">
         <!-- Page content here -->
-        <div class="navbar pt-3">
+        <div class="navbar pt-3 ">
             <div class="navbar-start">
                 <button class="ml-3 text-lg fa-solid fa-arrow-left-long" on:click={() => history.back()}></button>
             </div>
             <div class="navbar-center">
-                <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
+                {#if $error}
+                    <button class="alert alert-error w-full" on:click={() => $error = ''}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Error! { $error }</span>
+                    </button>
+                {:else}
+                    <h1 class="font-bold text-4xl">{ $page.data.title || 'CookBook' }</h1>
+                {/if}
             </div>
             <div class="navbar-end">
-
             </div>
         </div>
         <div class="h-full w-full p-5">

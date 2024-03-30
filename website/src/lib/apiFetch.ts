@@ -1,5 +1,6 @@
 import { PUBLIC_BROWSER_API_URL, PUBLIC_SERVER_API_URL } from '$env/static/public';
 import { browser } from '$app/environment';
+import { error } from '$lib/app/error';
 
 export type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 
@@ -39,7 +40,7 @@ function createFetchObj<T>(input: string, body?: any, init?: RequestInit): Fetch
             const response = await fetchFn(`${url}/${this.input}`, requestInit);
             if (!response.ok) {
                 const message = await response.text();
-                console.log(message);
+                error.set(message);
             }
             return response;
         },
