@@ -40,6 +40,7 @@ pub struct UserResult {
     following: i64,
     followers: i64,
     is_following: Option<f32>,
+    is_requested: i64,
     created: DateTime<Utc>
 }
 
@@ -94,11 +95,12 @@ pub async fn get_user(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<Use
             group by id
         )
         select id, username, display_name, bio, public, followers, is_following, created,
-        count(following.following_id) as following
+        count(following.following_id) as following,
+        exists (select * from following where user_id = ? and following_id = ? and not accepted) as is_requested
         from user_and_followers
         left join following on user_and_followers.id = following.user_id and following.accepted
         group by id",
-        auth, id)
+        auth, id, auth, id)
         .fetch_optional(pool)
         .await
         .map_err(InternalServerError)?;

@@ -9,9 +9,10 @@
     export let id: number;
 
     $: thisUser = id == user.id;
+    $: followMessage = user.is_following ? 'Unfollow' : user.is_requested ? 'Requested' : 'Follow';
 
     async function toggleFollow() {
-        if (user.is_following) {
+        if (user.is_following || user.is_requested) {
             await removeFollower(id, user.id).run();
         }
         else {
@@ -43,7 +44,7 @@
                 {#if thisUser}
                     <a class="btn btn-outline w-full" href="/settings">Edit Profile</a>
                 {:else}
-                    <button class="btn btn-outline w-full" on:click={toggleFollow}>{ user.is_following ? 'Unfollow' : 'Follow' }</button>
+                    <button class="btn btn-outline w-full" on:click={toggleFollow}>{ followMessage }</button>
                 {/if}
             </div>
         </div>

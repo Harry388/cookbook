@@ -11,6 +11,7 @@ export type User = {
     following: number,
     followers: number,
     is_following: number,
+    is_requested: number,
     created: string
 }
 
