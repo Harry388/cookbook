@@ -1,7 +1,7 @@
 import type { Section } from '$lib/app/cookbook';
 import type { Recipe } from '$lib/app/recipe';
 
-export type Page = PageSection | PageRecipe;
+export type Page = PageSection | PageRecipe | PageImage;
 
 type PageSection = 
 (Section
@@ -14,6 +14,11 @@ type PageRecipe =
 & {
     type: 'Recipe'
 });
+
+type PageImage = {
+    image: string,
+    type: 'Image'
+};
 
 export type BookSection = {
     section: PageSection,
@@ -33,7 +38,7 @@ export function formatPageArray(pages: Page[]): Book {
             }
             section = { section: page, recipes: Array<PageRecipe>() };
         }
-        else if (section != null) {
+        else if ((section != null) && (page.type == 'Recipe')) {
             section.recipes.push(page);
         }
         n++;

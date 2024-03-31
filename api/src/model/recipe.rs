@@ -24,7 +24,7 @@ pub struct UpdateRecipe {
 
 #[derive(Object)]
 pub struct RecipeResult {
-    id: i64,
+    pub id: i64,
     title: String,
     description: Option<String>,
     ingredients: JsonValue,

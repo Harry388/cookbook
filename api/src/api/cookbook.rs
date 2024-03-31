@@ -124,12 +124,19 @@ impl CookbookApi {
         let mut pages = Vec::new();
         let sections = cookbook::get_sections(pool.0, id.0).await?;
         for section in sections {
+            let section_id = section.id;
             let recipes = recipe::get_cookbook_section_recipes(pool.0, section.id, auth.0).await?;
             let section_page = page::Page::Section(section);
             pages.push(section_page);
             for recipe in recipes {
+                let recipe_id = recipe.id;
                 let recipe_page = page::Page::Recipe(recipe);
                 pages.push(recipe_page);
+                if cookbook::recipe_has_pic(pool.0, section_id, recipe_id).await? {
+                    let image = format!("cookbook/{}/section/{}/recipe/{}/image", id.0, section_id, recipe_id);
+                    let image_page = page::Page::Image(page::ImagePage { image });
+                    pages.push(image_page);
+                }
             }
         }
         Ok(Json(pages))

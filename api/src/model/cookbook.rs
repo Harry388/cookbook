@@ -231,3 +231,20 @@ pub async fn get_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id:
         .filename(pic_path);
     Ok(RecipePicResult::Ok(attachment))
 }
+
+pub async fn recipe_has_pic(pool: &MySqlPool, section_id: i64, recipe_id: i64) -> Result<bool> {
+    let pic: Option<GetRecipePicResult> = sqlx::query_as!(GetRecipePicResult,
+        "select image from cookbook_recipe where section_id = ? and recipe_id = ?",
+        section_id, recipe_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let None = pic {
+        return Ok(false);
+    }
+    if let None = pic.as_ref().unwrap().image {
+        return Ok(false);
+    }
+    let pic_path = pic.unwrap().image.unwrap();
+    Ok(pic_path.len() > 0)
+}
