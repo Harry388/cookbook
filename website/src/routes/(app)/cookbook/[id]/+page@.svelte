@@ -9,8 +9,11 @@
     import Book from '$lib/components/cookbook/book.svelte';
     import Page from '$lib/components/cookbook/page.svelte';
     import Image from '$lib/components/util/image.svelte';
+    import { formatPageArray } from '$lib/app/page.js';
 
     export let data;
+
+    $: book = formatPageArray(data.pages);
 
 </script>
 
@@ -42,20 +45,18 @@
     <Page hideNumber>
         <Contents pages={data.pages} />
     </Page>
-    <Page>
-        <Image src="post/media/8" width="m-auto" style="height: 80vh" />
-    </Page>
-    <Page>
-        <Image src="post/media/7" width="m-auto" style="height: 80vh" />
-    </Page>
-    {#each data.pages as page}
-        <Page hideNumber={page.type == 'Section'}>
-            {#if page.type == 'Recipe'}
-                <Recipe recipe={page} />
-            {:else if page.type == 'Section'}
-                <Section section={page} />
-            {/if}
+    {#each book as section}
+        <Page>
+            <Section section={section.section} />
         </Page>
+        {#each section.recipes as recipe}
+            <Page>
+                <Recipe {recipe} />
+            </Page>
+            <Page>
+                <Image src="cookbook/{data.cookbook.id}/section/{section.section.id}/recipe/{recipe.id}/image" width="m-auto" style="height: 80vh" />
+            </Page>
+        {/each}
     {/each}
     <Page hideNumber>
         <Index pages={data.pages} />

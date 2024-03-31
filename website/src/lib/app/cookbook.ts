@@ -54,3 +54,13 @@ export function removeCookbookSection(id: number | string, section_id: number | 
 export function getCookbookPages(id: number | string) {
     return get<Page[]>(`cookbook/${id}/pages`);
 }
+
+export function setCookbookRecipePic(id: number | string, sectionId: number | string, recipeId: number | string, pic: File) {
+    const formData = new FormData();
+    formData.append('image', pic);
+    return put(`cookbook/${id}/section/${sectionId}/recipe/${recipeId}/image`, formData, {
+        headers: {
+            'Content-Type': 'remove'
+        }
+    });
+}

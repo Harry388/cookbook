@@ -4,7 +4,7 @@
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
     import ImageInput from '$lib/components/util/imageInput.svelte';
-    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe } from '$lib/app/cookbook';
+    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
 
@@ -34,6 +34,13 @@
         }
     }
 
+    async function addRecipePic(pic: File, id: number) {
+        const response = await setCookbookRecipePic(cookbookId, section.section.id, id, pic).run();
+        if (response.ok) {
+            dispatch('change');
+        }
+    }
+
 </script>
 
 <h2 class="font-bold text-2xl">{ section.section.title }</h2>
@@ -49,7 +56,7 @@
             </div>
             <div class="divider divider-horizontal"></div>
             <div>
-                <ImageInput />
+                <ImageInput on:change={({detail}) => detail.length && addRecipePic(detail[0], recipe.id)} />
             </div>
         </div>
     {/each}

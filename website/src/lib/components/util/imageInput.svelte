@@ -1,6 +1,9 @@
 <script lang="ts">
 
+    import { createEventDispatcher } from 'svelte';
     import { onDestroy } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     export let files: File[] = [];
     export let multiple = false;
@@ -24,6 +27,7 @@
             }
             input.files = null;
         }
+        dispatch('change', files);
     }
 
     onDestroy(() => {
