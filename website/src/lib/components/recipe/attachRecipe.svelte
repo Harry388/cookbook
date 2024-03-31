@@ -14,6 +14,7 @@
     export let recipes: Recipe[] = [];
     export let edit = false;
     export let create = false;
+    export let hideRecipes = false;
 
     let newRecipeId: number;
     let options: Recipe[] = [];
@@ -50,14 +51,16 @@
 
 </script>
 
-<div class="flex gap-5 flex-col items-center">
-    {#each recipes as recipe}
-        <div class="flex indicator">
-            <button class="indicator-item badge badge-error text-lg" on:click={() => deleteRecipe(recipe.id)}>x</button>
-            <RecipeComponent {recipe} link />
-        </div>
-    {/each}
-</div>
+{#if !hideRecipes}
+    <div class="flex gap-5 flex-col items-center">
+        {#each recipes as recipe}
+            <div class="flex indicator w-full">
+                <button class="indicator-item badge badge-error text-lg py-3" on:click={() => deleteRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
+                <RecipeComponent {recipe} link />
+            </div>
+        {/each}
+    </div>
+{/if}
 <SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
 <button class="btn btn-primary my-5 w-full" on:click={addRecipe}>Add Recipe</button>
 {#if create}

@@ -1,6 +1,7 @@
-use poem_openapi::Object;
+use poem_openapi::{Object, payload::{AttachmentType, Attachment}, Multipart, types::multipart::Upload};
 use poem::{error::InternalServerError, Result};
 use sqlx::MySqlPool;
+use crate::storage::Storage;
 
 #[derive(Object)]
 pub struct Cookbook {
@@ -31,6 +32,21 @@ pub struct SectionResult {
 
 struct PositionResult {
     position: i64
+}
+
+#[derive(Multipart)]
+pub struct SetRecipePic {
+    image: Upload
+}
+
+struct GetRecipePicResult {
+    image: Option<String>
+}
+
+pub enum RecipePicResult {
+    Ok(Attachment<Vec<u8>>),
+    RecipeNotFound,
+    PicNotFound
 }
 
 pub async fn create_cookbook(pool: &MySqlPool, cookbook: Cookbook, auth: i64) -> Result<()> {
@@ -169,4 +185,49 @@ pub async fn get_sections(pool: &MySqlPool, id: i64) -> Result<Vec<SectionResult
         .await
         .map_err(InternalServerError)?;
     Ok(sections)
+}
+
+pub async fn set_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id: i64, recipe_id: i64, pic: SetRecipePic) -> Result<()> {
+    let current_pic: Option<GetRecipePicResult> = sqlx::query_as!(GetRecipePicResult,
+        "select image from cookbook_recipe where section_id = ? and recipe_id = ?",
+        section_id, recipe_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let Some(cpic) = current_pic {
+        if let Some(current_path) = cpic.image {
+            storage.delete_file(&current_path).await?;
+        }
+    }
+    let path = format!("section/{}/recipe/{}/image", section_id, recipe_id);
+    let pic_path = storage.put_file(&path, pic.image).await?;
+    sqlx::query!(
+        "update cookbook_recipe set image = ? where section_id = ? and recipe_id = ?",
+        pic_path, section_id, recipe_id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
+pub async fn get_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id: i64, recipe_id: i64) -> Result<RecipePicResult> {
+    let pic: Option<GetRecipePicResult> = sqlx::query_as!(GetRecipePicResult,
+        "select image from cookbook_recipe where section_id = ? and recipe_id = ?",
+        section_id, recipe_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let None = pic {
+        return Ok(RecipePicResult::RecipeNotFound);
+    }
+    if let None = pic.as_ref().unwrap().image {
+        return Ok(RecipePicResult::PicNotFound);
+    }
+    let pic_path = pic.unwrap().image.unwrap();
+    let pic = storage.get_file(&pic_path).await?;
+    let attachment = 
+        Attachment::new(pic)
+        .attachment_type(AttachmentType::Inline)
+        .filename(pic_path);
+    Ok(RecipePicResult::Ok(attachment))
 }

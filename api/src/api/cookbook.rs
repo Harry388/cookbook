@@ -1,3 +1,4 @@
+use poem_openapi::payload::{Attachment, PlainText};
 use poem_openapi::{OpenApi, payload::Json, param::Path, Tags, ApiResponse};
 use poem::{web::Data, Result};
 use sqlx::MySqlPool;
@@ -5,6 +6,7 @@ use futures::try_join;
 use crate::api::auth::JWTAuthorization;
 use crate::permission;
 use crate::model::{cookbook, recipe};
+use crate::storage::dufs::DufsStorage;
 use crate::util::page;
 
 #[derive(Tags)]
@@ -26,6 +28,14 @@ enum GetCookbookResponse {
 enum GetUserCookbookResponse {
     #[oai(status = 200)]
     Ok(Json<Vec<cookbook::CookbookResult>>)
+}
+
+#[derive(ApiResponse)]
+enum GetRecipePicResponse {
+    #[oai(status = 200)]
+    Ok(Attachment<Vec<u8>>),
+    #[oai(status = 404)]
+    NotFound(PlainText<String>)
 }
 
 type GetCookbookPagesResponse = Json<Vec<page::Page>>;
@@ -123,6 +133,32 @@ impl CookbookApi {
             }
         }
         Ok(Json(pages))
+    }
+
+    #[oai(path = "/:id/section/:section_id/recipe/:recipe_id/image", method = "put")]
+    async fn set_recipe_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, pic: cookbook::SetRecipePic, auth: JWTAuthorization) -> Result<()> {
+        permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
+        cookbook::set_recipe_pic(pool.0, storage.0, section_id.0, recipe_id.0, pic).await?;
+        Ok(())
+    }
+
+    #[oai(path = "/:id/section/:section_id/recipe/:recipe_id/image", method = "get")]
+    async fn get_recipe_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<GetRecipePicResponse> {
+        permission::cookbook::is_visible(pool.0, id.0, auth).await?;
+        let result = cookbook::get_recipe_pic(pool.0, storage.0, section_id.0, recipe_id.0).await?;
+        Ok(
+            match result {
+                cookbook::RecipePicResult::PicNotFound => {
+                    GetRecipePicResponse::NotFound(PlainText("Image not found".to_string()))
+                },
+                cookbook::RecipePicResult::RecipeNotFound => {
+                    GetRecipePicResponse::NotFound(PlainText("Recipe not found".to_string()))
+                },
+                cookbook::RecipePicResult::Ok(attachment) => {
+                    GetRecipePicResponse::Ok(attachment)
+                }
+            }
+        )
     }
 
 }
