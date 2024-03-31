@@ -3,7 +3,7 @@
     import { deleteUser, updateUser } from '$lib/app/user';
     import { logout } from '$lib/auth/auth';
     import { goto, invalidate } from '$app/navigation';
-    import ImageInput from '$lib/components/util/imageInput.svelte';
+    import EditImage from '$lib/components/util/editImage.svelte';
     import Input from '$lib/components/util/input.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
 
@@ -13,11 +13,12 @@
     let displayName = data.user.display_name;
     let bio = data.user.bio || '';
     let isPublic = Boolean(data.user.public);
-    let files: File[];
 
-    async function savePfp() {
-        const pfp = files.length ? files[0] : null;
-        updateUser(data.id, username, displayName, bio, pfp, isPublic).run();
+    async function savePfp(event: CustomEvent<{ file: File, after: Function }>) {
+        const response = await updateUser(data.id, username, displayName, bio, event.detail.file, isPublic).run();
+        if (response.ok) {
+            event.detail.after();
+        }
     }
 
     async function save() {
@@ -58,8 +59,7 @@
         <label class="label">
             <span class="label-text">Profile Picture</span>
         </label>
-        <ImageInput bind:files={files} />
-        <button class="btn btn-primary w-fit mt-5" on:click={savePfp}>Update Profile Picture</button>
+        <EditImage src="user/{data.id}/pfp" on:change={savePfp} />
     </div>
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
