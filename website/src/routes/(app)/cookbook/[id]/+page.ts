@@ -22,13 +22,6 @@ export const load = async ({ fetch, params, url }) => {
 
     let page = Number(url.searchParams.get('p'));
 
-    if (isNaN(page) || (page < 0)) {
-        page = 0;
-    }
-    else if (page >= ((pages.length * 2) + 4)) {
-        page = (pages.length * 2) + 3;
-    }
-
     return {
         cookbook,
         pages,

@@ -4,6 +4,7 @@
     import Title from '$lib/components/cookbook/title.svelte';
     import Contents from '$lib/components/cookbook/contents.svelte';
     import Index from '$lib/components/cookbook/index.svelte';
+    import Control from '$lib/components/cookbook/control.svelte';
     import Section from '$lib/components/cookbook/section.svelte';
     import Recipe from '$lib/components/cookbook/recipe.svelte';
     import Book from '$lib/components/cookbook/book.svelte';
@@ -21,21 +22,10 @@
     <title>{ data.cookbook.title } - Cookbook</title>
 </svelte:head>
 
-<div class="flex print:hidden">
-    <a href="?p={data.page - 1}" class="btn btn-circle">❮</a> 
-    <div class="flex-grow"></div>
-    <div class="dropdown">
-        <div tabindex="0" role="button" class="fa-solid fa-list-ul text-2xl mt-2"></div>
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <div tabindex="0" class="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52">
-            <Contents small pages={data.pages} />
-        </div>
-    </div>
-    <div class="flex-grow"> </div>
-    <a href="?p={data.page + 1}" class="btn btn-circle">❯</a>
-</div>
-
 <Book page={data.page}>
+
+    <Control />
+
     <Page hideNumber>
         <Cover cookbook={data.cookbook} />
     </Page>
@@ -43,22 +33,22 @@
         <Title cookbook={data.cookbook} />
     </Page>
     <Page hideNumber>
-        <Contents pages={data.pages} />
+        <Contents />
     </Page>
     {#each book as section}
-        <Page>
+        <Page title={section.section.title} header>
             <Section section={section.section} />
         </Page>
         {#each section.recipes as recipe}
-            <Page>
+            <Page title={recipe.title}>
                 <Recipe {recipe} />
             </Page>
             <Page>
-                <Image src="cookbook/{data.cookbook.id}/section/{section.section.id}/recipe/{recipe.id}/image" width="m-auto" style="height: 80vh" />
+                <Image src="cookbook/{data.cookbook.id}/section/{section.section.id}/recipe/{recipe.id}/image" width="m-auto" imageClass="shadow-lg rounded-lg" style="height: 80vh" />
             </Page>
         {/each}
     {/each}
     <Page hideNumber>
-        <Index pages={data.pages} />
+        <Index />
     </Page>
 </Book>

@@ -6,6 +6,7 @@
     export let src: string;
     export let alt: string = '';
     export let style: string = '';
+    export let imageClass: string = '';
 
     let loaded = false;
 
@@ -19,7 +20,7 @@
 </script>
 
 <div class="flex justify-center {width}" {style}>
-    <img class={!loaded ? 'hidden' : 'max-w-full max-h-full'} src={url} {alt} on:load={() => loaded = true}>
+    <img class={!loaded ? 'hidden' : `${imageClass} max-w-full max-h-full`} src={url} {alt} on:load={() => loaded = true}>
     {#if !loaded}
         <slot>
             <span class="loading loading-spinner loading-lg"></span>

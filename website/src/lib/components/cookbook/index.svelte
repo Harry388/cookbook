@@ -1,17 +1,19 @@
 <script lang="ts">
 
-    import type { Page } from '$lib/app/page';
+
+    import { getContext } from 'svelte';
+    import type { Writable } from 'svelte/store';
 
     type IndexedPages = {
-        [key: string]: (Page & { n: number })[]
+        [key: string]: ({ title: string, header: boolean, n: number })[]
     };
 
-    export let pages: Page[];
+    const pages: Writable<{ title: string, header: boolean }[]> = getContext('pages');
 
-    $: indexedPages = sortPages(pages);
+    $: indexedPages = sortPages($pages);
 
-    function sortPages(pages: Page[]) {
-        const recipes = pages.map((p, i) => ({...p, n: i})).filter(p => p.type == 'Recipe');
+    function sortPages(pages: { title: string, header: boolean }[]) {
+        const recipes = pages.map((p, i) => ({...p, n: i})).filter(p => p.title && !p.header);
         const indexedPages: IndexedPages = {};
         for (const page of recipes) {
             const start = page.title.charAt(0).toUpperCase();
@@ -32,7 +34,7 @@
     {#each Object.entries(indexedPages) as [start, pages]}
         <h2 class="text-4xl font-bold my-5">{ start }</h2>
         {#each pages as page}
-            <a href="?p={3 + page.n}" class="flex">
+            <a href="?p={page.n}" class="flex">
                 <h3 class="text-2xl">{ page.title }</h3>
                 <div class="flex-grow mr-5"></div>
                 <div class="text-2xl">{ page.n }</div>

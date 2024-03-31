@@ -8,9 +8,8 @@
     $: $current_page = page;
     setContext('page', current_page);
     setContext('n', writable(0));
+    setContext('pages', writable([]));
 
 </script>
 
-<div class="flex print:flex-col">
-    <slot />
-</div>
+<slot />
