@@ -8,6 +8,7 @@
     import Recipe from '$lib/components/cookbook/recipe.svelte';
     import Book from '$lib/components/cookbook/book.svelte';
     import Page from '$lib/components/cookbook/page.svelte';
+    import Image from '$lib/components/util/image.svelte';
 
     export let data;
 
@@ -40,6 +41,12 @@
     </Page>
     <Page hideNumber>
         <Contents pages={data.pages} />
+    </Page>
+    <Page>
+        <Image src="post/media/8" width="m-auto" style="height: 80vh" />
+    </Page>
+    <Page>
+        <Image src="post/media/7" width="m-auto" style="height: 80vh" />
     </Page>
     {#each data.pages as page}
         <Page hideNumber={page.type == 'Section'}>

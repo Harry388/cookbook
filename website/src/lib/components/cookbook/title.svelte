@@ -10,7 +10,7 @@
     <div class="hero-content text-center">
         <div class="max-w-md">
             <h1 class="text-5xl font-bold">{ cookbook.title }</h1>
-            <p class="text-2xl py-6">{ cookbook.description }</p>
+            <p class="text-2xl my-6">{ cookbook.description }</p>
         </div>
     </div>
 </div>
