@@ -3,7 +3,7 @@
     import AttachRecipe from '$lib/components/recipe/attachRecipe.svelte';
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
-    import ImageInput from '$lib/components/util/imageInput.svelte';
+    import EditImage from '$lib/components/util/editImage.svelte';
     import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
@@ -34,10 +34,11 @@
         }
     }
 
-    async function addRecipePic(pic: File, id: number) {
+    async function addRecipePic(pic: File, id: number, after: Function) {
         const response = await setCookbookRecipePic(cookbookId, section.section.id, id, pic).run();
         if (response.ok) {
             dispatch('change');
+            after();
         }
     }
 
@@ -48,15 +49,15 @@
     <button on:click={show} class="btn btn-error">Delete Section</button>
 </Confirm>
 <div class="flex gap-5 flex-col items-center">
-    {#each section.recipes as recipe}
+    {#each section.recipes as recipe (recipe.id)}
         <div class="flex w-full">
             <div class="flex indicator w-1/2">
                 <button class="indicator-item badge badge-error text-lg py-3" on:click={() => removeRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
                 <Recipe {recipe} link />
             </div>
             <div class="divider divider-horizontal"></div>
-            <div>
-                <ImageInput on:change={({detail}) => detail.length && addRecipePic(detail[0], recipe.id)} />
+            <div class="w-1/2">
+                <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
             </div>
         </div>
     {/each}
