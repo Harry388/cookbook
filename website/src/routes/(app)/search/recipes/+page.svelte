@@ -6,4 +6,7 @@
 
 </script>
 
+{#if data.recipes.length == 0}
+    <p class="text-lg text-center">No recipes found</p>
+{/if}
 <Recipes recipes={data.recipes} />

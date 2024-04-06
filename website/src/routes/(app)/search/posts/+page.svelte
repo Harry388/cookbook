@@ -6,4 +6,7 @@
 
 </script>
 
+{#if data.posts.length == 0}
+    <p class="text-lg text-center">No posts found</p>
+{/if}
 <Posts posts={data.posts} />

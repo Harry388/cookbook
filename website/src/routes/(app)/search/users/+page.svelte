@@ -6,6 +6,9 @@
 
 </script>
 
+{#if data.users.length == 0}
+    <p class="text-lg text-center">No users found</p>
+{/if}
 {#each data.users as user}
     <div class="mt-5"></div>
     <a class="flex items-center gap-3" href={`/user/${user.id}`}>
