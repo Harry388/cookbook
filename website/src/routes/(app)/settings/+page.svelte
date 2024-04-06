@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { deleteUser, updateUser } from '$lib/app/user';
+    import { deleteUser, updateUser, setUserPfp } from '$lib/app/user';
     import { logout } from '$lib/auth/auth';
     import { goto, invalidate } from '$app/navigation';
     import EditImage from '$lib/components/util/editImage.svelte';
@@ -15,14 +15,14 @@
     let isPublic = Boolean(data.user.public);
 
     async function savePfp(event: CustomEvent<{ file: File, after: Function }>) {
-        const response = await updateUser(data.id, username, displayName, bio, event.detail.file, isPublic).run();
+        const response = await setUserPfp(data.id, event.detail.file).run();
         if (response.ok) {
             event.detail.after();
         }
     }
 
     async function save() {
-        const response = await updateUser(data.id, username, displayName, bio, null, isPublic).run();
+        const response = await updateUser(data.id, username, displayName, bio, isPublic).run();
         if (response.ok) {
             invalidate('app:settings');
         }

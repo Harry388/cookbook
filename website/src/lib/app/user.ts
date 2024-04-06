@@ -1,5 +1,4 @@
 import { get, put, remove } from '$lib/apiFetch';
-import type { FetchFn } from '$lib/apiFetch';
 import type { Entry } from '$lib/app/entry';
 
 export type User = {
@@ -19,26 +18,18 @@ export function getUser(id: number | string) {
     return get<User>(`user/${id}`);
 }
 
-export function updateUser(id: number | string, username: string, displayName: string, bio: string | null, pfp: File | null, isPublic: boolean) {
-    return {
-        run(fetch?: FetchFn) {
-            if (pfp) {
-                const formData = new FormData();
-                formData.append('pic', pfp);
-                put(`user/${id}/pfp`, formData, {
-                    headers: {
-                        'Content-Type': 'remove'
-                    }
-                }).run(fetch);
-            }
-            return put(`user/${id}`, {
-                username,
-                display_name: displayName,
-                bio,
-                public: isPublic
-            }).run(fetch);
+export function updateUser(id: number | string, username: string, displayName: string, bio: string | null, isPublic: boolean) {
+    return put(`user/${id}`, { username, display_name: displayName, bio, public: isPublic });
+}
+
+export function setUserPfp(id: number | string, pfp: File) {
+    const formData = new FormData();
+    formData.append('pic', pfp);
+    return put(`user/${id}/pfp`, formData, {
+        headers: {
+            'Content-Type': 'remove'
         }
-    }
+    });
 }
 
 export function deleteUser(id: number | string) {
