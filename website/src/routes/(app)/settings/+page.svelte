@@ -71,7 +71,7 @@
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
         <button class="btn btn-primary w-fit" on:click={onLogOut}>Log Out</button>
-        <Confirm let:show on:confirm={deleteAccount}>
+        <Confirm let:show on:confirm={deleteAccount} id="user">
             <button class="btn btn-error w-fit mt-5" on:click={show}>Delete Account</button>
         </Confirm>
     </div>

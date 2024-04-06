@@ -4,9 +4,11 @@
 
     const dispatch = createEventDispatcher();
 
+    export let id;
+
     function show() {
         //@ts-ignore
-        document.getElementById('confirmModal').showModal();
+        document.getElementById(`${id}confirmModal`).showModal();
     }
 
     function confirm() {
@@ -16,7 +18,7 @@
 </script>
 
 <slot {show} />
-<dialog id="confirmModal" class="modal modal-bottom sm:modal-middle">
+<dialog id="{id}confirmModal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box">
         <h3 class="font-bold text-lg">Are you sure?</h3>
         <div class="modal-action">

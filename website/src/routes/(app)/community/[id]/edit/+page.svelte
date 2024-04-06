@@ -40,7 +40,7 @@
         <input id="#public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
     </div>
 
-    <Confirm let:show on:confirm={remove}>
+    <Confirm let:show on:confirm={remove} id={data.community.id}>
         <button class="btn btn-error my-5" on:click={show}>Delete Community</button>
     </Confirm>
 </div>

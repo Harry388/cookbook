@@ -25,7 +25,7 @@
         <div class="flex gap-x-5 items-start">
             {#if id == cookbook.user_id }
                 <div class="flex-grow"></div>
-                <Confirm let:show on:confirm={remove}>
+                <Confirm let:show on:confirm={remove} id={cookbook.id}>
                     <div class="dropdown">
                         <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
                         <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">

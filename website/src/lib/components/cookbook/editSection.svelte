@@ -53,7 +53,7 @@
 </script>
 
 <h2 class="font-bold text-2xl">{ section.section.title }</h2>
-<Confirm let:show on:confirm={removeSection}>
+<Confirm let:show on:confirm={removeSection} id={section.section.id}>
     <button on:click={show} class="btn btn-error">Delete Section</button>
 </Confirm>
 <div class="flex gap-5 flex-col items-center">

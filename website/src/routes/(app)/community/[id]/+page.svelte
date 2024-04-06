@@ -29,7 +29,7 @@
             <div class="flex gap-x-5">
                 <Post {post} link />
                 {#if data.community.is_admin }
-                    <Confirm let:show on:confirm={() => remove(post.id)}>
+                    <Confirm let:show on:confirm={() => remove(post.id)} id={post.id}>
                         <button class="fa-regular fa-trash-can text-2xl btn" on:click={show}></button> 
                     </Confirm>
                 {/if}

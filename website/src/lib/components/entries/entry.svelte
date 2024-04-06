@@ -89,7 +89,7 @@
             <div class="flex-grow"></div>
             <div>{ created }</div>
             {#if id == entry.user_id }
-                <Confirm let:show on:confirm={remove}>
+                <Confirm let:show on:confirm={remove} id={entry.id}>
                     <div class="dropdown dropdown-end">
                         <div tabindex="0" role="button" class="pb-5 pr-5 m-1 fa-solid fa-ellipsis-vertical"></div>
                         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
