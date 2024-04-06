@@ -54,7 +54,7 @@
 
 <div class="chat chat-start">
     <div class="chat-image avatar">
-        <ProfilePic user={{ id: comment.user_id, display_name: comment.user_display_name }} />
+        <ProfilePic small user={{ id: comment.user_id, display_name: comment.user_display_name }} />
     </div>
     <div class="chat-header">
         { comment.user_display_name }
