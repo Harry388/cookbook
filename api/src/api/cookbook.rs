@@ -168,4 +168,10 @@ impl CookbookApi {
         )
     }
 
+    #[oai(path = "/:id/section/:section_id/recipe/:recipe_id/image", method = "delete")]
+    async fn remove_recipe_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
+        cookbook::remove_recipe_pic(pool.0, storage.0, section_id.0, recipe_id.0).await?;
+        Ok(())
+    }
 }

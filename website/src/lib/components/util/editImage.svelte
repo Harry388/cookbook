@@ -13,7 +13,7 @@
     let reload = 0;
 
     function removeImage() {
-        dispatch('remove');
+        dispatch('remove', () => reload++ );
     }
 
     function change() {

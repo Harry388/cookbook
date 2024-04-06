@@ -64,3 +64,7 @@ export function setCookbookRecipePic(id: number | string, sectionId: number | st
         }
     });
 }
+
+export function removeCookbookRecipePic(id: number | string, sectionId: number | string, recipeId: number | string) {
+    return remove(`cookbook/${id}/section/${sectionId}/recipe/${recipeId}/image`);
+}

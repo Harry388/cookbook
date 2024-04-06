@@ -248,3 +248,27 @@ pub async fn recipe_has_pic(pool: &MySqlPool, section_id: i64, recipe_id: i64) -
     let pic_path = pic.unwrap().image.unwrap();
     Ok(pic_path.len() > 0)
 }
+
+pub async fn remove_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id: i64, recipe_id: i64) -> Result<()> {
+    let pic: Option<GetRecipePicResult> = sqlx::query_as!(GetRecipePicResult,
+        "select image from cookbook_recipe where section_id = ? and recipe_id = ?",
+        section_id, recipe_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let None = pic {
+        return Ok(());
+    }
+    if let None = pic.as_ref().unwrap().image {
+        return Ok(());
+    }
+    let pic_path = pic.unwrap().image.unwrap();
+    storage.delete_file(&pic_path).await?;
+    sqlx::query!(
+        "update cookbook_recipe set image = null where section_id = ? and recipe_id = ?",
+        section_id, recipe_id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}

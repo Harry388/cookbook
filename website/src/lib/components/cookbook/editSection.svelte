@@ -4,7 +4,7 @@
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
     import EditImage from '$lib/components/util/editImage.svelte';
-    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic } from '$lib/app/cookbook';
+    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic, removeCookbookRecipePic } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
 
@@ -42,6 +42,14 @@
         }
     }
 
+    async function removeRecipePic(id: number, after: Function) {
+        const response = await removeCookbookRecipePic(cookbookId, section.section.id, id).run();
+        if (response.ok) {
+            dispatch('change');
+            after();
+        }
+    }
+
 </script>
 
 <h2 class="font-bold text-2xl">{ section.section.title }</h2>
@@ -57,7 +65,9 @@
             </div>
             <div class="divider divider-horizontal"></div>
             <div class="w-1/2">
-                <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
+                <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" 
+                on:remove={e => removeRecipePic(recipe.id, e.detail)}
+                on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
             </div>
         </div>
     {/each}
