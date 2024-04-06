@@ -32,6 +32,10 @@ export function setUserPfp(id: number | string, pfp: File) {
     });
 }
 
+export function removeUserPfp(id: number | string) {
+    return remove(`user/${id}/pfp`);
+}
+
 export function deleteUser(id: number | string) {
     return remove(`user/${id}`);
 }

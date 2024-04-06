@@ -178,6 +178,30 @@ pub async fn get_profile_pic(pool: &MySqlPool, storage: &dyn Storage, id: i64) -
     Ok(ProfilePicResult::Ok(attachment))
 }
 
+pub async fn remove_profile_pic(pool: &MySqlPool, storage: &dyn Storage, id: i64) -> Result<()> {
+    let pfp: Option<GetProfilePicResult> = sqlx::query_as!(GetProfilePicResult,
+        "select pfp from user where id = ?",
+        id)
+        .fetch_optional(pool)
+        .await
+        .map_err(InternalServerError)?;
+    if let None = pfp {
+        return Ok(());
+    }
+    if let None = pfp.as_ref().unwrap().pfp {
+        return Ok(());
+    }
+    let pfp_path = pfp.unwrap().pfp.unwrap();
+    storage.delete_file(&pfp_path).await?;
+    sqlx::query!(
+        "update user set pfp = null where id = ?",
+        id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
 pub async fn delete_user(pool: &MySqlPool, storage: &dyn Storage, id: i64) -> Result<()> {
     sqlx::query!(
         "delete from user where id = ?",

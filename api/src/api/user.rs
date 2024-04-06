@@ -98,6 +98,13 @@ impl UserApi {
         )
     }
 
+    #[oai(path = "/:id/pfp", method = "delete")]
+    async fn remove_profile_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+        permission::user::is_user(id.0, auth)?;
+        user::remove_profile_pic(pool.0, storage.0, id.0).await?;
+        Ok(())
+    }
+
     #[oai(path = "/:id", method = "delete")]
     async fn delete_user(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::user::is_user(id.0, auth)?;

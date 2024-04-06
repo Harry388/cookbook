@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { deleteUser, updateUser, setUserPfp } from '$lib/app/user';
+    import { deleteUser, updateUser, setUserPfp, removeUserPfp } from '$lib/app/user';
     import { logout } from '$lib/auth/auth';
     import { goto, invalidate } from '$app/navigation';
     import EditImage from '$lib/components/util/editImage.svelte';
@@ -18,6 +18,13 @@
         const response = await setUserPfp(data.id, event.detail.file).run();
         if (response.ok) {
             event.detail.after();
+        }
+    }
+
+    async function removePfp(event: CustomEvent<Function>) {
+        const response = await removeUserPfp(data.id).run();
+        if (response.ok) {
+            event.detail();
         }
     }
 
@@ -59,7 +66,7 @@
         <label class="label">
             <span class="label-text">Profile Picture</span>
         </label>
-        <EditImage src="user/{data.id}/pfp" on:change={savePfp} />
+        <EditImage src="user/{data.id}/pfp" on:change={savePfp} on:remove={removePfp} />
     </div>
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
