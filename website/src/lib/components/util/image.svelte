@@ -23,7 +23,7 @@
 <div class="flex justify-center {width}" {style}>
     <img class={!loaded ? 'hidden' : `${imageClass} max-w-full max-h-full`} src={url} {alt} on:error={() => error = true} on:load={() => loaded = true}>
     {#if !loaded}
-        {#if !$$slots.default &&  error}
+        {#if !$$slots.default && error}
             No Image
         {:else}
         <slot>

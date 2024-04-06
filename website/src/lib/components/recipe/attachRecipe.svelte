@@ -1,41 +1,27 @@
 <script lang="ts">
 
-    import SelectInput from '$lib/components/util/selectInput.svelte';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
+    import AttachRecipeModal from '$lib/components/recipe/attachRecipeModal.svelte';
     import CreateRecipeModal from '$lib/components/recipe/createRecipeModal.svelte';
-    import { getUserRecipes } from '$lib/app/recipe';
-    import { createEventDispatcher, onMount, getContext } from 'svelte';
+    import { getRecipe } from '$lib/app/recipe';
+    import { createEventDispatcher } from 'svelte';
     import type { Recipe } from '$lib/app/recipe';
 
     const dispatch = createEventDispatcher();
-
-    const id: number = getContext('id');
 
     export let recipes: Recipe[] = [];
     export let edit = false;
     export let create = false;
     export let hideRecipes = false;
 
-    let newRecipeId: number;
-    let options: Recipe[] = [];
-
-    $: newRecipes = options.filter(r => !recipes.map(rr => rr.id).includes(r.id));
-
-    async function newRecipe(event: CustomEvent<number>) {
-        options = await getUserRecipes(id).json();
-        newRecipeId = event.detail;
-        addRecipe();
-    }
-
-    function addRecipe() {
-        dispatch('add', newRecipeId);
+    async function addRecipe(event: CustomEvent<number>) {
+        dispatch('add', event.detail);
         if (!edit) {
-            const newRecipe = options.find(r => r.id == newRecipeId);
+            const newRecipe = await getRecipe(event.detail).json();
             if (newRecipe != undefined) {
                 recipes = [...recipes, newRecipe];
             }
         }
-        newRecipeId = -1;
     }
 
     function deleteRecipe(id: number) {
@@ -45,14 +31,10 @@
         }
     }
 
-    onMount(async () => {
-        options = await getUserRecipes(id).json();
-    });
-
 </script>
 
 {#if !hideRecipes}
-    <div class="flex gap-5 flex-col items-center">
+    <div class="flex gap-5 flex-col items-center mb-5">
         {#each recipes as recipe}
             <div class="flex indicator w-full">
                 <button class="indicator-item badge badge-error text-lg py-3" on:click={() => deleteRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
@@ -61,9 +43,8 @@
         {/each}
     </div>
 {/if}
-<SelectInput bind:value={newRecipeId} options={newRecipes} title="Pick Recipe" />
-<button class="btn btn-primary my-5 w-full" on:click={addRecipe}>Add Recipe</button>
+<AttachRecipeModal on:save={addRecipe} {recipes} />
 {#if create}
     <div class="divider">OR</div>
-    <CreateRecipeModal on:save={newRecipe} />
+    <CreateRecipeModal on:save={addRecipe} />
 {/if}
