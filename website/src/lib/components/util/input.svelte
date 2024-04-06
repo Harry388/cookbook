@@ -10,12 +10,18 @@
     export let edit = false;
     export let long = false;
     export let placeholder = title;
+    export let max = long ? 65535 : 255;
 
     let oldValue = value;
-
     let showPassword = false;
 
     $: editing = edit && (oldValue != value);
+
+    $: {
+        if (value.length > max) {
+            value = value.substring(0, max);
+        }
+    }
 
     function saveEdit() {
         if (editing) {
@@ -38,11 +44,18 @@
 
 </script>
 
-{#if title}
-    <label for="#input" class="label">
-        <span class="label-text">{ title }</span>
-    </label>
-{/if}
+<label for="#input" class="label">
+    <span class="label-text">
+        {#if title}
+            { title }
+        {/if}
+        <span class="text-error">
+            {#if value.length > ((3 * max) / 4)}
+                { value.length } / { max }
+            {/if}
+        </span>
+    </span>
+</label>
 <form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center">
     {#if long}
         <textarea id="input" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
