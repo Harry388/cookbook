@@ -1,5 +1,7 @@
 <script lang="ts">
 
+    import SearchList from '$lib/components/util/searchList.svelte';
+    import SearchItem from '$lib/components/util/searchItem.svelte';
     import RecipeComponent from '$lib/components/recipe/recipe.svelte';
     import { getUserRecipes } from '$lib/app/recipe';
     import { createEventDispatcher, onMount, getContext } from 'svelte';
@@ -52,11 +54,15 @@
             <div class="collapse-title text-xl font-medium">My Recipes</div>
             <div class="collapse-content">
                 <div class="flex gap-5 flex-col">
+                    <SearchList>
                     {#each userRecipes as recipe}
+                        <SearchItem key={recipe.title}>
                         <button class={`text-left ${(recipe.id == currentRecipeId) ? 'outline outline-primary rounded-2xl' : ''}`} on:click={() => currentRecipeId = recipe.id} > 
                             <RecipeComponent {recipe} link />
                         </button>
+                        </SearchItem>
                     {/each}
+                    </SearchList>
                 </div>
             </div>
         </div>
