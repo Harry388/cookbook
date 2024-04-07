@@ -15,7 +15,7 @@ export type Post = {
     is_liked: number,
     likes: number,
     comments: number,
-    recipes: number
+    links: number
 }
 
 export function getPost(id: number | string) {

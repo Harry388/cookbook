@@ -15,10 +15,12 @@
         <Recipe recipe={data.recipe} />
     </div>
 
-    <div class="basis-1/3">
-        <h3 class="font-bold text-lg pb-5">Posts</h3>
-        <Posts posts={data.posts} />
-    </div>
+    {#if data.recipe.links > 0}
+        <div class="basis-1/3">
+            <h3 class="font-bold text-lg pb-5">Posts</h3>
+            <Posts posts={data.posts} />
+        </div>
+    {/if}
 
     <div class="basis-1/3">
         <h3 class="font-bold text-lg pb-5">Comments</h3>
