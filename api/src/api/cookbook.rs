@@ -78,9 +78,9 @@ impl CookbookApi {
     }
 
     #[oai(path = "/:id", method = "delete")]
-    async fn delete_cookbook(&self, pool: Data<&MySqlPool>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+    async fn delete_cookbook(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
-        cookbook::delete_cookbook(pool.0, id.0).await?;
+        cookbook::delete_cookbook(pool.0, storage.0, id.0).await?;
         Ok(())
     }
 
@@ -95,11 +95,11 @@ impl CookbookApi {
     }
 
     #[oai(path = "/:id/section/:section_id/recipe/:recipe_id", method = "delete")]
-    async fn remove_recipe(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+    async fn remove_recipe(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         let owns_cookbook = permission::cookbook::owns_cookbook(pool.0, id.0, auth);
         let owns_recipe = permission::recipe::owns_recipe(pool.0, recipe_id.0, auth);
         try_join!(owns_cookbook, owns_recipe)?;
-        cookbook::remove_recipe(pool.0, section_id.0, recipe_id.0).await?;
+        cookbook::remove_recipe(pool.0, storage.0, section_id.0, recipe_id.0).await?;
         Ok(())
     }
 
@@ -112,9 +112,9 @@ impl CookbookApi {
     }
 
     #[oai(path = "/:id/section/:section_id", method = "delete")]
-    async fn remove_section(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
+    async fn remove_section(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
-        cookbook::remove_section(pool.0, section_id.0).await?;
+        cookbook::remove_section(pool.0, storage.0, section_id.0, id.0).await?;
         Ok(())
     }
 
@@ -145,7 +145,7 @@ impl CookbookApi {
     #[oai(path = "/:id/section/:section_id/recipe/:recipe_id/image", method = "put")]
     async fn set_recipe_pic(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, recipe_id: Path<i64>, pic: cookbook::SetRecipePic, auth: JWTAuthorization) -> Result<()> {
         permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
-        cookbook::set_recipe_pic(pool.0, storage.0, section_id.0, recipe_id.0, pic).await?;
+        cookbook::set_recipe_pic(pool.0, storage.0, id.0, section_id.0, recipe_id.0, pic).await?;
         Ok(())
     }
 

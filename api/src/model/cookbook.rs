@@ -95,13 +95,15 @@ pub async fn update_cookbook(pool: &MySqlPool, id: i64, update: Cookbook) -> Res
     Ok(())
 }
 
-pub async fn delete_cookbook(pool: &MySqlPool, id: i64) -> Result<()> {
+pub async fn delete_cookbook(pool: &MySqlPool, storage: &dyn Storage, id: i64) -> Result<()> {
     sqlx::query!(
         "delete from cookbook where id = ?",
         id)
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
+    let path = format!("cookbook/{}", id);
+    storage.delete_file(&path).await?;
     Ok(())
 }
 
@@ -115,7 +117,8 @@ pub async fn add_recipe(pool: &MySqlPool, section_id: i64, recipe_id: i64, posit
     Ok(())
 }
 
-pub async fn remove_recipe(pool: &MySqlPool, section_id: i64, recipe_id: i64) -> Result<Option<()>> {
+pub async fn remove_recipe(pool: &MySqlPool, storage: &dyn Storage, section_id: i64, recipe_id: i64) -> Result<Option<()>> {
+    remove_recipe_pic(pool, storage, section_id, recipe_id).await?;
     let position: Option<PositionResult> = sqlx::query_as!(PositionResult,
         "select position from cookbook_recipe where section_id = ? and recipe_id = ?",
         section_id, recipe_id)
@@ -151,7 +154,7 @@ pub async fn add_section(pool: &MySqlPool, id: i64, section: Section, position: 
     Ok(())
 }
 
-pub async fn remove_section(pool: &MySqlPool, id: i64) -> Result<Option<()>> {
+pub async fn remove_section(pool: &MySqlPool, storage: &dyn Storage, id: i64, cookbook_id: i64) -> Result<Option<()>> {
     let position: Option<PositionResult> = sqlx::query_as!(PositionResult,
         "select position from cookbook_section where id = ?",
         id)
@@ -174,6 +177,8 @@ pub async fn remove_section(pool: &MySqlPool, id: i64) -> Result<Option<()>> {
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
+    let path = format!("cookbook/{}/section/{}", cookbook_id, id);
+    storage.delete_file(&path).await?;
     Ok(Some(()))
 }
 
@@ -187,7 +192,7 @@ pub async fn get_sections(pool: &MySqlPool, id: i64) -> Result<Vec<SectionResult
     Ok(sections)
 }
 
-pub async fn set_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id: i64, recipe_id: i64, pic: SetRecipePic) -> Result<()> {
+pub async fn set_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, id: i64, section_id: i64, recipe_id: i64, pic: SetRecipePic) -> Result<()> {
     let current_pic: Option<GetRecipePicResult> = sqlx::query_as!(GetRecipePicResult,
         "select image from cookbook_recipe where section_id = ? and recipe_id = ?",
         section_id, recipe_id)
@@ -199,7 +204,7 @@ pub async fn set_recipe_pic(pool: &MySqlPool, storage: &dyn Storage, section_id:
             storage.delete_file(&current_path).await?;
         }
     }
-    let path = format!("section/{}/recipe/{}/image", section_id, recipe_id);
+    let path = format!("cookbook/{}/section/{}/recipe/{}/image", id, section_id, recipe_id);
     let pic_path = storage.put_file(&path, pic.image).await?;
     sqlx::query!(
         "update cookbook_recipe set image = ? where section_id = ? and recipe_id = ?",
