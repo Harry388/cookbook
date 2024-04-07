@@ -1,4 +1,4 @@
-import { put, remove, post } from '$lib/apiFetch';
+import { put, remove, post, get } from '$lib/apiFetch';
 
 export type Comment = {
     id: number,
@@ -25,4 +25,12 @@ export function likeComment(id: number | string) {
 
 export function unlikeComment(id: number | string) {
     return remove(`comment/${id}/like`);
+}
+
+export function replyToComment(id: number | string, content: string) {
+    return post(`comment`, { content, reply_id: id } );
+}
+
+export function getCommentReplies(id: number | string) {
+    return get<Comment[]>(`comment/${id}/replies`);
 }
