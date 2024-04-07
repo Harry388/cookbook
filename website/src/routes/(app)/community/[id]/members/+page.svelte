@@ -1,5 +1,7 @@
 <script lang="ts">
 
+    import SearchList from '$lib/components/util/searchList.svelte';
+    import SearchItem from '$lib/components/util/searchItem.svelte';
     import ProfilePic from '$lib/components/user/profilePic.svelte';
     import { acceptMember, leaveCommunity } from '$lib/app/community';
     import { updateCommunityUser } from '$lib/app/communityMember.js';
@@ -44,9 +46,14 @@
 
         {#if admins.length}
 
+            <SearchList>
+
             <table class="table">
                 <tbody>
                     {#each admins as admin}
+
+                        <SearchItem key={admin.display_name}>
+
                         <tr>
                             <td>
                                 <a class="flex items-center gap-3" href="/user/{admin.id}">
@@ -66,9 +73,14 @@
                                 {/if}
                             </th>
                         </tr>
+
+                        </SearchItem>
+
                     {/each}
                 </tbody>
             </table>
+
+            </SearchList>
 
         {:else}
 
@@ -86,9 +98,14 @@
         
         {#if users.length}
 
+            <SearchList>
+
             <table class="table">
                 <tbody>
                     {#each users as user}
+
+                        <SearchItem key={user.display_name}>
+
                         <tr>
                             <td>
                                 <a class="flex items-center gap-3" href="/user/{user.id}">
@@ -106,9 +123,14 @@
                                 {/if}
                             </th>
                         </tr>
+
+                        </SearchItem>
+
                     {/each}
                 </tbody>
             </table>
+
+            </SearchList>
 
         {:else}
 
@@ -127,9 +149,14 @@
             
             {#if data.requests.length}
 
+                <SearchList>
+
                 <table class="table">
                     <tbody>
                         {#each data.requests as request}
+
+                            <SearchItem key={request.display_name}>
+
                             <tr>
                                 <td>
                                     <a class="flex items-center gap-3" href="/user/{request.id}">
@@ -147,9 +174,14 @@
                                     {/if}
                                 </th>
                             </tr>
+
+                            </SearchItem>
+
                         {/each}
                     </tbody>
                 </table>
+
+                </SearchList>
 
             {:else}
 
