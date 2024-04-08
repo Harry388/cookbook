@@ -16,7 +16,7 @@
 
 </script>
 
-<div class="{($currentPage != thisPage) && 'hidden'} print:block w-full print:h-screen">
+<div class="{$currentPage == thisPage ? '' : $currentPage == (thisPage - 1) ? 'hidden lg:block' : 'hidden'} print:block w-full lg:w-1/2 print:h-screen">
     {#if !hideNumber}
         <div class="print:hidden w-fit m-auto mb-5">
             { thisPage }

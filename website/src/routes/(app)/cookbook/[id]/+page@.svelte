@@ -4,7 +4,6 @@
     import Title from '$lib/components/cookbook/title.svelte';
     import Contents from '$lib/components/cookbook/contents.svelte';
     import Index from '$lib/components/cookbook/index.svelte';
-    import Control from '$lib/components/cookbook/control.svelte';
     import Section from '$lib/components/cookbook/section.svelte';
     import Recipe from '$lib/components/cookbook/recipe.svelte';
     import Book from '$lib/components/cookbook/book.svelte';
@@ -20,8 +19,6 @@
 </svelte:head>
 
 <Book page={data.page}>
-
-    <Control />
 
     <Page hideNumber>
         <Cover cookbook={data.cookbook} />

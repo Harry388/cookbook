@@ -1,5 +1,6 @@
 <script lang="ts">
 
+    import Control from '$lib/components/cookbook/control.svelte';
     import { setContext } from 'svelte';
     import { writable } from 'svelte/store';
 
@@ -12,4 +13,8 @@
 
 </script>
 
-<slot />
+<Control />
+
+<div class="flex flex-col print:flex-col lg:flex-row">
+    <slot />
+</div>
