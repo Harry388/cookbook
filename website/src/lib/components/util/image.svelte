@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { PUBLIC_BROWSER_API_URL } from "$env/static/public";
+    import { PUBLIC_API_URL } from "$env/static/public";
 
     export let width: string = '';
     export let src: string;
@@ -11,7 +11,7 @@
     let loaded = false;
     let error = false;
 
-    $: url = `${PUBLIC_BROWSER_API_URL}/${src}`;
+    $: url = `${PUBLIC_API_URL}/${src}`;
 
     $: {
         url;

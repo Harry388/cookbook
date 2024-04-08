@@ -1,5 +1,4 @@
-import { PUBLIC_BROWSER_API_URL, PUBLIC_SERVER_API_URL } from '$env/static/public';
-import { browser } from '$app/environment';
+import { PUBLIC_API_URL } from '$env/static/public';
 import { error } from '$lib/app/error';
 
 export type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -18,7 +17,6 @@ function createFetchObj<T>(input: string, body?: any, init?: RequestInit): Fetch
             if (!fetchFn) {
                 fetchFn = fetch;
             }
-            const url = browser ? PUBLIC_BROWSER_API_URL : PUBLIC_SERVER_API_URL;
             //@ts-ignore
             const stringifyBody = (!this.init?.headers) || (!this.init?.headers['Content-Type']);
             const body = this.body ? (stringifyBody ? JSON.stringify(this.body) : this.body) : null;
@@ -37,7 +35,7 @@ function createFetchObj<T>(input: string, body?: any, init?: RequestInit): Fetch
                 headers,
                 credentials: 'include'
             }
-            const response = await fetchFn(`${url}/${this.input}`, requestInit);
+            const response = await fetchFn(`${PUBLIC_API_URL}/${this.input}`, requestInit);
             if (!response.ok) {
                 const message = await response.text();
                 error.set(message);
