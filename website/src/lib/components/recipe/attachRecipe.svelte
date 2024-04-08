@@ -9,6 +9,7 @@
 
     const dispatch = createEventDispatcher();
 
+    export let modalId = '';
     export let recipes: Recipe[] = [];
     export let edit = false;
     export let create = false;
@@ -43,7 +44,7 @@
         {/each}
     </div>
 {/if}
-<AttachRecipeModal on:save={addRecipe} {recipes} />
+<AttachRecipeModal on:save={addRecipe} {recipes} {modalId} />
 {#if create}
     <div class="divider">OR</div>
     <CreateRecipeModal on:save={addRecipe} />

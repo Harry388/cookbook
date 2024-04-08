@@ -13,6 +13,7 @@
 
     const id: number = getContext('id');
 
+    export let modalId = '';
     export let recipes: Recipe[] = [];
 
     let userRecipes: Recipe[] = [];
@@ -37,7 +38,7 @@
 
     function show() {
         //@ts-ignore
-        document.getElementById('attachRecipeModal').showModal();
+        document.getElementById(`${modalId}attachRecipeModal`).showModal();
     }
 
     onMount(() => {
@@ -69,7 +70,7 @@
 </script>
 
 <button class="btn btn-outline w-full" on:click={show}>Attach Recipe</button>
-<dialog id="attachRecipeModal" class="modal modal-bottom sm:modal-middle">
+<dialog id="{modalId}attachRecipeModal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box">
         <h3 class="font-bold text-lg mb-5">Attach Recipe</h3>
         <div class="collapse collapse-arrow bg-base-200">

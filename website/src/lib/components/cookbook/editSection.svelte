@@ -85,5 +85,5 @@
             </div>
         {/each}
     </div>
-    <AttachRecipe recipes={section.recipes} edit on:add={addRecipe} hideRecipes />
+    <AttachRecipe modalId={String(section.section.id)} recipes={section.recipes} edit on:add={addRecipe} hideRecipes />
 </div>
