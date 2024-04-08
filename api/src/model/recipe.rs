@@ -137,10 +137,11 @@ pub async fn get_post_recipes(pool: &MySqlPool, id: i64, auth: i64) -> Result<Ve
         from recipe
         inner join recipe_post on recipe.id = recipe_post.recipe_id
         inner join user on recipe.user_id = user.id
-        where recipe_post.post_id = ?
+        left join following on following.following_id = recipe.user_id
+        where recipe_post.post_id = ? and ((recipe.user_id = ?) or (following.user_id = ? and following.accepted) or (user.public))
         group by recipe.id
         order by created desc",
-        auth, id)
+        auth, id, auth, auth)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
