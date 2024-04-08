@@ -87,7 +87,7 @@ pub async fn add_post_post_media(pool: &MySqlPool, storage: &dyn Storage, id: i6
 
 pub async fn get_post(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<PostResult>> {
     let post = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -127,7 +127,7 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
 
 pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -152,7 +152,7 @@ pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result
 
 pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -177,7 +177,7 @@ pub async fn get_feed_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResul
 
 pub async fn get_user_posts(pool: &MySqlPool, user_id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -198,7 +198,7 @@ pub async fn get_user_posts(pool: &MySqlPool, user_id: i64, auth: i64) -> Result
 
 pub async fn get_recipe_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -221,7 +221,7 @@ pub async fn get_recipe_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Ve
 
 pub async fn get_community_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -243,7 +243,7 @@ pub async fn get_community_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result
 
 pub async fn get_album_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, cast(concat('[', group_concat(distinct post_media.id), ']') as json) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,
@@ -268,7 +268,7 @@ pub async fn get_album_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec
 
 pub async fn get_tag_posts(pool: &MySqlPool, id: i64, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
-        "select post.id, post.title, post.content, post.user_id, json_arrayagg(post_media.id) as media, post.created, post.community_id,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
         user.display_name as user_display_name, community.title as community_title,
         exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
         (select count(*) from post_like where post_id = post.id) as likes,

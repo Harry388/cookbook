@@ -10,7 +10,7 @@ export type Post = {
     user_display_name: string,
     community_id: number | null,
     community_title: string | null,
-    media: number[],
+    media: { [key: number]: string },
     created: string,
     is_liked: number,
     likes: number,

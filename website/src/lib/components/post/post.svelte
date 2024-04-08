@@ -7,14 +7,12 @@
     export let post: Post;
     export let link = false;
 
-    $: media = post.media ? post.media.filter(m => m != null) : [];
-
 </script>
 
 <Entry entry={post} {link} type="post">
     <svelte:fragment slot="media">
-    {#if media.length }
-        <Media {media} />
+    {#if !(-1 in post.media) }
+        <Media media={post.media} />
         <div class="pb-1"></div>
     {/if}
     </svelte:fragment>
