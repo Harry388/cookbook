@@ -1,8 +1,8 @@
 <script lang="ts">
 
-    import { getContext } from 'svelte';
     import Share from '$lib/components/util/share.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
+    import { getContext } from 'svelte';
     import { deleteCookbook } from '$lib/app/cookbook';
     import { invalidate } from '$app/navigation';
     import type { Cookbook } from '$lib/app/cookbook';
@@ -11,6 +11,9 @@
 
     const id: number = getContext('id');
 
+    let downloadLoading = false;
+    let anchor: HTMLAnchorElement;
+
     async function remove() {
         const response = await deleteCookbook(cookbook.id).run();
         if (response.ok) {
@@ -18,7 +21,21 @@
         }
     }
 
+    async function download() {
+        downloadLoading = true;
+        const response = await fetch(`/cookbook/${cookbook.id}`);
+        if (response.ok) {
+            anchor.href = URL.createObjectURL(await response.blob());
+            anchor.download = `${cookbook.title}.pdf`;
+            anchor.click();
+        }
+        downloadLoading = false;
+    }
+
 </script>
+
+<!-- svelte-ignore a11y-missing-attribute a11y-missing-content -->
+<a bind:this={anchor} class="hidden"></a>
 
 <div class="flex-grow card card-compact bg-base-100 shadow-xl">
     <div class="card-body">
@@ -44,7 +61,11 @@
         <slot />
         <div class="flex justify-end gap-x-5 items-center">
             <Share path="/cookbook/{cookbook.id}" />
-            <a href="/cookbook/{cookbook.id}" download={cookbook.title}><button class="fa-solid fa-download text-2xl" ></button></a>
+            {#if downloadLoading}
+                <span class="loading loading-spinner"></span>
+            {:else}
+                <button class="fa-solid fa-download text-2xl" on:click={download}></button>
+            {/if}
             <a target="_blank" href="/cookbook/{cookbook.id}" class="btn">Open</a>
         </div>
     </div>
