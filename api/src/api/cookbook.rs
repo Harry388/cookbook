@@ -111,6 +111,13 @@ impl CookbookApi {
         Ok(())
     }
 
+    #[oai(path = "/:id/section/:section_id", method = "put")]
+    async fn update_section(&self, pool: Data<&MySqlPool>, id: Path<i64>, section_id: Path<i64>, update: Json<cookbook::UpdateSection>, auth: JWTAuthorization) -> Result<()> {
+        permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;
+        cookbook::update_section(pool.0, section_id.0, update.0).await?;
+        Ok(())
+    }
+
     #[oai(path = "/:id/section/:section_id", method = "delete")]
     async fn remove_section(&self, pool: Data<&MySqlPool>, storage: Data<&DufsStorage>, id: Path<i64>, section_id: Path<i64>, auth: JWTAuthorization) -> Result<()> {
         permission::cookbook::owns_cookbook(pool.0, id.0, auth).await?;

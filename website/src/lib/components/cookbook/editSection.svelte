@@ -4,7 +4,8 @@
     import Recipe from '$lib/components/recipe/recipe.svelte';
     import Confirm from '$lib/components/util/confirm.svelte';
     import EditImage from '$lib/components/util/editImage.svelte';
-    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic, removeCookbookRecipePic } from '$lib/app/cookbook';
+    import Input from '$lib/components/util/input.svelte';
+    import { addCookbookRecipe, removeCookbookSection, removeCookbookRecipe, setCookbookRecipePic, removeCookbookRecipePic, updateCookbookSection } from '$lib/app/cookbook';
     import { createEventDispatcher } from 'svelte';
     import type { BookSection } from '$lib/app/page';
 
@@ -12,6 +13,9 @@
 
     export let cookbookId: number;
     export let section: BookSection;
+
+    let title = section.section.title;
+    let description = section.section.description;
 
     async function removeSection() {
         const response = await removeCookbookSection(cookbookId, section.section.id).run();
@@ -50,26 +54,36 @@
         }
     }
 
+    async function updateSection() {
+        const response = await updateCookbookSection(cookbookId, section.section.id, title, description).run();
+        if (response.ok) {
+            dispatch('change');
+        }
+    }
+
 </script>
 
-<h2 class="font-bold text-2xl">{ section.section.title }</h2>
-<Confirm let:show on:confirm={removeSection} id={section.section.id}>
-    <button on:click={show} class="btn btn-error">Delete Section</button>
-</Confirm>
-<div class="flex gap-5 flex-col items-center">
-    {#each section.recipes as recipe (recipe.id)}
-        <div class="flex w-full">
-            <div class="flex indicator w-1/2">
-                <button class="indicator-item badge badge-error text-lg py-3" on:click={() => removeRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
-                <Recipe {recipe} link />
+<div>
+    <Input bind:value={title} edit on:save={updateSection} title="Title" />
+    <Input bind:value={description} edit long on:save={updateSection} title="Description" />
+    <Confirm let:show on:confirm={removeSection} id={section.section.id}>
+        <button on:click={show} class="btn btn-error w-full my-5">Delete Section</button>
+    </Confirm>
+    <div class="flex gap-5 flex-col items-center">
+        {#each section.recipes as recipe (recipe.id)}
+            <div class="flex w-full">
+                <div class="flex indicator w-1/2">
+                    <button class="indicator-item badge badge-error text-lg py-3" on:click={() => removeRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
+                    <Recipe {recipe} link />
+                </div>
+                <div class="divider divider-horizontal"></div>
+                <div class="w-1/2">
+                    <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" 
+                    on:remove={e => removeRecipePic(recipe.id, e.detail)}
+                    on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
+                </div>
             </div>
-            <div class="divider divider-horizontal"></div>
-            <div class="w-1/2">
-                <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" 
-                on:remove={e => removeRecipePic(recipe.id, e.detail)}
-                on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
-            </div>
-        </div>
-    {/each}
+        {/each}
+    </div>
+    <AttachRecipe recipes={section.recipes} edit on:add={addRecipe} hideRecipes />
 </div>
-<AttachRecipe recipes={section.recipes} edit on:add={addRecipe} hideRecipes />

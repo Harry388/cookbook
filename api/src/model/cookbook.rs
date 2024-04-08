@@ -24,9 +24,16 @@ pub struct Section {
 }
 
 #[derive(Object)]
+pub struct UpdateSection {
+    title: Option<String>,
+    description: Option<String>
+}
+
+#[derive(Object)]
 pub struct SectionResult {
     pub id: i64,
     title: String,
+    description: Option<String>,
     position: i64
 }
 
@@ -154,6 +161,16 @@ pub async fn add_section(pool: &MySqlPool, id: i64, section: Section, position: 
     Ok(())
 }
 
+pub async fn update_section(pool: &MySqlPool, id: i64, update: UpdateSection) -> Result<()> {
+    sqlx::query!(
+        "update cookbook_section set title = coalesce(?, title), description = coalesce(?, description) where id = ?",
+        update.title, update.description, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(())
+}
+
 pub async fn remove_section(pool: &MySqlPool, storage: &dyn Storage, id: i64, cookbook_id: i64) -> Result<Option<()>> {
     let position: Option<PositionResult> = sqlx::query_as!(PositionResult,
         "select position from cookbook_section where id = ?",
@@ -184,7 +201,7 @@ pub async fn remove_section(pool: &MySqlPool, storage: &dyn Storage, id: i64, co
 
 pub async fn get_sections(pool: &MySqlPool, id: i64) -> Result<Vec<SectionResult>> {
     let sections: Vec<SectionResult> = sqlx::query_as!(SectionResult,
-        "select id, title, position from cookbook_section where cookbook_id = ? order by position asc",
+        "select id, title, description, position from cookbook_section where cookbook_id = ? order by position asc",
         id)
         .fetch_all(pool)
         .await

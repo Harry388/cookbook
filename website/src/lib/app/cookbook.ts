@@ -12,6 +12,7 @@ export type Cookbook = {
 export type Section = {
     id: number,
     position: number,
+    description?: string,
     title: string
 }
 
@@ -45,6 +46,10 @@ export function removeCookbookRecipe(id: number | string, sectionId: number | st
 
 export function addCookbookSection(id: number | string, title: string) {
     return post(`cookbook/${id}/section`, { title });
+}
+
+export function updateCookbookSection(id: number | string, section_id: number | string, title: string, description: string) {
+    return put(`cookbook/${id}/section/${section_id}`, { title, description } );
 }
 
 export function removeCookbookSection(id: number | string, section_id: number | string) {

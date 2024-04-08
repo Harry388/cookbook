@@ -18,7 +18,7 @@
     $: editing = edit && (oldValue != value);
 
     $: {
-        if (value.length > max) {
+        if (value && (value.length > max)) {
             value = value.substring(0, max);
         }
     }
@@ -50,7 +50,7 @@
             { title }
         {/if}
         <span class="text-error">
-            {#if value.length > ((3 * max) / 4)}
+            {#if value && (value.length > ((3 * max) / 4))}
                 { value.length } / { max }
             {/if}
         </span>
