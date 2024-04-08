@@ -44,7 +44,7 @@
         <slot />
         <div class="flex justify-end gap-x-5 items-center">
             <Share path="/cookbook/{cookbook.id}" />
-            <a href="/cookbook/{cookbook.id}" class="btn btn-error" download={cookbook.title}>Download?</a>
+            <a href="/cookbook/{cookbook.id}" download={cookbook.title}><button class="fa-solid fa-download text-2xl" ></button></a>
             <a target="_blank" href="/cookbook/{cookbook.id}" class="btn">Open</a>
         </div>
     </div>
