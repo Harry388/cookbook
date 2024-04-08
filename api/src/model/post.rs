@@ -68,16 +68,19 @@ pub async fn create_post(pool: &MySqlPool, post: Post, auth: i64) -> Result<u64>
 
 pub async fn add_post_post_media(pool: &MySqlPool, storage: &dyn Storage, id: i64, media_list: Media, auth: i64) -> Result<()> {
     for media in media_list {
-        let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
-        let path = format!("user/{}/post/{}/{}", auth, id, time);
-        let media_path = storage.put_file(&path, media).await?;
-        sqlx::query!( 
-            "insert into post_media (uri, post_id)
-            values (?,?)",
-            media_path, id)
-            .execute(pool)
-            .await
-            .map_err(InternalServerError)?;
+        let content_type = media.content_type().map(|ct| ct.split("/").next().map(|ct| String::from(ct))).flatten();
+        if let Some(content_type) = content_type {
+            let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string();
+            let path = format!("user/{}/post/{}/{}", auth, id, time);
+            let media_path = storage.put_file(&path, media).await?;
+            sqlx::query!(
+                "insert into post_media (uri, post_id, type)
+                values (?,?,?)",
+                media_path, id, content_type)
+                .execute(pool)
+                .await
+                .map_err(InternalServerError)?;
+        }
     }
     Ok(())
 }
