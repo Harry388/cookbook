@@ -20,6 +20,7 @@ pub type Media = Vec<Upload>;
 
 #[derive(Object)]
 pub struct UpdatePost {
+    #[oai(validator(max_length=255, min_length=1))]
     title: Option<String>,
     #[oai(validator(max_length=65535))]
     content: Option<String>

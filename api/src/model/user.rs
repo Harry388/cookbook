@@ -21,11 +21,11 @@ pub struct User {
 
 #[derive(Object)]
 pub struct UpdateUser {
-    #[oai(validator(max_length=255))]
+    #[oai(validator(max_length=255, min_length=1))]
     display_name: Option<String>,
     #[oai(validator(max_length=65535))]
     bio: Option<String>,
-    #[oai(validator(max_length=255))]
+    #[oai(validator(max_length=255, min_length=1))]
     username: Option<String>,
     public: Option<bool>
 }

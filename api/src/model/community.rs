@@ -14,7 +14,7 @@ pub struct Community {
 
 #[derive(Object)]
 pub struct UpdateCommunity {
-    #[oai(validator(max_length=255))]
+    #[oai(validator(max_length=255, min_length=1))]
     title: Option<String>,
     #[oai(validator(max_length=65535))]
     description: Option<String>,
