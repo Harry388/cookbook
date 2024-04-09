@@ -27,14 +27,12 @@
 <div class="lg:w-5/12 lg:m-auto flex flex-col">
     {#each entries as entry }
         <div class="mt-5"></div>
-        <div class="flex gap-x-5">
-            {#if entry.type == 'post'} 
-                <Post post={entry} link />
-                <button class="fa-regular fa-plus text-2xl btn" on:click={() => add(entry.id, 'post')}></button>
-            {:else}
-                <Recipe recipe={entry} link />
-                <button class="fa-regular fa-plus text-2xl btn" on:click={() => add(entry.id, 'recipe')}></button>
-            {/if}
-        </div>
+        {#if entry.type == 'post'} 
+            <Post post={entry} link />
+            <button class="btn btn-outline btn-success w-full mt-5" on:click={() => add(entry.id, 'post')}>Add Post to Album</button>
+        {:else}
+            <Recipe recipe={entry} link />
+            <button class="btn btn-outline btn-success w-full mt-5" on:click={() => add(entry.id, 'recipe')}>Add Recipe to Album</button>
+        {/if}
     {/each}
 </div>

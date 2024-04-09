@@ -16,26 +16,27 @@
 
 </script>
 
+<a href="/user/{data.user.id}/albums"><i class="text-lg fa-solid fa-arrow-left-long"></i></a>
 {#if data.self}
     <a href="/user/{data.user.id}/albums/{data.album.id}/edit" class="btn btn-outline">Edit Album</a>
     <a href="/user/{data.user.id}/albums/{data.album.id}/add" class="btn btn-outline">Add to Album</a>
 {/if}
 
+<h3 class="text-2xl font-bold m-auto w-fit mt-5">{ data.album.title }</h3>
+
 <div class="lg:w-5/12 lg:m-auto flex flex-col">
     {#each data.entries as entry (`${entry.type}${entry.id}`)}
         <div class="mt-5"></div>
-        <div class="flex gap-x-5">
-            {#if entry.type == 'Post'} 
-                <Post post={entry} link />
-                {#if data.self}
-                    <button class="fa-regular fa-trash-can text-2xl btn" on:click={() => remove(entry.id, 'post')}></button>
-                {/if}
-            {:else}
-                <Recipe recipe={entry} link />
-                {#if data.self}
-                    <button class="fa-regular fa-trash-can text-2xl btn" on:click={() => remove(entry.id, 'recipe')}></button>
-                {/if}
+        {#if entry.type == 'Post'} 
+            <Post post={entry} link />
+            {#if data.self}
+                <button class="btn btn-outline btn-error w-full mt-5" on:click={() => remove(entry.id, 'post')}>Remove Post from Album</button>
             {/if}
-        </div>
+        {:else}
+            <Recipe recipe={entry} link />
+            {#if data.self}
+                <button class="btn btn-outline btn-error w-full mt-5" on:click={() => remove(entry.id, 'recipe')}>Remove Recipe from Album</button>
+            {/if}
+        {/if}
     {/each}
 </div>

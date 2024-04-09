@@ -8,7 +8,7 @@
 
 <div class="flex gap-x-5">
 
-    <div class="flex flex-col items-center h-fit w-fit p-4 -ml-6 bg-base-300 rounded flex-none">
+    <div class="hidden lg:flex flex-col items-center h-fit w-fit p-4 -ml-6 bg-base-300 rounded flex-none">
         {#if data.self}
             <a href="/user/{data.user.id}/albums/create" class="mb-5 btn btn-outline">Create Album</a>
         {/if}

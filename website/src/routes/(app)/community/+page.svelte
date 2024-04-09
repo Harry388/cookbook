@@ -7,7 +7,7 @@
 </script>
 
 <div class="lg:hidden">
-    <a href="/community/create" class="mb-5 btn btn-outline w-full">Create Community</a>
+    <a href="/community/create" class="mb-5 btn btn-outline w-full"><i class="fa-solid fa-plus"></i>Create Community</a>
     {#each data.communities as community}
         <div class="mt-5"></div>
         <a href="/community/{community.id}"><Info {community} options={false} /></a>
