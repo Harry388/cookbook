@@ -8,17 +8,24 @@ use crate::storage::Storage;
 
 #[derive(Object)]
 pub struct User {
+    #[oai(validator(max_length=255, min_length=1))]
     username: String,
+    #[oai(validator(max_length=255, min_length=1))]
     display_name: String,
     email: Email,
+    #[oai(validator(max_length=255, min_length=1))]
     password: String,
+    #[oai(validator(max_length=65535))]
     bio: Option<String>
 }
 
 #[derive(Object)]
 pub struct UpdateUser {
+    #[oai(validator(max_length=255))]
     display_name: Option<String>,
+    #[oai(validator(max_length=65535))]
     bio: Option<String>,
+    #[oai(validator(max_length=255))]
     username: Option<String>,
     public: Option<bool>
 }

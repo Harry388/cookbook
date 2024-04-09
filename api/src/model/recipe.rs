@@ -6,7 +6,9 @@ use sqlx::{MySqlPool, types::{chrono::{DateTime, Utc}, JsonValue}};
 
 #[derive(Object)]
 pub struct Recipe {
+    #[oai(validator(max_length=255, min_length=1))]
     title: String,
+    #[oai(validator(max_length=65535))]
     description: Option<String>,
     ingredients: JsonValue,
     method: JsonValue
@@ -14,7 +16,9 @@ pub struct Recipe {
 
 #[derive(Object)]
 pub struct UpdateRecipe {
+    #[oai(validator(max_length=255))]
     title: Option<String>,
+    #[oai(validator(max_length=65535))]
     description: Option<String>,
     ingredients: Option<JsonValue>,
     method: Option<JsonValue>

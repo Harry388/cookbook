@@ -1,15 +1,8 @@
 use poem_openapi::{OpenApi, payload::PlainText};
 use poem::web::Data;
 
+#[derive(Clone)]
 pub struct Spec(pub String);
-
-impl Clone for Spec {
-
-    fn clone(&self) -> Self {
-        Spec(self.0.clone())
-    }
-
-}
 
 pub struct SpecApi;
 

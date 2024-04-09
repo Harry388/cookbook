@@ -16,6 +16,7 @@ enum ApiTags {
 #[derive(Object)]
 struct RecipeWithTags {
     recipe: recipe::Recipe,
+    #[oai(validator(max_items=10))]
     tags: tag::Tags
 }
 

@@ -8,7 +8,9 @@ use crate::storage::Storage;
 
 #[derive(Object)]
 pub struct Post {
+    #[oai(validator(max_length=255, min_length=1))]
     title: Option<String>,
+    #[oai(validator(max_length=65535))]
     content: Option<String>,
     pub community_id: Option<i64>,
     recipes: Vec<i64>
@@ -19,6 +21,7 @@ pub type Media = Vec<Upload>;
 #[derive(Object)]
 pub struct UpdatePost {
     title: Option<String>,
+    #[oai(validator(max_length=65535))]
     content: Option<String>
 }
 

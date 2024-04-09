@@ -6,6 +6,7 @@ use sqlx::MySqlPool;
 
 #[derive(Object)]
 pub struct Album {
+    #[oai(validator(max_length=255, min_length=1))]
     title: String
 }
 

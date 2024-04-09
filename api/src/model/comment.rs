@@ -6,12 +6,14 @@ use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
 
 #[derive(Object)]
 pub struct Comment {
+    #[oai(validator(max_length=65535))]
     content: String,
     reply_id: Option<i64>
 }
 
 #[derive(Object)]
 pub struct UpdateComment {
+    #[oai(validator(max_length=65535))]
     content: String
 }
 

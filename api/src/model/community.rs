@@ -6,19 +6,24 @@ use sqlx::{MySqlPool, types::chrono::{DateTime, Utc}};
 
 #[derive(Object)]
 pub struct Community {
+    #[oai(validator(max_length=255, min_length=1))]
     title: String,
+    #[oai(validator(max_length=65535))]
     description: Option<String>
 }
 
 #[derive(Object)]
 pub struct UpdateCommunity {
+    #[oai(validator(max_length=255))]
     title: Option<String>,
+    #[oai(validator(max_length=65535))]
     description: Option<String>,
     public: bool
 }
 
 #[derive(Object)]
 pub struct UpdateCommunityUser {
+    #[oai(validator(pattern="ADMIN|USER"))]
     permission: String 
 }
 

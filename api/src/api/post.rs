@@ -17,7 +17,9 @@ enum ApiTags {
 #[derive(Multipart)]
 struct PostWithMediaWithTags {
     post: JsonField<post::Post>,
+    #[oai(validator(max_items=10))]
     media: post::Media,
+    #[oai(validator(max_items=10))]
     tags: tag::Tags
 }
 

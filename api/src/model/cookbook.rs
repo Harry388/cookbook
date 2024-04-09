@@ -5,7 +5,9 @@ use crate::storage::Storage;
 
 #[derive(Object)]
 pub struct Cookbook {
+    #[oai(validator(max_length=255, min_length = 1))]
     title: String,
+    #[oai(validator(max_length=65535))]
     description: Option<String>
 }
 
@@ -20,12 +22,15 @@ pub struct CookbookResult {
 
 #[derive(Object)]
 pub struct Section {
+    #[oai(validator(max_length=255, min_length = 1))]
     title: String
 }
 
 #[derive(Object)]
 pub struct UpdateSection {
+    #[oai(validator(max_length=255))]
     title: Option<String>,
+    #[oai(validator(max_length=65535))]
     description: Option<String>
 }
 

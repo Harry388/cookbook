@@ -20,7 +20,9 @@ pub struct TagResult {
 }
 
 pub async fn create_tags(pool: &MySqlPool, tags: Tags) -> Result<Vec<i64>> {
+    let tags: Vec<String> = tags.iter().map(|t| t.to_lowercase().split_whitespace().collect()).collect();
     for tag in tags.iter() {
+        // ignore result error
         let _ = sqlx::query!(
             "insert into tag (tag) values (?)",
             tag)
