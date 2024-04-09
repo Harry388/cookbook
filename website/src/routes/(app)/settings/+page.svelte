@@ -58,7 +58,7 @@
         <Input bind:value={username} title="User Name" edit on:save={save} />
         <Input bind:value={displayName} title="Display Name" edit on:save={save} />
         <Input bind:value={bio} title="Bio" edit on:save={save} long />
-        <div class="form-control w-52">
+        <div class="form-control w-full lg:w-52">
             <label class="cursor-pointer label">
               <span class="label-text">Public Account</span> 
               <input type="checkbox" class="toggle" bind:checked={isPublic} on:change={save} />

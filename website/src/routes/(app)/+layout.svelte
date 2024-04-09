@@ -42,7 +42,7 @@
             <div class="navbar-end">
             </div>
         </div>
-        <div class="h-full w-full p-5">
+        <div class="h-full w-full py-5 px-2">
             <slot />
         </div>
         <div class="h-16"></div>

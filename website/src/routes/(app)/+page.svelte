@@ -6,7 +6,7 @@
 
 </script>
 
-<div class="w-11/12 lg:w-1/3 m-auto">
+<div class="lg:w-1/3 m-auto">
 
     {#if data.entries.length == 0}
         <p class="text-lg mt-5">
