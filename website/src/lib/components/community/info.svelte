@@ -6,6 +6,7 @@
     import type { Community } from '$lib/app/community';
 
     export let community: Community;
+    export let options = true;
 
     const id: number = getContext('id');
 
@@ -36,12 +37,14 @@
                     <a class="flex-2 lg:flex-1 font-semibold text-xl" href="/community/{community.id}/members">{ community.users } Members</a>
                 </div>
             </div>
-            <div class="flex-1">
-                {#if community.is_admin}
-                    <a class="btn btn-outline w-full mb-5" href="/community/{community.id}/edit">Edit Community</a>
-                {/if}
-                <button class="btn btn-outline w-full" on:click={toggleJoin}>{ followMessage }</button>
-            </div>
+            {#if options}
+                <div class="flex-1">
+                    {#if community.is_admin}
+                        <a class="btn btn-outline w-full mb-5" href="/community/{community.id}/edit">Edit Community</a>
+                    {/if}
+                    <button class="btn btn-outline w-full" on:click={toggleJoin}>{ followMessage }</button>
+                </div>
+            {/if}
         </div>
         {#if community.description }
             <p>{ community.description }</p>

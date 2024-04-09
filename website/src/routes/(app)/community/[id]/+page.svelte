@@ -26,14 +26,12 @@
         {/if}
         {#each data.posts as post}
             <div class="mt-5"></div>
-            <div class="flex gap-x-5">
-                <Post {post} link />
-                {#if data.community.is_admin }
-                    <Confirm let:show on:confirm={() => remove(post.id)} id={post.id}>
-                        <button class="fa-regular fa-trash-can text-2xl btn" on:click={show}></button> 
-                    </Confirm>
-                {/if}
-            </div>
+            <Post {post} link />
+            {#if data.community.is_admin }
+                <Confirm let:show on:confirm={() => remove(post.id)} id={post.id}>
+                    <button class="btn btn-outline btn-error mt-5 w-full" on:click={show}>Remove Post from Community</button> 
+                </Confirm>
+            {/if}
         {/each}
     </div>
 {:else}
