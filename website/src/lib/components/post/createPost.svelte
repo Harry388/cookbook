@@ -21,9 +21,5 @@
     <Input bind:value={title} title="Title" required />
     <Input bind:value={content} title="Content" long />
     <TagInput bind:tags={tags} />
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span class="label-text">Media</span>
-    </label>
     <ImageInput bind:files={files} multiple />
 </div>

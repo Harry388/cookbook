@@ -13,23 +13,25 @@
     let count = 0;
 
     function add() {
-        if (newTag == '') return;
-        if (tags.map(t => t.tag).includes(newTag)) {
+        if (tags.length <= 9) {
+            if (newTag == '') return;
+            if (tags.map(t => t.tag).includes(newTag)) {
+                newTag = '';
+                return;
+            }
+            if (!edit) {
+                tags = [...tags, {
+                    tag: newTag,
+                    id: count,
+                    is_following: 0
+                }];
+            }
+            else {
+                dispatch('add', newTag);
+            }
             newTag = '';
-            return;
+            count++;
         }
-        if (!edit) {
-            tags = [...tags, {
-                tag: newTag,
-                id: count,
-                is_following: 0
-            }];
-        }
-        else {
-            dispatch('add', newTag);
-        }
-        newTag = '';
-        count++;
     }
 
     function remove(event: CustomEvent<Tag>) {
@@ -45,7 +47,12 @@
 
 <form on:submit|preventDefault={add} class="form-control">
     <label class="label" for="#input">
-        <span class="label-text">Tags</span>
+        <span class="label-text">
+            Tags
+            {#if tags.length >= 7}
+                <span class="text-error">{ tags.length } / 10</span>
+            {/if}
+        </span>
     </label>
     <div class="flex">
         <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered mr-2 w-full" />

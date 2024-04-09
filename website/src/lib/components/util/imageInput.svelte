@@ -26,6 +26,7 @@
             const newFiles = [...input.files].filter(f => ['image', 'video'].includes(fileType(f)));
             if (multiple) {
                 files = [...files, ...newFiles];
+                files = files.slice(0, 10);
             }
             else {
                 files = [...newFiles];
@@ -43,7 +44,16 @@
 
 </script>
 
-<div class="flex flex-wrap gap-5 mb-5">
+<label class="label" for="media">
+    <span class="label-text">
+        Media
+        {#if files.length >= 7}
+            <span class="text-error">{ files.length } / 10</span>
+        {/if}
+    </span>
+</label>
+
+<div id="media" class="flex flex-wrap gap-5 mb-5">
     {#each files as file, i}
         {@const url = urls[i]}
         <div class="self-start indicator w-fit lg:w-1/4">
