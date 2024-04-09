@@ -48,7 +48,7 @@
         <span class="label-text">Tags</span>
     </label>
     <div class="flex">
-        <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered mr-2" />
+        <input id="input" type="text" min="1" bind:value={newTag} placeholder="Tag" class="input input-bordered mr-2 w-full" />
         <button on:click={add} class="btn btn-outline"><i class="fa-solid fa-plus"></i></button>
     </div>
     {#if tags.length}

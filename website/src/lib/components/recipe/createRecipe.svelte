@@ -17,6 +17,6 @@
     <Input bind:value={title} title="Title" required />
     <Input bind:value={description} title="Description" long />
     <ListInput bind:list={ingredients} title="Ingredients" placeholder="Next Ingredient" />
-    <ListInput bind:list={method} title="Method" placeholder="Next Step" />
+    <ListInput bind:list={method} title="Method" placeholder="Next Step" long />
     <TagInput bind:tags={tags} />
 </div>

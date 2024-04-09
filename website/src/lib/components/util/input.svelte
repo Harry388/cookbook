@@ -60,7 +60,7 @@
         </span>
     </span>
 </label>
-<form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center {required && value.length == 0 ? 'input-error' : 'input-bordered'}">
+<form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center {required && value.length == 0 ? 'input-error' : 'input-bordered'} w-full">
     {#if long}
         <textarea id="input" bind:value={value} {placeholder} class="flex-1 input border-inherit" />
     {:else}

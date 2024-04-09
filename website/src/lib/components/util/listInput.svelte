@@ -9,6 +9,7 @@
     export let edit = false;
     export let title = '';
     export let placeholder = title;
+    export let long = false;
 
     let internalList = [...list, ''];
     let rerender = 0;
@@ -41,7 +42,7 @@
     {#each internalList as item, i}
         <div id="input" class="flex items-center mb-3">
             <p class="mr-5">{i + 1}.</p>
-            <Input bind:value={item} {edit} {placeholder} on:save={() => dispatch('change')} />
+            <Input bind:value={item} {edit} {placeholder} on:save={() => dispatch('change')} {long} />
             {#if i != (internalList.length - 1)}
                 <button class="fa-regular fa-trash-can text-2xl ml-5" on:click={() => remove(i)}></button>
             {/if}
