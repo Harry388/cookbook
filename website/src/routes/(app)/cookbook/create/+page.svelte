@@ -7,6 +7,7 @@
     let description = '';
 
     async function create() {
+        if (!title) return;
         const response = await createCookbook(title, description).run();
         if (response.ok) {
             history.back();

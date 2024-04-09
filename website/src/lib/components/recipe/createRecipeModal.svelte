@@ -13,7 +13,11 @@
     let method: string[];
     let tags: Tag[];
 
-    async function save() {
+    async function save(e: Event) {
+        if (!title) {
+            e.preventDefault();
+            return;
+        }
         const t = tags.map(t => t.tag);
         const response = await createRecipe(title, description, ingredients, method, t).run();
         if (response.ok) {

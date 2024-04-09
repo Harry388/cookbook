@@ -7,6 +7,7 @@
     let title = '';
 
     async function create() {
+        if (!title) return;
         const response = await createAlbum(title).run();
         if (response.ok) {
             await invalidate('app:albums');

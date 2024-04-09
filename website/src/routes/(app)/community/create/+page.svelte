@@ -8,10 +8,12 @@
     let description = '';
 
     async function create() {
-        const response = await createCommunity(title, description).run();
-        if (response.ok) {
-            await invalidate('app:community');
-            await goto('/community');
+        if (title) {
+            const response = await createCommunity(title, description).run();
+            if (response.ok) {
+                await invalidate('app:community');
+                await goto('/community');
+            }
         }
     }
 

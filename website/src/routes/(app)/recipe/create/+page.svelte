@@ -11,6 +11,7 @@
     let tags: Tag[];
 
     async function create() {
+        if (!title) return;
         const t = tags.map(t => t.tag);
         const response = await createRecipe(title, description, ingredients, method, t).run();
         if (response.ok) {
