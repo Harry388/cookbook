@@ -18,7 +18,7 @@ services:
             - './website:/code'
         command: sh -c "npm install && npm run dev -- --host"
         environment:
-            PUBLIC_API_URL: '${SVELTE_API_URL}'
+            PUBLIC_API_URL: '${SVELTE_DEV_API_URL}'
         network_mode: host
     database:
         image: 'mysql/mysql-server:8.0'

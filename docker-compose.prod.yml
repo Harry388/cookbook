@@ -1,10 +1,13 @@
-version: '3'
 services:
     api:
+        volumes:
+            - './cert:/cert'
         environment:
             PRODUCTION: 'true'
         command: sh -c "cargo run --release"
     website:
+        volumes:
+            - './cert:/cert'
         environment:
-            PORT: '80'
-        command: sh -c "npm install && npm run build && node build"
+            PUBLIC_API_URL: '${SVELTE_PROD_API_URL}'
+        command: sh -c "npm install && npm run build && node server.js"

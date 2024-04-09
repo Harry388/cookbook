@@ -2,6 +2,7 @@ FROM node:18-slim
 
 EXPOSE 5173
 EXPOSE 80
+EXPOSE 443
 
 # Install Puppeteer dependencies
 RUN apt-get update \

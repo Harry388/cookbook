@@ -1,5 +1,5 @@
-use std::env;
-use poem::{listener::TcpListener, Route, EndpointExt, middleware::Cors};
+use std::{env, fs};
+use poem::{listener::{Listener, RustlsCertificate, RustlsConfig, TcpListener}, middleware::Cors, EndpointExt, Route};
 use poem_openapi::OpenApiService;
 use cookbook::api;
 use cookbook::storage::dufs::DufsStorage;
@@ -43,7 +43,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .data(jwt_secret)
         .data(spec);
 
-    Ok(poem::Server::new(TcpListener::bind("0.0.0.0:8000"))
-        .run(app)
-        .await?)
+    let listener = TcpListener::bind("0.0.0.0:8000");
+
+    if production {
+        let key = fs::read("/cert/key.pem")?;
+        let cert = fs::read("/cert/cert.pem")?;
+
+        let listener = listener.rustls(RustlsConfig::new().fallback(RustlsCertificate::new().key(key).cert(cert)));
+
+        Ok(poem::Server::new(listener)
+            .run(app)
+            .await?)
+    }
+    else {
+        Ok(poem::Server::new(listener)
+            .run(app)
+            .await?)
+    }
+
 }
