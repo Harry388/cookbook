@@ -2,7 +2,7 @@
 
     import { goto } from '$app/navigation';
 
-    const routes = ['posts', 'recipes', 'communities', 'users'];
+    const routes = ['post', 'recipe', 'community', 'user'];
 
     export let data;
 
@@ -22,7 +22,7 @@
     <label for="#search" class="label">
         <span class="label-text">Search</span>
     </label>
-    <div id="search" class="flex gap-x-5 items-center ">
+    <div id="search" class="flex items-center ">
         <input type="text" min="1" bind:value={text} placeholder="Search" class="flex-grow input input-bordered" />
         <button class="fa-solid fa-magnifying-glass btn btn-ghost text-2xl"><input type="submit" value="" /></button>
     </div>
@@ -36,6 +36,6 @@
     {/each}
 </div>
 
-<div class="w-11/12 lg:w-1/3 m-auto">
+<div class="w-full lg:w-1/3 m-auto">
     <slot/>
 </div>

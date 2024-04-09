@@ -71,13 +71,13 @@
     </Confirm>
     <div class="flex gap-5 flex-col items-center mb-5">
         {#each section.recipes as recipe (recipe.id)}
-            <div class="flex w-full">
-                <div class="flex indicator w-1/2">
+            <div class="flex w-full flex-col lg:flex-row gap-y-5">
+                <div class="flex indicator lg:w-1/2">
                     <button class="indicator-item badge badge-error text-lg py-3" on:click={() => removeRecipe(recipe.id)}><i class="fa-solid fa-xmark"></i></button>
                     <Recipe {recipe} link />
                 </div>
-                <div class="divider divider-horizontal"></div>
-                <div class="w-1/2">
+                <div class="lg:flex hidden divider divider-horizontal"></div>
+                <div class="lg:w-1/2">
                     <EditImage src="cookbook/{cookbookId}/section/{section.section.id}/recipe/{recipe.id}/image" 
                     on:remove={e => removeRecipePic(recipe.id, e.detail)}
                     on:change={e => addRecipePic(e.detail.file, recipe.id, e.detail.after)} />
