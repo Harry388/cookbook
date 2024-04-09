@@ -50,7 +50,7 @@
         {/each}
         <div class="form-control">
             <Input bind:value={newSection} title="New Section" />
-            <button class="btn btn-primary w-fit mt-5" on:click={addSection}>Add</button>
+            <button class="btn btn-primary w-full btn-outline mt-5" on:click={addSection}>Add</button>
         </div>
     </div>
 </div>

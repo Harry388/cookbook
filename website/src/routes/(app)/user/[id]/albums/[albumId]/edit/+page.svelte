@@ -35,6 +35,6 @@
     </div>
 
     <Confirm let:show on:confirm={remove} id={data.album.id}>
-        <button class="btn btn-error my-5" on:click={show}>Delete Album</button>
+        <button class="btn btn-error w-full my-5" on:click={show}>Delete Album</button>
     </Confirm>
 </div>

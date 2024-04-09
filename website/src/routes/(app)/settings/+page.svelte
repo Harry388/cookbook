@@ -58,10 +58,12 @@
         <Input bind:value={username} title="User Name" edit on:save={save} />
         <Input bind:value={displayName} title="Display Name" edit on:save={save} />
         <Input bind:value={bio} title="Bio" edit on:save={save} long />
-        <label class="label" for="#public">
-            <span class="label-text">Public</span>
-        </label>
-        <input id="public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
+        <div class="form-control w-52">
+            <label class="cursor-pointer label">
+              <span class="label-text">Public Account</span> 
+              <input type="checkbox" class="toggle" bind:checked={isPublic} on:change={save} />
+            </label>
+        </div>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="label">
             <span class="label-text">Profile Picture</span>
@@ -70,9 +72,9 @@
     </div>
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
-        <button class="btn btn-primary w-fit" on:click={onLogOut}>Log Out</button>
+        <button class="btn btn-outline btn-primary w-full" on:click={onLogOut}>Log Out</button>
         <Confirm let:show on:confirm={deleteAccount} id="user">
-            <button class="btn btn-error w-fit mt-5" on:click={show}>Delete Account</button>
+            <button class="btn btn-error w-full mt-5" on:click={show}>Delete Account</button>
         </Confirm>
     </div>
 </div>

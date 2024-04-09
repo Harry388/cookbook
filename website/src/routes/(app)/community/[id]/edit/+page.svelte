@@ -34,13 +34,15 @@
     <div class="form-control">
         <Input bind:value={title} title="Title" edit on:save={save} />
         <Input bind:value={description} title="Description" edit on:save={save} long />
-        <label class="label" for="#public">
-            <span class="label-text">Public</span>
-        </label>
-        <input id="#public" type="checkbox" class="checkbox checkbox-primary" bind:checked={isPublic} on:change={save} />
+        <div class="form-control w-52">
+            <label class="cursor-pointer label">
+              <span class="label-text">Public Community</span> 
+              <input type="checkbox" class="toggle" bind:checked={isPublic} on:change={save} />
+            </label>
+        </div>
     </div>
 
     <Confirm let:show on:confirm={remove} id={data.community.id}>
-        <button class="btn btn-error my-5" on:click={show}>Delete Community</button>
+        <button class="btn btn-error w-full my-5" on:click={show}>Delete Community</button>
     </Confirm>
 </div>

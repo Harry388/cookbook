@@ -67,9 +67,9 @@
     <Input bind:value={title} edit on:save={updateSection} title="Title" />
     <Input bind:value={description} edit long on:save={updateSection} title="Description" />
     <Confirm let:show on:confirm={removeSection} id={section.section.id}>
-        <button on:click={show} class="btn btn-error w-full my-5">Delete Section</button>
+        <button on:click={show} class="btn btn-error btn-outline w-full my-5">Delete Section</button>
     </Confirm>
-    <div class="flex gap-5 flex-col items-center">
+    <div class="flex gap-5 flex-col items-center mb-5">
         {#each section.recipes as recipe (recipe.id)}
             <div class="flex w-full">
                 <div class="flex indicator w-1/2">
