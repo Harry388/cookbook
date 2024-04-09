@@ -26,6 +26,7 @@
     function remove(index: number) {
         if (internalList.length > 1) {
             internalList = internalList.filter((_, i) => index != i);
+            list = internalList.filter(i => i != '');
             dispatch('change');
             rerender++;
         }
