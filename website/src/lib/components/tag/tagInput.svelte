@@ -59,7 +59,7 @@
         <button on:click={add} class="btn btn-outline"><i class="fa-solid fa-plus"></i></button>
     </div>
     {#if tags.length}
-        <div class="flex gap-x-2 my-5">
+        <div class="flex flex-wrap gap-2 my-5">
             {#each tags as tag (tag.id)}
                 <TagComponent {tag} on:remove={remove} edit />
             {/each}

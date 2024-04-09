@@ -71,7 +71,7 @@ struct LogInResult {
 enum LogInResponse {
     #[oai(status = 200)]
     Ok(#[oai(header = "set-cookie")] String),
-    #[oai(status = 401)]
+    #[oai(status = 512)]
     InvalidLogIn(PlainText<String>)
 }
 

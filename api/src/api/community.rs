@@ -52,7 +52,7 @@ enum UpdateCommunityUserResponse {
 enum LeaveCommunityResponse {
     #[oai(status = 200)]
     Ok,
-    #[oai(status = 500)]
+    #[oai(status = 512)]
     OneAdmin(PlainText<String>),
     #[oai(status = 401)]
     Unauthorized
