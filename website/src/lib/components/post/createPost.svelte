@@ -18,7 +18,7 @@
 
 <div class="form-control">
     <SelectInput bind:value={community} options={communities} title="Pick Community" />
-    <Input bind:value={title} title="Title" />
+    <Input bind:value={title} title="Title" required />
     <Input bind:value={content} title="Content" long />
     <TagInput bind:tags={tags} />
     <!-- svelte-ignore a11y-label-has-associated-control -->

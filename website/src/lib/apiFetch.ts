@@ -37,8 +37,8 @@ function createFetchObj<T>(input: string, body?: any, init?: RequestInit): Fetch
             }
             const response = await fetchFn(`${PUBLIC_API_URL}/${this.input}`, requestInit);
             if (!response.ok) {
-                const message = await response.text();
-                error.set(message);
+                error.set(response.status == 500 ? await response.text() : response.statusText);
+                setTimeout(() => error.set(''), 5000);
             }
             return response;
         },

@@ -7,6 +7,7 @@
     export let value = '';
     export let title = '';
     export let type: 'text' | 'email' | 'password' = 'text';
+    export let required = false;
     export let edit = false;
     export let long = false;
     export let placeholder = title;
@@ -46,6 +47,9 @@
 
 <label for="#input" class="label">
     <span class="label-text">
+        {#if required}
+            <span class="text-error">*</span>
+        {/if}
         {#if title}
             { title }
         {/if}
@@ -56,16 +60,16 @@
         </span>
     </span>
 </label>
-<form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center">
+<form on:submit|preventDefault={saveEdit} class="form-control flex-row gap-x-5 items-center {required && value.length == 0 ? 'input-error' : 'input-bordered'}">
     {#if long}
-        <textarea id="input" bind:value={value} {placeholder} class="flex-1 input input-bordered" />
+        <textarea id="input" bind:value={value} {placeholder} class="flex-1 input border-inherit" />
     {:else}
         {#if (type == 'text') || showPassword}
-            <input id="input" type="text" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+            <input id="input" type="text" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input border-inherit" />
         {:else if type == 'email'}
-            <input id="input" type="email" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+            <input id="input" type="email" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input border-inherit" />
         {:else}
-            <input id="input" type="password" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input input-bordered" />
+            <input id="input" type="password" min="1" bind:value={value} on:keydown={onKey} {placeholder} class="flex-1 input border-inherit" />
         {/if}
     {/if}
     {#if editing}

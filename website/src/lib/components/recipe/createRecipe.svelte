@@ -14,7 +14,7 @@
 </script>
 
 <div class="form-control">
-    <Input bind:value={title} title="Title" />
+    <Input bind:value={title} title="Title" required />
     <Input bind:value={description} title="Description" long />
     <ListInput bind:list={ingredients} title="Ingredients" placeholder="Next Ingredient" />
     <ListInput bind:list={method} title="Method" placeholder="Next Step" />
