@@ -4,7 +4,7 @@ services:
         image: cookbook/api
         volumes:
             - './api:/code'
-        command: sh -c "cargo watch -x run"
+        command: sh -c "sqlx migrate run && cargo watch -x run"
         environment:
             DATABASE_URL: '${API_DB_URL}'
             STORAGE_URL: '${API_STORAGE_URL}'

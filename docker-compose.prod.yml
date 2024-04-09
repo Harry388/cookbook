@@ -4,7 +4,7 @@ services:
             - './cert:/cert'
         environment:
             PRODUCTION: 'true'
-        command: sh -c "cargo run --release"
+        command: sh -c "sqlx migrate run && cargo run --release"
     website:
         volumes:
             - './cert:/cert'
