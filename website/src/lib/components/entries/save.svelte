@@ -25,6 +25,7 @@
     }
 
     function cancel() {
+        create = false;
         selectAlbum = -1;
     }
 
@@ -39,6 +40,7 @@
     async function saveAlbum() {
         const response = await createAlbum(createTitle).run();
         if (response.ok) {
+            create = false;
             selectAlbum = await response.json(); 
             await addToAlbum();
             close.click();
