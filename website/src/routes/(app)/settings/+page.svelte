@@ -64,11 +64,12 @@
               <input type="checkbox" class="toggle" bind:checked={isPublic} on:change={save} />
             </label>
         </div>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">
+        <label class="label" for="pfp">
             <span class="label-text">Profile Picture</span>
         </label>
-        <EditImage src="user/{data.id}/pfp" on:change={savePfp} on:remove={removePfp} />
+        <div class="w-11/12" id="pfp">
+            <EditImage src="user/{data.id}/pfp" on:change={savePfp} on:remove={removePfp} />
+        </div>
     </div>
     <h3 class="font-bold text-lg py-5">Other Settings</h3>
     <div class="form-control">
