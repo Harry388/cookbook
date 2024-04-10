@@ -9,11 +9,12 @@
         username: string,
         display_name: string
     }[];
+    export let title: string;
 
 </script>
         
 
-<h3 class="font-bold text-lg">Followers</h3>
+<h3 class="font-bold text-lg">{ title }</h3>
 
 {#if members.length}
     <SearchList>

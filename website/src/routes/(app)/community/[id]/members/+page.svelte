@@ -1,5 +1,6 @@
 <script lang="ts">
 
+    import MemberList from '$lib/components/user/memberList.svelte';
     import SearchList from '$lib/components/util/searchList.svelte';
     import SearchItem from '$lib/components/util/searchItem.svelte';
     import ProfilePic from '$lib/components/user/profilePic.svelte';
@@ -8,6 +9,8 @@
     import { invalidate } from '$app/navigation';
 
     export let data;
+
+    let tab = 0;
 
     $: admins = data.members.filter(m => m.permission == 'ADMIN');
     $: users = data.members.filter(m => m.permission == 'USER');
@@ -38,157 +41,55 @@
 
 </script>
 
-<div class="flex justify-center">
+<div role="tablist" class="my-5 tabs tabs-bordered tabs-lg lg:hidden">
+    <button role="tab" class="tab {(tab == 0) && 'tab-active'}" on:click={() => tab = 0}>
+        Admins
+    </button>
+    <button role="tab" class="tab {(tab == 1) && 'tab-active'}" on:click={() => tab = 1}>
+        Members
+    </button>
+    {#if data.community.is_admin}
+        <button role="tab" class="tab {(tab == 2) && 'tab-active'}" on:click={() => tab = 2}>
+            Requests
+        </button>
+    {/if}
+</div>
 
-    <div class="overflow-x-auto w-1/3">
+<div class="block lg:flex">
 
-        <h3 class="font-bold text-lg">Admins</h3>
-
-        {#if admins.length}
-
-            <SearchList>
-
-            <table class="table">
-                <tbody>
-                    {#each admins as admin}
-
-                        <SearchItem key={admin.display_name}>
-
-                        <tr>
-                            <td>
-                                <a class="flex items-center gap-3" href="/user/{admin.id}">
-                                    <ProfilePic user={admin} />
-                                    <div>
-                                        <div class="font-bold">{ admin.display_name }</div>
-                                        <div class="opacity-50">@{ admin.username }</div>
-                                    </div>
-                                </a>
-                            </td>
-                            <th>
-                                {#if data.community.is_admin}
-                                    {#if data.id != admin.id }
-                                        <button class="btn btn-ghost" on:click={() => setPermission(admin.id, 'USER')}>Demote</button>
-                                    {/if}
-                                    <button class="btn btn-ghost" on:click={() => leave(admin.id)}>Remove</button>
-                                {/if}
-                            </th>
-                        </tr>
-
-                        </SearchItem>
-
-                    {/each}
-                </tbody>
-            </table>
-
-            </SearchList>
-
-        {:else}
-
-            <div>No Admins</div>
-
+    <div class="{(tab != 0) && 'hidden'} lg:block lg:w-1/3">
+        <MemberList members={admins} let:id title="Admins">
+        {#if data.community.is_admin}
+            {#if data.id != id }
+                <button class="btn btn-ghost" on:click={() => setPermission(id, 'USER')}>Demote</button>
+            {/if}
+            <button class="btn btn-ghost" on:click={() => leave(id)}>Remove</button>
         {/if}
-
+            <svelte:fragment slot="fallback">No Admins</svelte:fragment>
+        </MemberList>
     </div>
 
-    <div class="divider divider-horizontal"></div>
-    
-    <div class="overflow-x-auto w-1/3">
+    <div class="divider divider-horizontal hidden lg:flex"></div>
 
-        <h3 class="font-bold text-lg">Members</h3>
-        
-        {#if users.length}
-
-            <SearchList>
-
-            <table class="table">
-                <tbody>
-                    {#each users as user}
-
-                        <SearchItem key={user.display_name}>
-
-                        <tr>
-                            <td>
-                                <a class="flex items-center gap-3" href="/user/{user.id}">
-                                    <ProfilePic user={user} />
-                                    <div>
-                                        <div class="font-bold">{ user.display_name }</div>
-                                        <div class="opacity-50">@{ user.username }</div>
-                                    </div>
-                                </a>
-                            </td>
-                            <th>
-                                {#if data.community.is_admin}
-                                    <button class="btn btn-ghost" on:click={() => setPermission(user.id, 'ADMIN')}>Promote</button>
-                                    <button class="btn btn-ghost" on:click={() => leave(user.id)}>Remove</button>
-                                {/if}
-                            </th>
-                        </tr>
-
-                        </SearchItem>
-
-                    {/each}
-                </tbody>
-            </table>
-
-            </SearchList>
-
-        {:else}
-
-            <div>No Users</div>
-
-        {/if}
-
+    <div class="{(tab != 1) && 'hidden'} lg:block lg:w-1/3">
+        <MemberList members={users} let:id title="Members">
+            {#if data.community.is_admin}
+                <button class="btn btn-ghost" on:click={() => setPermission(id, 'ADMIN')}>Promote</button>
+                <button class="btn btn-ghost" on:click={() => leave(id)}>Remove</button>
+            {/if}
+            <svelte:fragment slot="fallback">No Members</svelte:fragment>
+        </MemberList>
     </div>
 
     {#if data.community.is_admin}
-        <div class="divider divider-horizontal"></div>
-        
-        <div class="overflow-x-auto w-1/3">
+        <div class="divider divider-horizontal hidden lg:flex"></div>
 
-            <h3 class="font-bold text-lg">Requests</h3>
-            
-            {#if data.requests.length}
-
-                <SearchList>
-
-                <table class="table">
-                    <tbody>
-                        {#each data.requests as request}
-
-                            <SearchItem key={request.display_name}>
-
-                            <tr>
-                                <td>
-                                    <a class="flex items-center gap-3" href="/user/{request.id}">
-                                        <ProfilePic user={request} />
-                                        <div>
-                                            <div class="font-bold">{ request.display_name }</div>
-                                            <div class="opacity-50">@{ request.username }</div>
-                                        </div>
-                                    </a>
-                                </td>
-                                <th>
-                                    {#if data.community.is_admin}
-                                        <button class="btn btn-ghost" on:click={() => accept(request.id)}>Accept</button>
-                                        <button class="btn btn-ghost" on:click={() => leave(request.id)}>Remove</button>
-                                    {/if}
-                                </th>
-                            </tr>
-
-                            </SearchItem>
-
-                        {/each}
-                    </tbody>
-                </table>
-
-                </SearchList>
-
-            {:else}
-
-                <div>No Users</div>
-
-            {/if}
-
+        <div class="{(tab != 2) && 'hidden'} lg:block lg:w-1/3">
+            <MemberList members={data.requests} let:id title="Requests">
+                <button class="btn btn-ghost" on:click={() => accept(id)}>Accept</button>
+                <button class="btn btn-ghost" on:click={() => leave(id)}>Remove</button>
+                <svelte:fragment slot="fallback">No Requests</svelte:fragment>
+            </MemberList>
         </div>
     {/if}
 

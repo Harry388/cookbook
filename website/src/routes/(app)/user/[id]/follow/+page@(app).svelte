@@ -32,14 +32,14 @@
 </script>
 
 <div role="tablist" class="my-5 tabs tabs-bordered tabs-lg lg:hidden">
-    <button role="tab" class="text-sm lg:text-lg tab {(tab == 0) && 'tab-active'}" on:click={() => tab = 0}>
+    <button role="tab" class="tab {(tab == 0) && 'tab-active'}" on:click={() => tab = 0}>
         Followers
     </button>
-    <button role="tab" class="text-sm lg:text-lg tab {(tab == 1) && 'tab-active'}" on:click={() => tab = 1}>
+    <button role="tab" class="tab {(tab == 1) && 'tab-active'}" on:click={() => tab = 1}>
         Following
     </button>
     {#if data.self}
-        <button role="tab" class="text-sm lg:text-lg tab {(tab == 2) && 'tab-active'}" on:click={() => tab = 2}>
+        <button role="tab" class="tab {(tab == 2) && 'tab-active'}" on:click={() => tab = 2}>
             Requests
         </button>
     {/if}
@@ -48,7 +48,7 @@
 <div class="block lg:flex">
 
     <div class="{(tab != 0) && 'hidden'} lg:block lg:w-1/3">
-        <MemberList members={data.followers} let:id>
+        <MemberList members={data.followers} let:id title="Followers">
             {#if data.self}
                 <button class="btn btn-ghost" on:click={() => remove(id)}>Remove</button>
             {/if}
@@ -59,7 +59,7 @@
     <div class="divider divider-horizontal hidden lg:flex"></div>
 
     <div class="{(tab != 1) && 'hidden'} lg:block lg:w-1/3">
-        <MemberList members={data.following} let:id>
+        <MemberList members={data.following} let:id title="Following">
             {#if data.self}
                 <button class="btn btn-ghost" on:click={() => unfollow(id)}>Unfollow</button>
             {/if}
@@ -72,7 +72,7 @@
         <div class="divider divider-horizontal hidden lg:flex"></div>
 
         <div class="{(tab != 2) && 'hidden'} lg:block lg:w-1/3">
-            <MemberList members={data.requests} let:id>
+            <MemberList members={data.requests} let:id title="Requests">
                 <button class="btn btn-ghost" on:click={() => accept(id)}>Accept</button>
                 <button class="btn btn-ghost" on:click={() => remove(id)}>Remove</button>
                 <svelte:fragment slot="fallback">No Requests</svelte:fragment>
