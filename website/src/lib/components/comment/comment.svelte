@@ -2,7 +2,7 @@
 
     import Comments from '$lib/components/comment/comments.svelte';
     import ProfilePic from '$lib/components/user/profilePic.svelte';
-    import { getContext, onMount } from 'svelte';
+    import { getContext } from 'svelte';
     import { deleteComment, likeComment, unlikeComment, updateComment, replyToComment, getCommentReplies } from '$lib/app/comment';
     import { invalidate } from '$app/navigation';
     import type { Comment } from '$lib/app/comment';
@@ -79,10 +79,10 @@
 
 <div class="chat chat-start">
     <div class="chat-image avatar">
-        <ProfilePic small user={{ id: comment.user_id, display_name: comment.user_display_name }} />
+        <a href="/user/{comment.user_id}"><ProfilePic small user={{ id: comment.user_id, display_name: comment.user_display_name }} /></a>
     </div>
     <div class="chat-header">
-        { comment.user_display_name }
+        <a href="/user/{comment.user_id}">{ comment.user_display_name }</a>
         <time class="text-xs opacity-50">{ date }</time>
     </div>
     <div class="flex gap-x-5">
