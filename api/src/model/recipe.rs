@@ -37,7 +37,7 @@ pub struct RecipeResult {
     user_display_name: String,
     pub created: DateTime<Utc>,
     is_liked: i64,
-    likes: Option<i64>,
+    pub likes: Option<i64>,
     comments: Option<i64>,
     links: Option<i64>
 }
@@ -71,6 +71,27 @@ pub async fn get_recipe(pool: &MySqlPool, id: i64, auth: i64) -> Result<Option<R
     Ok(recipe)
 }
 
+pub async fn get_trending_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeResult>> {
+    let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
+        "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name,
+        exists (select * from recipe_like where recipe_id = recipe.id and user_id = ?) as is_liked,
+        (select count(*) from recipe_like where recipe_id = recipe.id) as likes,
+        (select count(*) from recipe_comment where recipe_id = recipe.id) as comments,
+        (select count(*) from recipe_post where recipe_id = recipe.id) as links
+        from recipe inner join user on recipe.user_id = user.id
+        left join following on following.following_id = recipe.user_id
+        inner join recipe_like on recipe_like.recipe_id = recipe.id
+        where (recipe.user_id != ?) and (user.public or (following.user_id = ? and following.accepted)) and 
+        (recipe_like.created > (now() - interval 1 month))
+        group by recipe.id
+        order by likes desc",
+        auth, auth, auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(recipes)
+}
+
 pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<RecipeResult>> {
     let recipes: Vec<RecipeResult> = sqlx::query_as!(RecipeResult,
         "select recipe.id, title, description, ingredients, method, recipe.user_id, recipe.created, user.display_name as user_display_name,
@@ -80,12 +101,12 @@ pub async fn search_recipes(pool: &MySqlPool, search: String, auth: i64) -> Resu
         (select count(*) from recipe_post where recipe_id = recipe.id) as links
         from recipe inner join user on recipe.user_id = user.id
         left join following on following.following_id = recipe.user_id
-        where (user.public or (following.user_id = ? and following.accepted)) and 
+        where ((recipe.user_id = ?) or user.public or (following.user_id = ? and following.accepted)) and 
         (match (title, description) against (?) or 
         exists (select * from tag inner join tag_recipe on tag.id = tag_recipe.tag_id where tag_recipe.recipe_id = recipe.id and match(tag.tag) against (?)))
         group by recipe.id
         order by created desc",
-        auth, auth, search, search)
+        auth, auth, auth, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;
@@ -103,7 +124,7 @@ pub async fn get_feed_recipes(pool: &MySqlPool, auth: i64) -> Result<Vec<RecipeR
         left join following on following.following_id = recipe.user_id
         left join tag_recipe on tag_recipe.recipe_id = recipe.id
         left join tag_user on tag_recipe.tag_id = tag_user.tag_id
-        where recipe.user_id != ? and ((following.user_id = ? and following.accepted) or (user.public and tag_user.user_id = ?))
+        where (recipe.user_id != ?) and ((following.user_id = ? and following.accepted) or (user.public and tag_user.user_id = ?))
         group by recipe.id
         order by created desc",
         auth, auth, auth, auth)

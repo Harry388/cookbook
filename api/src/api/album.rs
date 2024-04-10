@@ -92,7 +92,7 @@ impl AlbumApi {
         let posts_fut = post::get_album_posts(pool.0, id.0, auth.0);
         let recipes_fut = recipe::get_album_recipes(pool.0, id.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = entry::create_entries(posts, recipes);
+        let entries = entry::create_entries(posts, recipes, entry::OrderBy::Created);
         Ok(GetAlbumEntriesResponse::Ok(Json(entries)))
     }
 

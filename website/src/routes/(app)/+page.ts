@@ -1,11 +1,9 @@
-import { getUserFeed } from '$lib/app/user';
+import { redirect } from "@sveltejs/kit"
 
-export const load = async ({ fetch }) => {
+export const load = async ({ route }) => {
 
-    const entries = await getUserFeed().json(fetch);
-    
-    return {
-        entries
+    if (route.id == '/(app)') {
+        throw redirect(301, '/home/feed');
     }
 
 }

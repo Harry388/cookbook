@@ -61,7 +61,7 @@ impl TagApi {
         let posts_fut = post::get_tag_posts(pool.0, id.0, auth.0);
         let recipes_fut = recipe::get_tag_recipes(pool.0, id.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = entry::create_entries(posts, recipes);
+        let entries = entry::create_entries(posts, recipes, entry::OrderBy::Created);
         Ok(Json(entries))
     }
 

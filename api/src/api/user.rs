@@ -158,7 +158,16 @@ impl UserApi {
         let posts_fut = post::get_feed_posts(pool.0, auth.0);
         let recipes_fut = recipe::get_feed_recipes(pool.0, auth.0);
         let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
-        let entries = entry::create_entries(posts, recipes);
+        let entries = entry::create_entries(posts, recipes, entry::OrderBy::Created);
+        Ok(Json(entries))
+    }
+
+    #[oai(path = "/trending", method = "get")]
+    async fn get_trending(&self, pool: Data<&MySqlPool>, auth: JWTAuthorization) -> Result<GetFeedResponse> {
+        let posts_fut = post::get_trending_posts(pool.0, auth.0);
+        let recipes_fut = recipe::get_trending_recipes(pool.0, auth.0);
+        let (posts, recipes) = try_join!(posts_fut, recipes_fut)?;
+        let entries = entry::create_entries(posts, recipes, entry::OrderBy::Created);
         Ok(Json(entries))
     }
 }

@@ -40,7 +40,7 @@ pub struct PostResult {
     community_title: Option<String>,
     pub created: DateTime<Utc>,
     is_liked: i64,
-    likes: Option<i64>,
+    pub likes: Option<i64>,
     comments: Option<i64>,
     links: Option<i64>
 }
@@ -129,6 +129,31 @@ pub async fn get_post_media(pool: &MySqlPool, storage: &dyn Storage, media_id: i
     Ok(Some(post_media))
 }
 
+pub async fn get_trending_posts(pool: &MySqlPool, auth: i64) -> Result<Vec<PostResult>> {
+    let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
+        "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
+        user.display_name as user_display_name, community.title as community_title,
+        exists (select * from post_like where post_id = post.id and user_id = ?) as is_liked,
+        (select count(*) from post_like where post_id = post.id) as likes,
+        (select count(*) from post_comment where post_id = post.id) as comments,
+        (select count(*) from recipe_post where post_id = post.id) as links
+        from post left join post_media on post.id = post_media.post_id
+        inner join user on user.id = post.user_id
+        left join community on community.id = post.community_id
+        left join following on following.following_id = post.user_id
+        left join community_user on community_user.community_id = post.community_id
+        inner join post_like on post_like.post_id = post.id
+        where (post.user_id != ?) and ((user.public or (following.user_id = ? and following.accepted)) or (community.public or (community_user.user_id = ? and community_user.accepted))) and 
+        (post_like.created > (now() - interval 1 month))
+        group by post.id
+        order by likes desc",
+        auth, auth, auth, auth)
+        .fetch_all(pool)
+        .await
+        .map_err(InternalServerError)?;
+    Ok(posts)
+}
+
 pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result<Vec<PostResult>> {
     let posts: Vec<PostResult> = sqlx::query_as!(PostResult,
         "select post.id, post.title, post.content, post.user_id, json_objectagg(ifnull(post_media.id, -1), post_media.type) as media, post.created, post.community_id,
@@ -142,12 +167,12 @@ pub async fn search_posts(pool: &MySqlPool, search: String, auth: i64) -> Result
         left join community on community.id = post.community_id
         left join following on following.following_id = post.user_id
         left join community_user on community_user.community_id = post.community_id
-        where ((user.public or (following.user_id = ? and following.accepted)) or (community.public or (community_user.user_id = ? and community_user.accepted))) and 
+        where ((post.user_id = ?) or (user.public or (following.user_id = ? and following.accepted)) or (community.public or (community_user.user_id = ? and community_user.accepted))) and 
         (match (post.title, content) against (?) or 
         exists (select * from tag inner join tag_post on tag.id = tag_post.tag_id where tag_post.post_id = post.id and match(tag.tag) against (?)))
         group by post.id
         order by created desc",
-        auth, auth, auth, search, search)
+        auth, auth, auth, auth, search, search)
         .fetch_all(pool)
         .await
         .map_err(InternalServerError)?;

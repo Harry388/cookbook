@@ -43,3 +43,7 @@ export function deleteUser(id: number | string) {
 export function getUserFeed() {
     return get<Entry[]>('user/feed');
 }
+
+export function getTrending() {
+    return get<Entry[]>('user/trending');
+}

@@ -58,7 +58,7 @@
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu flex p-4 w-40 min-h-full bg-base-300 text-base-content">
             <!-- Sidebar content here -->
-            <li><a href="/" class={pageName == undefined ? 'active' : ''}><i class="fa-solid fa-house"></i>Home</a></li>
+            <li><a href="/home/feed" class={pageName == 'home' ? 'active' : ''}><i class="fa-solid fa-house"></i>Home</a></li>
             <li><a href="/community" class={pageName == 'community' ? 'active' : ''}><i class="fa-solid fa-user-group"></i>Communities</a></li>
             <li><a href="/user/{data.id}" class={pageName == 'user' ? 'active' : ''}><i class="fa-solid fa-user"></i>Profile</a></li>
             <li><a href="/search" class={pageName == 'search' ? 'active' : ''}><i class="fa-solid fa-magnifying-glass"></i>Search</a></li>
