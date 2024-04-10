@@ -1,8 +1,6 @@
 <script lang="ts">
 
-    import SearchList from '$lib/components/util/searchList.svelte';
-    import SearchItem from '$lib/components/util/searchItem.svelte';
-    import ProfilePic from '$lib/components/user/profilePic.svelte';
+    import MemberList from '$lib/components/user/memberList.svelte';
     import { acceptFollow, removeFollower } from '$lib/app/follow';
     import { invalidate } from '$app/navigation';
 
@@ -31,155 +29,32 @@
 
 </script>
 
-<div class="flex justify-center">
+<div class="flex">
 
-    <div class="overflow-x-auto w-1/3">
-
-        <h3 class="font-bold text-lg">Followers</h3>
-
-        {#if data.followers.length}
-
-            <SearchList>
-
-            <table class="table">
-                <tbody>
-                    {#each data.followers as follower}
-
-                        <SearchItem key={follower.display_name}>
-
-                        <tr>
-                            <td>
-                                <a class="flex items-center gap-3" href={`/user/${follower.id}`}>
-                                    <ProfilePic user={follower} />
-                                    <div>
-                                        <div class="font-bold">{ follower.display_name }</div>
-                                        <div class="opacity-50">@{ follower.username }</div>
-                                    </div>
-                                </a>
-                            </td>
-                            <th>
-                                {#if data.self}
-                                    <button class="btn btn-ghost" on:click={() => remove(follower.id)}>Remove</button>
-                                {/if}
-                            </th>
-                        </tr>
-
-
-                        </SearchItem>
-
-                    {/each}
-                </tbody>
-            </table>
-
-            </SearchList>
-
-        {:else}
-
-            <div>No Followers</div>
-
+    <MemberList members={data.followers} let:id>
+        {#if data.self}
+            <button class="btn btn-ghost" on:click={() => remove(id)}>Remove</button>
         {/if}
-
-    </div>
+        <svelte:fragment slot="fallback">No Followers</svelte:fragment>
+    </MemberList>
 
     <div class="divider divider-horizontal"></div>
-    
-    <div class="overflow-x-auto w-1/3">
 
-        <h3 class="font-bold text-lg">Following</h3>
-        
-        {#if data.following.length}
-
-            <SearchList>
-
-            <table class="table">
-                <tbody>
-                    {#each data.following as following}
-
-                        <SearchItem key={following.display_name}>
-
-                        <tr>
-                            <td>
-                                <a class="flex items-center gap-3" href={`/user/${following.id}`}>
-                                    <ProfilePic user={following} />
-                                    <div>
-                                        <div class="font-bold">{ following.display_name }</div>
-                                        <div class="opacity-50">@{ following.username }</div>
-                                    </div>
-                                </a>
-                            </td>
-                            <th>
-                                {#if data.self}
-                                    <button class="btn btn-ghost" on:click={() => unfollow(following.id)}>Unfollow</button>
-                                {/if}
-                            </th>
-                        </tr>
-
-                        </SearchItem>
-
-                    {/each}
-                </tbody>
-            </table>
-
-            </SearchList>
-
-        {:else}
-
-            <div>No Following</div>
-
+    <MemberList members={data.following} let:id>
+        {#if data.self}
+            <button class="btn btn-ghost" on:click={() => unfollow(id)}>Unfollow</button>
         {/if}
-
-    </div>
+        <svelte:fragment slot="fallback">No Following</svelte:fragment>
+    </MemberList>
+    
+    <div class="divider divider-horizontal"></div>
 
     {#if data.self}
-
-        <div class="divider divider-horizontal"></div>
-        
-        <div class="overflow-x-auto w-1/3">
-
-            <h3 class="font-bold text-lg">Requests</h3>
-            
-            {#if data.requests.length}
-
-                <SearchList>
-
-                <table class="table">
-                    <tbody>
-                        {#each data.requests as request}
-
-                            <SearchItem key={request.display_name}>
-
-                            <tr>
-                                <td>
-                                    <a class="flex items-center gap-3" href={`/user/${request.id}`}>
-                                        <ProfilePic user={request} />
-                                        <div>
-                                            <div class="font-bold">{ request.display_name }</div>
-                                            <div class="opacity-50">@{ request.username }</div>
-                                        </div>
-                                    </a>
-                                </td>
-                                <th>
-                                    <button class="btn btn-ghost" on:click={() => accept(request.id)}>Accept</button>
-                                    <button class="btn btn-ghost" on:click={() => remove(request.id)}>Remove</button>
-                                </th>
-                            </tr>
-
-                            </SearchItem>
-
-                        {/each}
-                    </tbody>
-                </table>
-
-                </SearchList>
-
-            {:else}
-
-                <div>No Requests</div>
-
-            {/if}
-
-        </div>
-    
+        <MemberList members={data.requests} let:id>
+            <button class="btn btn-ghost" on:click={() => accept(id)}>Accept</button>
+            <button class="btn btn-ghost" on:click={() => remove(id)}>Remove</button>
+            <svelte:fragment slot="fallback">No Requests</svelte:fragment>
+        </MemberList>
     {/if}
 
 </div>

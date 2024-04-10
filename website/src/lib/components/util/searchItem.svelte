@@ -11,6 +11,6 @@
 
 </script>
 
-<div class={show ? '' : 'hidden'}>
+<div class={show ? 'w-full' : 'hidden'}>
     <slot />
 </div>

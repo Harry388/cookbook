@@ -4,8 +4,7 @@ import type { FetchFn } from '$lib/apiFetch';
 export type Follow = {
     id: number,
     username: string,
-    display_name: string,
-    pfp: string | null
+    display_name: string
 }
 
 export function getUserFollow(userId: number | string) {
