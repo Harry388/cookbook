@@ -12,7 +12,7 @@
         <p class="text-lg mt-5">
             Your feed is empty!<br>
             Follow users, communities and tags to see posts and recipes show up here!<br>
-            <a href="/search" class="link">Explore</a> new content.
+            <a href="/home/explore" class="link">Explore</a> or <a href="/search" class="link">search</a> for new content.
         </p>
     {/if}
 
