@@ -48,9 +48,9 @@ pub struct AlbumApi;
 impl AlbumApi {
 
     #[oai(path = "/", method = "post")]
-    async fn create_album(&self, pool: Data<&MySqlPool>, album: Json<album::Album>, auth: JWTAuthorization) -> Result<()> {
-        album::create_album(pool.0, album.0, auth.0).await?;
-        Ok(())
+    async fn create_album(&self, pool: Data<&MySqlPool>, album: Json<album::Album>, auth: JWTAuthorization) -> Result<Json<u64>> {
+        let album_id = album::create_album(pool.0, album.0, auth.0).await?;
+        Ok(Json(album_id))
     }
 
     #[oai(path = "/:id", method = "get")]

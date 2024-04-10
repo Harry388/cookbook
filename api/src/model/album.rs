@@ -19,14 +19,15 @@ pub struct AlbumResult {
     user_id: i64
 }
 
-pub async fn create_album(pool: &MySqlPool, album: Album, auth: i64) -> Result<()> {
-    sqlx::query!(
+pub async fn create_album(pool: &MySqlPool, album: Album, auth: i64) -> Result<u64> {
+    let album_id = sqlx::query!(
         "insert into album (title, user_id) values (?,?)",
         album.title, auth)
         .execute(pool)
         .await
-        .map_err(InternalServerError)?;
-    Ok(())
+        .map_err(InternalServerError)?
+        .last_insert_id();
+    Ok(album_id)
 }
 
 pub async fn get_album(pool: &MySqlPool, id: i64) -> Result<Option<AlbumResult>> {

@@ -1,8 +1,9 @@
 <script lang="ts">
 
+    import Input from '$lib/components/util/input.svelte';
     import SelectInput from '$lib/components/util/selectInput.svelte';
     import { getContext } from 'svelte';
-    import { getUserAblums, addAlbumEntry } from '$lib/app/album';
+    import { getUserAblums, addAlbumEntry, createAlbum } from '$lib/app/album';
     import { onMount } from 'svelte';
     import type { Album } from '$lib/app/album';
 
@@ -13,6 +14,10 @@
 
     let albums: Album[] = [];
     let selectAlbum: number;
+    let create = false;
+    let createTitle = '';
+
+    let close: HTMLButtonElement;
 
     function show() {
         //@ts-ignore
@@ -31,6 +36,15 @@
         }
     }
 
+    async function saveAlbum() {
+        const response = await createAlbum(createTitle).run();
+        if (response.ok) {
+            selectAlbum = await response.json(); 
+            await addToAlbum();
+            close.click();
+        }
+    }
+
     onMount(async () => {
         albums = await getUserAblums(id).json();
     });
@@ -42,6 +56,13 @@
     <div class="modal-box">
         <h3 class="font-bold text-lg">Save to Album</h3>
         <SelectInput bind:value={selectAlbum} options={albums} title="Pick Album" />
+        <div class="divider divider-vertical">OR</div>
+        {#if !create}
+            <button class="btn btn-outline w-full" on:click={() => create = true}>Create Album</button>
+        {:else}
+            <Input bind:value={createTitle} title="Title" />
+            <button class="btn btn-outline btn-success w-full mt-5" on:click={saveAlbum}>Save</button>
+        {/if}
         <div class="modal-action">
             <form method="dialog">
                 <button class="btn btn-ghost mr-5" on:click={cancel}>Cancel</button>
@@ -50,6 +71,6 @@
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">
-        <button on:click={cancel}>close</button>
+        <button on:click={cancel} bind:this={close}>close</button>
     </form>
 </dialog>
