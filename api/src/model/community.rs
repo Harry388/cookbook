@@ -100,6 +100,19 @@ pub async fn update_community(pool: &MySqlPool, id: i64, update: UpdateCommunity
         .execute(pool)
         .await
         .map_err(InternalServerError)?;
+    if update.public {
+        accept_all_requests(pool, id).await?;
+    }
+    Ok(())
+}
+
+async fn accept_all_requests(pool: &MySqlPool, id: i64) -> Result<()> {
+    sqlx::query!(
+        "update community_user set accepted = ? where community_id = ?",
+        true, id)
+        .execute(pool)
+        .await
+        .map_err(InternalServerError)?;
     Ok(())
 }
 
