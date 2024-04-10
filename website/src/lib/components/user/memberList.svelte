@@ -12,37 +12,34 @@
 
 </script>
         
-<div class="lg:w-1/3">
 
-    <h3 class="font-bold text-lg">Followers</h3>
+<h3 class="font-bold text-lg">Followers</h3>
 
-    {#if members.length}
-        <SearchList>
-            <table class="table w-full">
-                <tbody>
-                    {#each members as member}
-                        <SearchItem key={member.display_name}>
-                            <tr class="w-full">
-                                <td>
-                                    <a class="w-full flex items-center gap-3" href={`/user/${member.id}`}>
-                                        <ProfilePic user={member} />
-                                        <div>
-                                            <div class="font-bold">{ member.display_name }</div>
-                                            <div class="opacity-50">@{ member.username }</div>
-                                        </div>
-                                    </a>
-                                </td>
-                                <td>
-                                    <slot id={member.id} />
-                                </td>
-                            </tr>
-                        </SearchItem>
-                    {/each}
-                </tbody>
-            </table>
-        </SearchList>
-    {:else}
-        <slot name="fallback" />
-    {/if}
-
-</div>
+{#if members.length}
+    <SearchList>
+        <table class="table w-full">
+            <tbody>
+                {#each members as member}
+                    <SearchItem key={member.display_name}>
+                        <tr class="w-full">
+                            <td>
+                                <a class="w-full flex items-center gap-3" href={`/user/${member.id}`}>
+                                    <ProfilePic user={member} />
+                                    <div>
+                                        <div class="font-bold">{ member.display_name }</div>
+                                        <div class="opacity-50">@{ member.username }</div>
+                                    </div>
+                                </a>
+                            </td>
+                            <td>
+                                <slot id={member.id} />
+                            </td>
+                        </tr>
+                    </SearchItem>
+                {/each}
+            </tbody>
+        </table>
+    </SearchList>
+{:else}
+    <slot name="fallback" />
+{/if}
