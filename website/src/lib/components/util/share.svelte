@@ -18,7 +18,6 @@
             const permission = await  navigator.permissions.query({ name: "clipboard-write" as PermissionName })
             if (permission.state == "granted" || permission.state == "prompt") {
                 navigator.clipboard.writeText(url);
-                alert('Copied to clipboard!');
             }
         }
     }

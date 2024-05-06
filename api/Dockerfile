@@ -1,4 +1,4 @@
-FROM rust:1.74-bookworm
+FROM rust:1.75-bookworm
 
 EXPOSE 8000
 

@@ -14,13 +14,11 @@ const httpsServer = https.createServer(credentials, app);
 const SSLPORT = 443;
 
 httpsServer.listen(SSLPORT, function () {
-    console.log('HTTPS Server is running on: https://localhost:%s', SSLPORT);
+    console.log('HTTPS Server is running', SSLPORT);
 });
 
-// add a route that lives separately from the SvelteKit app
 app.get('/healthcheck', (_, res) => {
     res.end('ok');
 });
 
-// let SvelteKit handle everything else, including serving prerendered pages and static assets
 app.use(handler);
