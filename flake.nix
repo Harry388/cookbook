@@ -16,7 +16,7 @@
             buildInputs = with pkgs; [
                 go
                 templ
-                nodejs_22
+                tailwindcss
                 gnumake
                 lazygit
                 zsh
