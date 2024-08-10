@@ -2,6 +2,7 @@ package main
 
 import (
 	"cookbook/handlers"
+	"cookbook/middlewares"
 	"log"
 	"os"
 
@@ -14,6 +15,7 @@ func main() {
     app := pocketbase.New()
 
     app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+        e.Router.Use(middlewares.AuthMiddleware(app))
         // Serve Static
         e.Router.GET("/public/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
         // Serve App

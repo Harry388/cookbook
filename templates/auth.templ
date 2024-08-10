@@ -1,0 +1,35 @@
+package templates
+
+templ LoginPage() {
+    @page("Log In") {
+        @LoginForm("", "", "")
+    }
+}
+
+templ LoginForm(username string, password string, err string) {
+    <form hx-post="/login" hx-swap="outerHTML">
+        <input type="text" name="username" placeholder="Username" value={username} />
+        <input type="password" name="password" placeholder="Password" value={password} />
+        <input type="submit" />
+        if err != "" {
+            <div>{ err }</div>
+        }
+    </form>
+}
+
+templ CreatePage() {
+    @page("Create Account") {
+        @CreateForm("", "", "")
+    }
+}
+
+templ CreateForm(username string, password string, err string) {
+    <form hx-post="/createaccount" hx-swap="outerHTML">
+        <input type="text" name="username" placeholder="Username" value={username} />
+        <input type="password" name="password" placeholder="Password" value={password} />
+        <input type="submit" />
+        if err != "" {
+            <div>{ err }</div>
+        }
+    </form>
+}

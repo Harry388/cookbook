@@ -1,7 +1,8 @@
 package templates
 
 templ Home(name string) {
-    @page(nil) {
-        <button>Hello { name }</button>
+    @page("") {
+        <button>Hello { name }!</button>
+        <button hx-post="/logout">Log Out</button>
     }
 }
