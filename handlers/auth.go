@@ -80,7 +80,16 @@ func (h *handler) createAccount(c echo.Context) error {
     }
 
     c.Response().Header().Add("HX-Location", "/")
-    return apis.RecordAuthResponse(h.app, c, record, nil)
+    return apis.RecordAuthResponse(h.app, c, record, nil, func(token string) error {
+        cookie := &http.Cookie {
+            Name: "Authorization",
+            Value: token,
+            Secure: true,
+            SameSite: http.SameSiteStrictMode,
+        }
+        c.SetCookie(cookie)
+        return nil
+    })
 }
 
 func (h *handler) logout(c echo.Context) error {
