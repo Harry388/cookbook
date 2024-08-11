@@ -23,6 +23,9 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.GET("/createaccount", h.createAccountPage)
     e.POST("/createaccount", h.createAccount)
     e.POST("/logout", h.logout)
+
+    // User
+    e.GET("/profile", h.profilePage)
 }
 
 func (h *handler) nilPage(c echo.Context) error {

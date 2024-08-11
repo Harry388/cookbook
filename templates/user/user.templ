@@ -1,0 +1,11 @@
+package user
+
+import "github.com/pocketbase/pocketbase/models"
+import "cookbook/templates"
+
+templ UserPage(user *models.Record) {
+    @templates.AppPage("profile", user.GetString("name")) {
+        { user.Username() }
+        { user.GetString("name") }
+    }
+}
