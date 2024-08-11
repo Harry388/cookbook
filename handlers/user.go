@@ -10,10 +10,7 @@ import (
 )
 
 func (h *handler) profilePage(c echo.Context) error {
-    record, ok := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-    if record == nil || !ok {
-        return c.Redirect(301, "/")
-    }
+    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
     t := user.UserPage(record)
     return templates.Render(t, c)
 }

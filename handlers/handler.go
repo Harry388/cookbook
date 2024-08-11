@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cookbook/middlewares"
 	"cookbook/templates"
 	"cookbook/templates/home"
 
@@ -15,7 +16,8 @@ type handler struct {
 func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     h := handler { app }
     e.GET("/", h.homePage)
-    e.GET("/*", h.nilPage)
+    e.GET("/*", nilPage)
+    e.GET("/favicon.ico", empty)
 
     // Auth
     e.GET("/login", h.loginPage)
@@ -25,10 +27,10 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.POST("/logout", h.logout)
 
     // User
-    e.GET("/profile", h.profilePage)
+    e.GET("/profile", h.profilePage, middlewares.IsLoggedIn)
 }
 
-func (h *handler) nilPage(c echo.Context) error {
+func nilPage(c echo.Context) error {
     c.Response().Header().Add("HX-Location", "/")
     return c.Redirect(301, "/")
 }
@@ -36,4 +38,8 @@ func (h *handler) nilPage(c echo.Context) error {
 func (h *handler) homePage(c echo.Context) error {
     t := home.HomePage()
     return templates.Render(t, c)
+}
+
+func empty(c echo.Context) error {
+    return nil
 }

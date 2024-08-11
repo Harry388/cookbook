@@ -18,7 +18,7 @@ templ page(title string) {
                 }
             </title>
 		</head>
-		<body hx-boost="true">
+		<body hx-boost="true" hx-headers='{"Cache-Control": "no-cache"}'>
 			{ children... }
 		</body>
 	</html>
