@@ -18,12 +18,10 @@
                 templ
                 nodejs_22
                 gnumake
-                lazygit
-                zsh
+                air
             ];
             shellHook = ''
-                echo "Dev Shell"
-                exec zsh
+                echo "Cookbook Dev Shell"
             '';
         };
 
