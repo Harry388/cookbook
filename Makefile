@@ -3,12 +3,12 @@ default: run
 build:
 	@tailwindcss -i ./input.css -o ./pb_public/tailwind.css
 	@templ generate
-	@go build -o bin/app
+	@go build -o cookbook
 
 run: build
-	@./bin/app serve
+	@./cookbook serve
 
 clean:
-	@rm -r bin
+	@rm cookbook
 	@rm -rf **/*_templ.go
 	@rm ./pb_public/tailwind.css
