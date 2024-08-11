@@ -1,7 +1,7 @@
 default: run
 
 build:
-	@tailwindcss -i ./input.css -o ./pb_public/tailwind.css
+	@npx tailwindcss -i ./input.css -o ./pb_public/tailwind.css
 	@templ generate
 	@go build -o cookbook
 
