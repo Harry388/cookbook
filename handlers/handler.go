@@ -16,6 +16,7 @@ type handler struct {
 func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     h := handler { app }
     e.GET("/", h.homePage)
+    e.GET("/*", h.nilPage)
 
     // Auth
     e.GET("/login", h.loginPage)
@@ -25,11 +26,16 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.POST("/logout", h.logout)
 }
 
+func (h *handler) nilPage(c echo.Context) error {
+    c.Response().Header().Add("HX-Location", "/")
+    return c.Redirect(301, "/")
+}
+
 func (h *handler) homePage(c echo.Context) error {
     name := "No User"
     record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
     if record != nil {
-        name = record.GetString("username")
+        name = record.GetString("name")
     }
     t := templates.Home(name)
     return templates.Render(t, c)

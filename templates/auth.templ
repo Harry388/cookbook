@@ -8,8 +8,8 @@ templ LoginPage() {
 
 templ LoginForm(username string, password string, err string) {
     <form hx-post="/login" hx-swap="outerHTML">
-        <input type="text" name="username" placeholder="Username" value={username} />
-        <input type="password" name="password" placeholder="Password" value={password} />
+        <input type="text" name="username" placeholder="Username" value={username} required />
+        <input type="password" name="password" placeholder="Password" value={password} required />
         <input type="submit" />
         if err != "" {
             <div>{ err }</div>
@@ -19,14 +19,15 @@ templ LoginForm(username string, password string, err string) {
 
 templ CreatePage() {
     @page("Create Account") {
-        @CreateForm("", "", "")
+        @CreateForm("", "", "", "")
     }
 }
 
-templ CreateForm(username string, password string, err string) {
+templ CreateForm(username string, displayName string, password string, err string) {
     <form hx-post="/createaccount" hx-swap="outerHTML">
-        <input type="text" name="username" placeholder="Username" value={username} />
-        <input type="password" name="password" placeholder="Password" value={password} />
+        <input type="text" name="username" placeholder="Username" value={username} required />
+        <input type="text" name="name" placeholder="Display Name" value={displayName} required />
+        <input type="password" name="password" placeholder="Password" value={password} required />
         <input type="submit" />
         if err != "" {
             <div>{ err }</div>
