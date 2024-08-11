@@ -34,12 +34,12 @@ func (h *handler) createAccountPage(c echo.Context) error {
 func (h *handler) login(c echo.Context) error {
     var login login
     if err := c.Bind(&login); err != nil {
-        return c.String(http.StatusBadRequest, "Incorrect Login")
+        return c.String(http.StatusBadRequest, "Incorrect Login Details")
     }
 
     record, err := h.app.Dao().FindFirstRecordByData("users", "username", login.Username)
     if err != nil || !record.ValidatePassword(login.Password) {
-        t := templates.LoginForm(login.Username, login.Password, "Incorrect Login")
+        t := templates.LoginForm(login.Username, login.Password, "Incorrect Login Details")
         return templates.Render(t, c)
     }
 
