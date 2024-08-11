@@ -2,11 +2,10 @@ package handlers
 
 import (
 	"cookbook/templates"
+	"cookbook/templates/home"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/apis"
-	"github.com/pocketbase/pocketbase/models"
 )
 
 type handler struct {
@@ -32,11 +31,6 @@ func (h *handler) nilPage(c echo.Context) error {
 }
 
 func (h *handler) homePage(c echo.Context) error {
-    name := "No User"
-    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-    if record != nil {
-        name = record.GetString("name")
-    }
-    t := templates.Home(name)
+    t := home.HomePage()
     return templates.Render(t, c)
 }

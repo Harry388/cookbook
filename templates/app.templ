@@ -1,0 +1,36 @@
+package templates
+
+templ AppPage(name string, title string) {
+    @page(title) {
+        <div class="flex flex-col justify-between h-screen">
+            <div class="overflow-auto">
+                @top(title)
+                <div>{ children... }</div>
+            </div>
+            @nav(name)
+        </div>
+    }
+}
+
+templ top(title string) {
+    <h1 class="text-3xl font-bold w-fit m-auto my-5">
+        if len(title) > 0 {
+            { title }
+        } else {
+            CookBook
+        }
+    </h1>
+}
+
+templ nav(name string) {
+    <div class="btm-nav">
+        <a href="/" class={ templ.KV("active", name == "home") }>
+            <i class="fa-solid fa-house"></i>
+        </a>
+        @IfLoggedIn() {
+            <a href="/profile" class={ templ.KV("active", name == "profile") }>
+                <i class="fa-solid fa-user"></i>
+            </a>
+        }
+    </div>
+}
