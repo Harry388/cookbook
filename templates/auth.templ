@@ -25,7 +25,11 @@ templ LoginForm(username string, password string, err string) {
             @errAlert(err)
         }
         <div class="font-light mt-5">
-            Don't have an account? <a href="/createaccount" class="link">Create Account</a>
+            Don't have an account?
+            <br>
+            <a href="/createaccount" class="link">Create Account</a>
+            <br>
+            <a href="/" class="link">Or Browse Without One</a>
         </div>
     </form>
 }
@@ -48,7 +52,11 @@ templ CreateForm(username string, displayName string, password string, err strin
             @errAlert(err)
         }
         <div class="font-light mt-5">
-            Already have an account? <a href="/login" class="link">Login</a>
+            Already have an account?
+            <br>
+            <a href="/login" class="link">Login</a>
+            <br>
+            <a href="/" class="link">Or Browse Without One</a>
         </div>
     </form>
 }
