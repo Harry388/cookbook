@@ -8,12 +8,16 @@ templ LoginPage() {
 
 templ LoginForm(username string, password string, err string) {
     <form hx-post="/login" hx-swap="outerHTML">
-        <input type="text" name="username" placeholder="Username" value={username} required />
-        <input type="password" name="password" placeholder="Password" value={password} required />
-        <input type="submit" />
-        if err != "" {
-            <div>{ err }</div>
-        }
+        <sl-card class="card-footer">
+            <sl-input type="text" name="username" label="Username" placeholder="Username" value={username} required></sl-input>
+            <sl-input type="password" name="password" label="Password" placeholder="Password" password-toggle value={password} required></sl-input>
+            <div slot="footer">
+                <sl-button type="submit">Log In</sl-button>
+                if err != "" {
+                    @errAlert(err)
+                }
+            </div>
+        </sl-card>
     </form>
 }
 
@@ -25,12 +29,23 @@ templ CreatePage() {
 
 templ CreateForm(username string, displayName string, password string, err string) {
     <form hx-post="/createaccount" hx-swap="outerHTML">
-        <input type="text" name="username" placeholder="Username" value={username} required />
-        <input type="text" name="name" placeholder="Display Name" value={displayName} required />
-        <input type="password" name="password" placeholder="Password" value={password} required />
-        <input type="submit" />
-        if err != "" {
-            <div>{ err }</div>
-        }
+        <sl-card class="card-footer">
+            <sl-input type="text" name="username" label="Username" placeholder="Username" value={username} required></sl-input>
+            <sl-input type="text" name="name" label="Display Name" placeholder="Display Name" value={displayName} required></sl-input>
+            <sl-input type="password" name="password" label="Password" placeholder="Password" password-toggle value={password} required></sl-input>
+            <div slot="footer">
+                <sl-button type="submit">Create Account</sl-button>
+                if err != "" {
+                    @errAlert(err)
+                }
+            </div>
+        </sl-card>
     </form>
+}
+
+templ errAlert(err string) {
+    <sl-alert variant="danger" open>
+        <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+        { err }
+    </sl-alert>
 }
