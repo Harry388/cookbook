@@ -1,0 +1,10 @@
+package settings
+
+import "cookbook/templates"
+
+templ SettingsPage() {
+    @templates.AppPage("profile", "Settings") {
+        @templates.Title("Settings")
+        Change the settings :D
+    }
+}

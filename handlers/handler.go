@@ -19,6 +19,8 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.GET("/*", nilPage)
     e.GET("/favicon.ico", empty)
 
+    e.GET("/settings", h.settingsPage, middlewares.IsLoggedIn)
+
     // Auth
     e.GET("/login", h.loginPage)
     e.POST("/login", h.login)
