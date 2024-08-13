@@ -28,6 +28,8 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
 
     // User
     e.GET("/profile", h.profilePage, middlewares.IsLoggedIn)
+    user := e.Group("/user/:username")
+    user.GET("/avatar", h.userAvatar)
 }
 
 func nilPage(c echo.Context) error {

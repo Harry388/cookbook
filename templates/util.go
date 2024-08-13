@@ -12,4 +12,3 @@ func Render(t templ.Component, c echo.Context) error {
     ctx := context.WithValue(c.Request().Context(), "auth", c.Get(apis.ContextAuthRecordKey))
     return t.Render(ctx, c.Response())
 }
-

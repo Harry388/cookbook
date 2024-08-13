@@ -34,7 +34,7 @@ func (h *handler) createAccountPage(c echo.Context) error {
 func (h *handler) login(c echo.Context) error {
     var login login
     if err := c.Bind(&login); err != nil {
-        return c.String(http.StatusBadRequest, "Incorrect Login Details")
+        return echo.NewHTTPError(http.StatusBadRequest)
     }
 
     record, err := h.app.Dao().FindFirstRecordByData("users", "username", login.Username)
@@ -61,7 +61,7 @@ func (h *handler) login(c echo.Context) error {
 func (h *handler) createAccount(c echo.Context) error {
     var create create
     if err := c.Bind(&create); err != nil {
-        return c.String(http.StatusBadRequest, "Bad Request")
+        return echo.NewHTTPError(http.StatusBadRequest)
     }
 
     users, err := h.app.Dao().FindCollectionByNameOrId("users")

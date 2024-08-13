@@ -1,0 +1,9 @@
+package util
+
+templ Image(src string, loading string) {
+    <div x-data="{ state: 'loading', showSpinner: false }" @load="setTimeout(() => $data.showSpinner = true, 50)">
+        <img x-show="state == 'done'" @error="$data.state = 'error'" @load="$data.state = 'done'" src={Url(src)} loading={loading} />
+        <img x-show="(state == 'loading') && showSpinner" src="/public/spinner.svg" />
+        <div x-show="state == 'error'">:(</div>
+    </div>
+}
