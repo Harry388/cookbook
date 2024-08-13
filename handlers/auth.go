@@ -51,6 +51,7 @@ func (h *handler) login(c echo.Context) error {
             Value: token,
             Secure: true,
             SameSite: http.SameSiteStrictMode,
+            HttpOnly: true,
         }
         c.SetCookie(cookie)
         return nil
