@@ -27,6 +27,19 @@ templ nav(name string) {
         <a href="/" class={ templ.KV("active", name == "home") }>
             <i class="fa-solid fa-house"></i>
         </a>
+        <a href="/search" class={ templ.KV("active", name == "search") }>
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+        @IfLoggedIn() {
+            <a href="/createpost" class={ templ.KV("active", name == "createpost") }>
+                <i class="fa-regular fa-square-plus fa-xl"></i>
+            </a>
+        }
+        @IfLoggedIn() {
+            <a href="/saved" class={ templ.KV("active", name == "saved") }>
+                <i class="fa-solid fa-bookmark"></i>
+            </a>
+        }
         @IfLoggedIn() {
             <a href="/profile" class={ templ.KV("active", name == "profile") }>
                 <i class="fa-solid fa-user"></i>
