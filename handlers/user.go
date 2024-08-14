@@ -54,7 +54,8 @@ func (h *handler) updateUserAvatar(c echo.Context) error {
     form.LoadRequest(c.Request(), "")
 
     if err := form.Submit(); err != nil {
-        return err
+        t := util.ErrAlert(err.Error())
+        return templates.Render(t, c)
     }
 
     return nil

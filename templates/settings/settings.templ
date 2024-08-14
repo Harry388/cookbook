@@ -14,8 +14,10 @@ templ SettingsPage(auth *models.Record) {
                 <input type="file" class="hidden" name="avatar" 
                 hx-post="/avatar" 
                 hx-encoding="multipart/form-data" 
+                hx-target="#avatarerror"
                 @htmx:after-request="$refs.avatar.src += '?t=' + new Date().getTime()" />
             </label>
+            <div id="avatarerror"></div>
             @util.UpdatingInput("Display Name", "name", auth.GetString("name"), "/profile")
             @util.UpdatingInput("Username", "username", auth.Username(), "/profile")
             @util.UpdatingInput("Bio", "bio", auth.GetString("bio"), "/profile")
