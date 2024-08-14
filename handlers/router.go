@@ -31,6 +31,7 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.GET("/profile", h.profilePage, middlewares.IsLoggedIn)
     e.POST("/profile", h.updateProfile, middlewares.IsLoggedIn)
     e.POST("/avatar", h.updateUserAvatar, middlewares.IsLoggedIn)
+    e.GET("/user/:username", h.userPage)
     user := e.Group("/user/:username")
     user.GET("/avatar", h.userAvatar)
 }

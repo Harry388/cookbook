@@ -6,7 +6,10 @@ import (
 	"cookbook/templates/util"
 	"net/http"
 
+	"github.com/a-h/templ"
 	"github.com/labstack/echo/v5"
+	"github.com/pocketbase/dbx"
+	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/forms"
 	"github.com/pocketbase/pocketbase/models"
@@ -20,8 +23,62 @@ type updateProfile struct {
 
 func (h *handler) profilePage(c echo.Context) error {
     record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-    t := user.UserPage(record)
+    t := userPage(h.app, record, record)
     return templates.Render(t, c)
+}
+
+func (h *handler) userPage(c echo.Context) error {
+    username := c.PathParam("username")
+    if username == "" {
+        return echo.NewHTTPError(http.StatusBadRequest)
+    }
+
+    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    auth, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    t := userPage(h.app, record, auth)
+    return templates.Render(t, c)
+}
+
+func userPage(app *pocketbase.PocketBase, record *models.Record, auth *models.Record) templ.Component {
+    type value struct { Value int }
+
+    followers := value{}
+    following := value{}
+
+    app.Dao().DB().
+        Select("count(*) as value").
+        From("following").
+        Where(dbx.NewExp("following = {:id}", dbx.Params{ "id": record.Id })).
+        One(&followers)
+
+    app.Dao().DB().
+        Select("count(*) as value").
+        From("following").
+        Where(dbx.NewExp("user = {:id}", dbx.Params{ "id": record.Id })).
+        One(&following)
+
+    self := (auth != nil) && (auth.Username() == record.Username())
+    isFollowing := false
+
+    if (!self) && (auth != nil) {
+        result := value{}
+        app.Dao().DB().
+            Select("count(*) as value").
+            From("following").
+            Where(dbx.NewExp("following = {:id}", dbx.Params{ "id": record.Id })).
+            Where(dbx.NewExp("user = {:id}", dbx.Params{ "id": auth.Id })).
+            One(&result)
+        if result.Value == 1{
+            isFollowing = true
+        }
+    }
+
+    return user.UserPage(record, followers.Value, following.Value, self, isFollowing)
 }
 
 func (h *handler) userAvatar(c echo.Context) error {
