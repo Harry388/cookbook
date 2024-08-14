@@ -9,9 +9,12 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+    "github.com/joho/godotenv"
 )
 
 func main() {
+    godotenv.Load()
+
     app := pocketbase.New()
 
     app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
