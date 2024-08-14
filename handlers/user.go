@@ -88,6 +88,21 @@ func (h *handler) userPage(c echo.Context) error {
     return templates.Render(t, c)
 }
 
+func (h *handler) userFollowingPage(c echo.Context) error {
+    username := c.PathParam("username")
+    if username == "" {
+        return echo.NewHTTPError(http.StatusBadRequest)
+    }
+
+    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    t := user.FollowingPage(record, nil, nil)
+    return templates.Render(t, c)
+}
+
 func (h *handler) userFollowUser(c echo.Context) error {
     username := c.PathParam("username")
     if username == "" {

@@ -36,6 +36,7 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     user.GET("/avatar", h.userAvatar)
     user.POST("/follow", h.userFollowUser, middlewares.IsLoggedIn)
     user.POST("/unfollow", h.userUnfollowUser, middlewares.IsLoggedIn)
+    user.GET("/following", h.userFollowingPage)
 }
 
 func nilPage(c echo.Context) error {

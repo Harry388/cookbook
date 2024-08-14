@@ -1,0 +1,19 @@
+package user
+
+import "cookbook/templates"
+import "github.com/pocketbase/pocketbase/models"
+import "context"
+
+func followingPageName(ctx context.Context, user *models.Record) string {
+    auth, _ := ctx.Value("auth").(*models.Record)
+    if (auth != nil) && (auth.Username() == user.Username()) {
+        return "profile"
+    }
+    return "following"
+}
+
+templ FollowingPage(user *models.Record, followers []*models.Record, following []*models.Record) {
+    @templates.AppPage(followingPageName(ctx, user), user.GetString("name")) {
+        followers
+    }
+}

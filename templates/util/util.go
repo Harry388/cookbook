@@ -7,8 +7,12 @@ import (
 	"github.com/a-h/templ"
 )
 
-func Url(format string, a ...any) string {
+func SUrl(format string, a ...any) string {
     return string(templ.URL(fmt.Sprintf(format, a...)))
+}
+
+func Url(format string, a ...any) templ.SafeURL {
+    return templ.URL(fmt.Sprintf(format, a...))
 }
 
 func IsLoggedIn(ctx context.Context) bool {
