@@ -20,8 +20,10 @@ templ UserPage(user *models.Record) {
                         </div>
                     </div>
                 </div>
-                <p class="my-5">We are using cookies for no reason.</p>
-                <div class="card-actions">
+                if user.GetString("bio") != "" {
+                    <p class="mt-5">{ user.GetString("bio") }</p>
+                }
+                <div class="card-actions mt-5">
                     <a href="/settings" class="btn btn-outline grow">Settings</a>
                     <button class="btn btn-outline w-fit">Share</button>
                 </div>

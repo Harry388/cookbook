@@ -1,5 +1,7 @@
 package util
 
+import "fmt"
+
 templ Image(src string, loading string) {
     <div x-data="{ state: 'loading', showSpinner: false }" @load="setTimeout(() => $data.showSpinner = true, 50)">
         <img x-show="state == 'done'" @error="$data.state = 'error'" @load="$data.state = 'done'" src={Url(src)} loading={loading} />
@@ -27,4 +29,30 @@ templ ErrAlert(err string) {
             <span>{ err }</span>
         </div>
     </template>
+}
+
+templ UpdatingInput(label string, name string, value string, update string) {
+    <form hx-post={ update } 
+    hx-ext="response-targets"
+    hx-target={ fmt.Sprintf("#%serror", name) } 
+    hx-target-error={ fmt.Sprintf("#%serror", name) } 
+    hx-trigger="submit"
+    x-data={ fmt.Sprintf("{ init: '%s', value: '%s' }", value, value) }
+    @htmx:after-request="e => { document.activeElement.blur(); if (e.detail.xhr.status == 200) $data.init = $data.value }"
+    class="w-full">
+        <label class="form-control w-full">
+            <div class="label label-text">{ label }</div>
+            <div class="flex join">
+                <input @keyup.escape="value = init"
+                type="text"
+                placeholder={ label }
+                name={ name }
+                x-model="value"
+                class="input input-bordered w-full" />
+                <input class="btn btn-outline w-fit join-item" type="submit" x-show="init != value" value="Save" />
+                <button class="btn btn-outline w-fit join-item" x-show="init != value" @click="value = init">Cancel</button>
+            </div>
+            <div id={ fmt.Sprintf("%serror", name) }></div>
+        </label>
+    </form>
 }
