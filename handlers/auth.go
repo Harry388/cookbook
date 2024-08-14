@@ -15,7 +15,7 @@ type login struct {
     Password string `form:"password"`
 }
 
-type create struct {
+type createAccount struct {
     Username string `form:"username"`
     Name string `form:"name"`
     Password string `form:"password"`
@@ -59,7 +59,7 @@ func (h *handler) login(c echo.Context) error {
 }
 
 func (h *handler) createAccount(c echo.Context) error {
-    var create create
+    var create createAccount
     if err := c.Bind(&create); err != nil {
         return echo.NewHTTPError(http.StatusBadRequest)
     }

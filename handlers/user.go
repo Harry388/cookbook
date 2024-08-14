@@ -3,12 +3,18 @@ package handlers
 import (
 	"cookbook/templates"
 	"cookbook/templates/user"
+	"cookbook/templates/util"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/models"
 )
+
+type updateProfile struct {
+    Username string `form:"username"`
+    Name string `form:"name"`
+}
 
 func (h *handler) profilePage(c echo.Context) error {
     record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
@@ -37,4 +43,36 @@ func (h *handler) userAvatar(c echo.Context) error {
 
     _, err = blob.WriteTo(c.Response())
     return err
+}
+
+func (h *handler) updateProfile(c echo.Context) error {
+    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    var update updateProfile
+    if err := c.Bind(&update); err != nil {
+        c.Response().Status = 400;
+        t := util.ErrAlert("Invalid Value")
+        return templates.Render(t, c)
+    }
+
+    if update.Name != "" {
+        record.Set("name", update.Name)
+    }
+
+    if update.Username != "" {
+        record.SetUsername(update.Username)
+    }
+
+    if err := h.app.Dao().SaveRecord(record); err != nil {
+        if update.Username != "" {
+            c.Response().Status = 400;
+            t := util.ErrAlert("Username is taken")
+            return templates.Render(t, c)
+        }
+        c.Response().Status = 400;
+        t := util.ErrAlert("Invalid Value")
+        return templates.Render(t, c)
+    }
+
+    return nil
 }

@@ -19,8 +19,6 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.GET("/*", nilPage)
     e.GET("/favicon.ico", empty)
 
-    e.GET("/settings", h.settingsPage, middlewares.IsLoggedIn)
-
     // Auth
     e.GET("/login", h.loginPage)
     e.POST("/login", h.login)
@@ -29,7 +27,9 @@ func Handle(e *echo.Echo, app *pocketbase.PocketBase) {
     e.POST("/logout", h.logout)
 
     // User
+    e.GET("/settings", h.settingsPage, middlewares.IsLoggedIn)
     e.GET("/profile", h.profilePage, middlewares.IsLoggedIn)
+    e.POST("/profile", h.updateProfile, middlewares.IsLoggedIn)
     user := e.Group("/user/:username")
     user.GET("/avatar", h.userAvatar)
 }
