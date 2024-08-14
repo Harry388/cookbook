@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
+	"github.com/pocketbase/pocketbase/forms"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -44,6 +45,19 @@ func (h *handler) userAvatar(c echo.Context) error {
 
     _, err = blob.WriteTo(c.Response())
     return err
+}
+
+func (h *handler) updateUserAvatar(c echo.Context) error {
+    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    form := forms.NewRecordUpsert(h.app, record)
+    form.LoadRequest(c.Request(), "")
+
+    if err := form.Submit(); err != nil {
+        return err
+    }
+
+    return nil
 }
 
 func (h *handler) updateProfile(c echo.Context) error {

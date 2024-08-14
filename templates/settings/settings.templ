@@ -9,7 +9,15 @@ templ SettingsPage(auth *models.Record) {
     @templates.AppPage("profile", "Settings") {
         @templates.Title("Settings")
         <div class="flex flex-col items-center gap-3 px-5">
-            @user.Pfp(auth)
+            <label x-data>
+                @user.Pfp(auth)
+                <input type="file" class="hidden" name="avatar" 
+                hx-post="/avatar" 
+                hx-encoding="multipart/form-data" 
+                hx-indicator="#avatarloading"
+                @htmx:after-request="$refs.avatar.src += '?t=' + new Date().getTime()" />
+                <img src="/spinner.svg" class="htmx-indicator" id="avatarloading" />
+            </label>
             @util.UpdatingInput("Display Name", "name", auth.GetString("name"), "/profile")
             @util.UpdatingInput("Username", "username", auth.Username(), "/profile")
             @util.UpdatingInput("Bio", "bio", auth.GetString("bio"), "/profile")
