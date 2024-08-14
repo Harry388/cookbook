@@ -6,7 +6,6 @@ import (
 	"cookbook/templates/util"
 	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -15,36 +14,14 @@ import (
 	"github.com/pocketbase/pocketbase/models"
 )
 
-type updateProfile struct {
-    Username string `form:"username"`
-    Name string `form:"name"`
-    Bio *string `form:"bio"`
+type userProfileInfo struct {
+    followers int
+    following int
+    self bool
+    isFollowing bool
 }
 
-func (h *handler) profilePage(c echo.Context) error {
-    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-    t := userPage(h.app, record, record)
-    return templates.Render(t, c)
-}
-
-func (h *handler) userPage(c echo.Context) error {
-    username := c.PathParam("username")
-    if username == "" {
-        return echo.NewHTTPError(http.StatusBadRequest)
-    }
-
-    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
-    if err != nil {
-        return echo.NewHTTPError(http.StatusNotFound)
-    }
-
-    auth, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-
-    t := userPage(h.app, record, auth)
-    return templates.Render(t, c)
-}
-
-func userPage(app *pocketbase.PocketBase, record *models.Record, auth *models.Record) templ.Component {
+func getProfileInfo(app *pocketbase.PocketBase, record *models.Record, auth *models.Record) userProfileInfo {
     type value struct { Value int }
 
     followers := value{}
@@ -78,7 +55,95 @@ func userPage(app *pocketbase.PocketBase, record *models.Record, auth *models.Re
         }
     }
 
-    return user.UserPage(record, followers.Value, following.Value, self, isFollowing)
+    return userProfileInfo {
+        followers: followers.Value,
+        following: following.Value,
+        self: self,
+        isFollowing: isFollowing,
+    }
+}
+
+func (h *handler) profilePage(c echo.Context) error {
+    record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+    info := getProfileInfo(h.app, record, record)
+    t := user.UserPage(record, info.followers, info.following, info.self, info.isFollowing)
+    return templates.Render(t, c)
+}
+
+func (h *handler) userPage(c echo.Context) error {
+    username := c.PathParam("username")
+    if username == "" {
+        return echo.NewHTTPError(http.StatusBadRequest)
+    }
+
+    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    auth, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    info := getProfileInfo(h.app, record, auth)
+    t := user.UserPage(record, info.followers, info.following, info.self, info.isFollowing)
+    return templates.Render(t, c)
+}
+
+func (h *handler) userFollowUser(c echo.Context) error {
+    username := c.PathParam("username")
+    if username == "" {
+        return echo.NewHTTPError(http.StatusBadRequest)
+    }
+
+    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    auth, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    following, err := h.app.Dao().FindCollectionByNameOrId("following")
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError)
+    }
+
+    followingRecord := models.NewRecord(following)
+    followingRecord.Set("user", auth.Id)
+    followingRecord.Set("following", record.Id)
+
+    if err := h.app.Dao().SaveRecord(followingRecord); err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError)
+    }
+
+    info := getProfileInfo(h.app, record, auth)
+    t := user.FollowResponse(record, info.followers, info.following, info.self, info.isFollowing)
+    return templates.Render(t, c)
+}
+
+func (h *handler) userUnfollowUser(c echo.Context) error {
+    username := c.PathParam("username")
+    if username == "" {
+        return echo.NewHTTPError(http.StatusBadRequest)
+    }
+
+    record, err := h.app.Dao().FindAuthRecordByUsername("users", username)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    auth, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+
+    followingRecord, err := h.app.Dao().FindRecordsByExpr("following", dbx.HashExp{ "user": auth.Id, "following": record.Id })
+    if (err != nil) || (len(followingRecord) == 0) {
+        return echo.NewHTTPError(http.StatusNotFound)
+    }
+
+    if err := h.app.Dao().DeleteRecord(followingRecord[0]); err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError)
+    }
+
+    info := getProfileInfo(h.app, record, auth)
+    t := user.FollowResponse(record, info.followers, info.following, info.self, info.isFollowing)
+    return templates.Render(t, c)
 }
 
 func (h *handler) userAvatar(c echo.Context) error {
@@ -119,6 +184,12 @@ func (h *handler) updateUserAvatar(c echo.Context) error {
 }
 
 func (h *handler) updateProfile(c echo.Context) error {
+    type updateProfile struct {
+        Username string `form:"username"`
+        Name string `form:"name"`
+        Bio *string `form:"bio"`
+    }
+
     record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
 
     var update updateProfile

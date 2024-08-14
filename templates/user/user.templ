@@ -23,27 +23,14 @@ templ UserPage(user *models.Record, followers int, following int, self bool, isF
                         <span class="text-2xl font-bold">{ user.GetString("name") }</span>
                         <br>
                         <span class="text-lg">{"@"}{ user.Username() }</span>
-                        <div id="followCounter" class="flex justify-center gap-5">
-                            @FollowCounter(followers, following)
-                        </div>
+                        @followCounter(followers, following)
                     </div>
                 </div>
                 if user.GetString("bio") != "" {
                     <p class="mt-5">{ user.GetString("bio") }</p>
                 }
                 if util.IsLoggedIn(ctx) {
-                    <div class="card-actions mt-5">
-                        if self {
-                            <a href="/settings" class="btn btn-outline grow">Settings</a>
-                        } else {
-                            if isFollowing {
-                                <button class="btn btn-outline grow" hx-post={ util.Url("/user/%s/unfollow", user.Id) } hx-target="#followCounter">Unfollow</button>
-                            } else {
-                                <button class="btn btn-outline grow" hx-post={ util.Url("/user/%s/follow", user.Id) } hx-target="#followCounter">Follow</button>
-                            }
-                        }
-                        <button class="btn btn-outline w-fit">Share</button>
-                    </div>
+                    @actions(user, self, isFollowing)
                 }
             </div>
         </div>    
@@ -66,7 +53,29 @@ templ Pfp(user *models.Record) {
     }
 }
 
-templ FollowCounter(followers int, following int) {
-    <span class="text-xl font-bold">{ strconv.Itoa(followers) }<br/>Followers</span>
-    <span class="text-xl font-bold">{ strconv.Itoa(following) }<br/>Following</span>
+templ FollowResponse(user *models.Record, followers int, following int, self bool, isFollowing bool) {
+    @followCounter(followers, following)
+    @actions(user, self, isFollowing)
+}
+
+templ followCounter(followers int, following int) {
+    <div id="followCounter" class="flex justify-center gap-5" hx-swap-oob="true">
+        <span class="text-xl font-bold">{ strconv.Itoa(followers) }<br/>Followers</span>
+        <span class="text-xl font-bold">{ strconv.Itoa(following) }<br/>Following</span>
+    </div>
+}
+
+templ actions(user *models.Record, self bool, isFollowing bool) {
+    <div id="actions" class="card-actions mt-5" hx-swap-oob="true">
+        if self {
+            <a href="/settings" class="btn btn-outline grow">Settings</a>
+        } else {
+            if isFollowing {
+                <button class="btn btn-outline grow" hx-post={ util.Url("/user/%s/unfollow", user.Username()) }>Unfollow</button>
+            } else {
+                <button class="btn btn-outline grow" hx-post={ util.Url("/user/%s/follow", user.Username()) }>Follow</button>
+            }
+        }
+        <button class="btn btn-outline w-fit">Share</button>
+    </div>
 }
