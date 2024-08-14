@@ -1,10 +1,33 @@
 package settings
 
+import "fmt"
 import "cookbook/templates"
+import "cookbook/templates/user"
+import "github.com/pocketbase/pocketbase/models"
 
-templ SettingsPage() {
+templ SettingsPage(auth *models.Record) {
     @templates.AppPage("profile", "Settings") {
         @templates.Title("Settings")
-        Change the settings :D
+        <div class="flex flex-col items-center gap-3 px-5">
+            @user.Pfp(auth)
+            @UpdatingInput("Display Name", "name", auth.GetString("name"), "/profile")
+            @UpdatingInput("Username", "username", auth.Username(), "/profile")
+        </div>
     }
+}
+
+templ UpdatingInput(label string, name string, value string, update string) {
+    <form hx-post={ update } hx-swap="outerHTML" class="w-full">
+        <label class="form-control w-full" x-data={ fmt.Sprintf("{ init: '%s', value: '%s' }", value, value) }>
+            <div class="label label-text">{ label }</div>
+            <input @keyup.escape="value = init"
+            type="text"
+            placeholder={ label }
+            name={ name }
+            x-model="value"
+            class="input input-bordered w-full" />
+            <input type="submit" x-show="init != value" value="Save" />
+            <button x-show="init != value" @click="value = init">Cancel</button>
+        </label>
+    </form>
 }
