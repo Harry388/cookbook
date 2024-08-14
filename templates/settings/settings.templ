@@ -14,9 +14,7 @@ templ SettingsPage(auth *models.Record) {
                 <input type="file" class="hidden" name="avatar" 
                 hx-post="/avatar" 
                 hx-encoding="multipart/form-data" 
-                hx-indicator="#avatarloading"
                 @htmx:after-request="$refs.avatar.src += '?t=' + new Date().getTime()" />
-                <img src="/spinner.svg" class="htmx-indicator" id="avatarloading" />
             </label>
             @util.UpdatingInput("Display Name", "name", auth.GetString("name"), "/profile")
             @util.UpdatingInput("Username", "username", auth.Username(), "/profile")
