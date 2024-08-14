@@ -14,7 +14,7 @@ import (
 type updateProfile struct {
     Username string `form:"username"`
     Name string `form:"name"`
-    Bio string `form:"bio"`
+    Bio *string `form:"bio"`
 }
 
 func (h *handler) profilePage(c echo.Context) error {
@@ -56,7 +56,9 @@ func (h *handler) updateProfile(c echo.Context) error {
         return templates.Render(t, c)
     }
 
-    record.Set("bio", update.Bio)
+    if update.Bio != nil {
+        record.Set("bio", *update.Bio)
+    }
 
     if update.Name != "" {
         record.Set("name", update.Name)
