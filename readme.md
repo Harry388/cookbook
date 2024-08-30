@@ -1,5 +1,20 @@
-Docker is required to run this project.
-To run the development build of this project run the command:
-`docker compose up`
-On the first run the API container may attempt to migrate the database before it is initialised.
-If this error occurs, rerun the project.
+Culinary Social Media Website "CookBook"
+
+Main Branch =>
+  Repository submitted as a university project using rust PoemOpenAPI, SvelteKit, DUFS and MySQL
+  To run the dev version:
+  ```docker compose up```
+  To run prod version: (optimised builds and https)
+  ```docker compose -f docker-compose.yml -f docker-compose.prod.yml up```
+
+Golang branch =>
+  Ongoing rewrite to experiment with Golang, templ and htmx
+  Uses pocketbase for database and file storage
+  To setup dev version:
+  ```npm install```
+  Then
+  ```make```
+  Or for live reload with air
+  ```air```
+  Or to just build
+  ```make build```
